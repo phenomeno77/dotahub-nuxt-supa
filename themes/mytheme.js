@@ -1,5 +1,5 @@
-import { definePreset } from "@primevue/themes";
-import Aura from "@primevue/themes/aura";
+import { definePreset } from "@primeuix/themes";
+import Aura from "@primeuix/themes/aura";
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -21,4 +21,7 @@ const MyPreset = definePreset(Aura, {
 
 export default {
   preset: MyPreset,
+  options: {
+    darkModeSelector: false || "none",
+  },
 };

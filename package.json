@@ -10,14 +10,10 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxtjs/supabase": "^1.5.1",
-    "@nuxtjs/tailwindcss": "^7.0.0-beta.0",
     "@primeuix/themes": "^1.1.1",
     "@primevue/forms": "^4.3.5",
-    "@primevue/themes": "^4.3.5",
-    "@supabase/supabase-js": "^2.49.10",
-    "@vueuse/core": "^13.3.0",
-    "@vueuse/nuxt": "^13.3.0",
+    "@supabase/supabase-js": "^2.50.0",
+    "bootstrap": "^5.3.6",
     "nuxt": "^3.17.5",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.5",
@@ -25,9 +21,6 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@primevue/nuxt-module": "^4.3.5",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.4",
-    "tailwindcss": "^4.1.8"
+    "@primevue/nuxt-module": "^4.3.5"
   }
 }

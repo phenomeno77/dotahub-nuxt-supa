@@ -1,4 +1,9 @@
-<script setup lang="ts"></script>
+<script lang="ts" setup></script>
 <template>
-  <div>Test Hello</div>
+  <div>
+    test
+    <Button label="test" />
+  </div>
 </template>
+
+<style></style>
