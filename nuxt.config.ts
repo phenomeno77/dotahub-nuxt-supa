@@ -7,6 +7,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+    public: {
+      appName: process.env.NUXT_PUBLIC_APP_NAME || "Dotahub",
+    },
   },
 
   primevue: {

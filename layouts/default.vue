@@ -10,7 +10,7 @@
   <div class="container-fluid d-flex flex-column h-100">
     <header class="row">
       <div class="col-12 px-0 fixed-top" style="height: 7%">
-        <NavBarView />
+        <NavBar />
       </div>
     </header>
 
@@ -31,7 +31,7 @@
 
     <footer
       class="d-flex justify-content-end align-items-center fixed-bottom"
-      style="height: 3%"
+      style="height: 3%; background-color: var(--navmenubar-background)"
     >
       <p class="m-0 me-3">Powered by: Phenomeno</p>
     </footer>
@@ -42,11 +42,16 @@
 import { NuxtPage } from "#components";
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-// import NavBarView from '@/components/NavBarView.vue';
-// import PremiumPlan from '@/components/premium/PremiumPlan.vue';
-// import { useAuth } from '@/composables/useAuth';
-// import { useLoading } from '@/composables/useLoading';
-// import { usePremium } from '@/composables/usePremium';
+// import NavBarView from '~/components/NavBarView.vue';
+// import PremiumPlan from '~/components/premium/PremiumPlan.vue';
+// import { useAuth } from '~/composables/useAuth';
+// import { useLoading } from '~/composables/useLoading';
+// import { usePremium } from '~/composables/usePremium';
+
+const config = useRuntimeConfig();
+useHead({
+  title: config.public.appName,
+});
 
 const route = useRoute();
 // const loading = useLoading();
