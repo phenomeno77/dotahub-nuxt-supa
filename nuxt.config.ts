@@ -3,7 +3,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@primevue/nuxt-module", '@nuxtjs/supabase'],
   css: ["@/assets/main.css"],
-
+ supabase: {
+    redirect: false, 
+   
+  },
   runtimeConfig: {
     public: {
       appName: process.env.NUXT_PUBLIC_APP_NAME || "Dotahub",
