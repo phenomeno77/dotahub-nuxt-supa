@@ -1,12 +1,14 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: "auth",
-});
+  import AddUserForm from '~/components/admin/AddUserForm.vue';
+
+  const showDialog = ref(false)
+
 </script>
 <template>
   <div>
-    test
-    <Button label="test" />
+    <Button label="Add User" @click="showDialog = true" />
+
+    <AddUserForm v-model:showDialog="showDialog" />
   </div>
 </template>
 

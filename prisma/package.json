@@ -8,6 +8,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "devDependencies": {
     "@types/node": "^24.0.0",
     "prisma": "^6.9.0",
@@ -16,6 +17,5 @@
   },
   "dependencies": {
     "@prisma/client": "^6.9.0"
-  },
-  "description": ""
+  }
 }
