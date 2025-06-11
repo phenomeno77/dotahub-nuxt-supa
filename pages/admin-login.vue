@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AdminLoginForm from "~/components/admin-login/AdminLoginForm.vue";
+import AdminLoginForm from "~/components/admin/AdminLoginForm.vue";
 // import { useAdminAuth } from "~/composables/useAdminAuth";
 
 // const { login } = useAdminAuth();
