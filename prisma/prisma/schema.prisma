@@ -1,32 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-}
-
-model UserProfile {
-  id               String     @id @default(uuid()) @db.Uuid
-  username         String?    @db.VarChar
-  avatarUrl        String?    @db.VarChar
-  steamId          String?    @unique @db.VarChar
-  role             UserRole   @default(user)
-  userStatus       UserStatus @default(active)
-  isPremium        Boolean    @default(false)
-  premiumExpiresAt DateTime?  @db.Timestamptz(6)
-  postsToday       Int        @default(0)
-  commentsToday    Int        @default(0)
-  lastPostReset    DateTime   @default(now()) @db.Timestamptz(6)
-  lastCommentReset DateTime   @default(now()) @db.Timestamptz(6)
-  lastLoginAt      DateTime?  @db.Timestamptz(6)
-  isLoggedIn       Boolean    @default(false)
-  updatedAt        DateTime   @updatedAt
-  email            String?    @unique
-
-  @@map("user_profile")
 }
 
 enum UserRole {
@@ -45,7 +24,7 @@ enum Position {
   carry
   mid
   offlane
-  soft_support @map("soft support")
+  soft_support  @map("soft support")
   hard_support @map("hard support")
 }
 
@@ -58,4 +37,26 @@ enum Rank {
   Ancient
   Divine
   Immortal
+}
+
+
+model UserProfile {
+  id               String      @id @default(uuid()) @db.Uuid
+  username         String?     @db.VarChar
+  avatarUrl        String?     @db.VarChar
+  steamId          String?     @unique @db.VarChar
+  role             UserRole    @default(user)
+  userStatus       UserStatus  @default(active)
+  isPremium        Boolean     @default(false)
+  premiumExpiresAt DateTime?   @db.Timestamptz(6)
+  postsToday       Int         @default(0)
+  commentsToday    Int         @default(0)
+  lastPostReset    DateTime    @default(now()) @db.Timestamptz(6)
+  lastCommentReset DateTime    @default(now()) @db.Timestamptz(6)
+  lastLoginAt      DateTime?   @db.Timestamptz(6)
+  isLoggedIn       Boolean     @default(false)
+  updatedAt        DateTime    @updatedAt
+
+  @@map("user_profile")
+  
 }
