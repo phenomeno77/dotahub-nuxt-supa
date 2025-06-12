@@ -3,8 +3,17 @@ import AddUserForm from "~/components/admin/AddUserForm.vue";
 import { useRouter } from "vue-router";
 
 const showDialog = ref(false);
-const loading = useLoading();
 const router = useRouter();
+const currentUser = await useCurrentUser();
+const userState = useState("currentUser");
+
+const logout = async () => {
+  await $fetch("/api/logout", { method: "POST" });
+
+  userState.value = null;
+
+  await navigateTo("/", { replace: true });
+};
 
 useSeoMeta({
   title: "Dota 2 Party Finder - Connect with Ranked Players",
@@ -42,11 +51,15 @@ useHead({
     <div>
       <Button label="Add User" @click="showDialog = true" />
     </div>
-    <div class="mt-3">
+    <div v-if="!userState" class="mt-3">
       <Button
         label="Redirect to Admin Login"
         @click="router.push('/admin-login')"
       />
+    </div>
+
+    <div v-else class="mt-3">
+      <Button label="Logout" severity="danger" @click="logout()" />
     </div>
     <AddUserForm v-model:showDialog="showDialog" />
   </div>

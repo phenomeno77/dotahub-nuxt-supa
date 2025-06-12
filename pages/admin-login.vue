@@ -4,6 +4,10 @@ import notifications from "@/utils/notifications";
 import { errorMessage } from "~/constants/labels";
 import validator from "validator";
 
+definePageMeta({
+  middleware: "auth-admin-login",
+});
+
 const toast = useToast();
 const errors = ref<Record<string, string>>({});
 const router = useRouter();
@@ -25,6 +29,7 @@ const validateForm = (email: string, password: string) => {
 
 const handleLogin = async (loginData: { email: string; password: string }) => {
   loading.value = true;
+
   if (!validateForm(loginData.email, loginData.password)) {
     notifications(
       toast,
@@ -33,21 +38,14 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       errors.value.email || errors.value.password,
       3000
     );
-
-    setTimeout(() => {
-      loading.value = false;
-    }, 700);
-
+    loading.value = false;
     return;
   }
 
   try {
     const response = await $fetch("/api/admin/login", {
       method: "POST",
-      body: {
-        email: loginData.email,
-        password: loginData.password,
-      },
+      body: loginData,
     });
 
     if (response.success) {
@@ -55,6 +53,9 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
         access_token: response.access_token,
         refresh_token: response.refresh_token,
       });
+
+      const currentUser = useState("currentUser");
+      currentUser.value = response.user;
 
       router.push("/admin-dashboard");
     }

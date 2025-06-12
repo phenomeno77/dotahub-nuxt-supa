@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-// definePageMeta({
-//   middleware: "auth-admin",
-// });
+import type { UserProfile } from "~/types/userProfile";
 
-const user = useSupabaseUser();
+definePageMeta({
+  middleware: "auth-admin-dashboard",
+});
+
+const user = useState("currentUser");
 </script>
 
 <template>
   <div v-if="user">{{ user }}</div>
   <div>Hello admin!</div>
 </template>
-
-<style></style>

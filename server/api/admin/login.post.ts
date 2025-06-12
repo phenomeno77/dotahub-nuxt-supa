@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   ) {
     throw createError({
       statusCode: 403,
-      statusMessage: ErrorMessages.NO_VALID_ACCESS,
+      statusMessage: ErrorMessages.NO_PERMISSION,
     });
   }
 
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  await prisma.user_profile.update({
+  const updatedUser = await prisma.user_profile.update({
     where: { id: user.id },
     data: {
       lastLoginAt: new Date(),
@@ -53,6 +53,6 @@ export default defineEventHandler(async (event) => {
     success: true,
     access_token: data.session.access_token,
     refresh_token: data.session.refresh_token,
-    user,
+    user: updatedUser,
   };
 });

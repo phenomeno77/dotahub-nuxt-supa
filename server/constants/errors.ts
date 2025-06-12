@@ -4,7 +4,7 @@ export const ErrorMessages = {
   USERNAME_EXISTS: "Username already exists",
   EMAIL_EXISTS: "Email already exists",
   UNAUTHORIZED: "Unauthorized access",
-  NO_VALID_ACCESS: "You do not have access to this area",
+  NO_PERMISSION: "No permission to access to this area",
   NOT_FOUND: "Resource not found",
   INTERNAL_SERVER_ERROR: "Something went wrong, please try again later",
   INVALID_USERAME_OR_PASSWORD: "Username or Password is invalid",
