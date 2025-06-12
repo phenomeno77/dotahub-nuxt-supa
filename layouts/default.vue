@@ -1,10 +1,10 @@
 <template>
   <Toast />
   <ConfirmDialog />
-  <!-- <div v-if="loadingStore.isLoading" class="loading-overlay">
+  <div v-if="loading" class="loading-overlay">
     <ProgressSpinner />
   </div>
-
+  <!--
   <PremiumPlan v-if="premiumStore.showPremiumDialog" /> -->
 
   <div class="container-fluid d-flex flex-column h-100">
@@ -42,11 +42,7 @@
 import { NuxtPage } from "#components";
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-// import NavBarView from '~/components/NavBarView.vue';
-// import PremiumPlan from '~/components/premium/PremiumPlan.vue';
-// import { useAuth } from '~/composables/useAuth';
-// import { useLoading } from '~/composables/useLoading';
-// import { usePremium } from '~/composables/usePremium';
+import { useLoading } from "~/composables/useLoading";
 
 const config = useRuntimeConfig();
 useHead({
@@ -54,9 +50,7 @@ useHead({
 });
 
 const route = useRoute();
-// const loading = useLoading();
-// const auth = useAuth();
-// const premium = usePremium();
+const loading = useLoading();
 
 const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { UserRole } from "@prisma/client";
 import validator from "validator";
+import notifications from "~/utils/notifications";
 import { errorMessage, labels, buttons } from "~/constants/labels";
-import { UserRole } from "~/constants/enum";
 
 const showDialog = defineModel<boolean>("showDialog");
 const username = ref<string>("TestUser");
@@ -10,8 +11,10 @@ const password = ref<string>("Delinho01!");
 const repeatedPassword = ref<string>("Delinho01!");
 const errors = ref<Record<string, string>>({});
 const passwordErrors = ref<string[]>([]);
-const selectedRole = ref<UserRole | null>(null);
+const selectedRole = ref<UserRole | null>(UserRole.user);
 const roles = Object.values(UserRole);
+const toast = useToast();
+const loading = useLoading();
 
 const onHideClearUserData = () => {
   username.value = "";
@@ -19,7 +22,7 @@ const onHideClearUserData = () => {
   password.value = "";
   repeatedPassword.value = "";
   errors.value = {};
-  selectedRole.value = null;
+  selectedRole.value = UserRole.user;
 };
 
 // Validate password
@@ -57,6 +60,9 @@ const validateForm = () => {
   if (!validator.isEmail(email.value))
     errors.value.email = errorMessage.VALID_EMAIL;
   validatePassword();
+  if (!selectedRole.value) {
+    errors.value.role = errorMessage.ROLE_REQUIRED;
+  }
 
   if (!validateRepeatedPassword()) {
     errors.value.repeatedPassword = errorMessage.PASSWORD_NOT_MATCH;
@@ -67,6 +73,8 @@ const validateForm = () => {
 
 // Emit form data when submitted
 const submitForm = async () => {
+  loading.value = true;
+
   if (
     !selectedRole.value ||
     !Object.values(UserRole).includes(selectedRole.value)
@@ -86,10 +94,14 @@ const submitForm = async () => {
         role: selectedRole.value as UserRole,
       },
     });
-
-    console.log("User created:", response.user);
-  } catch (error) {
+    if (response.success) {
+      notifications(toast, "success", "User Created Successfully!");
+      showDialog.value = false;
+    }
+  } catch (error: any) {
     console.error("Failed to create user:", error);
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -135,6 +147,14 @@ const submitForm = async () => {
         :options="roles"
         :placeholder="labels.SELECT_ROLE"
       />
+      <Message
+        v-if="errors.role"
+        severity="error"
+        variant="simple"
+        size="small"
+      >
+        {{ errors.role }}
+      </Message>
     </div>
 
     <!-- Password -->

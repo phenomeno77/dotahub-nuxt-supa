@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -25,6 +24,7 @@ model user_profile {
   lastLoginAt      DateTime?  @db.Timestamptz(6)
   isLoggedIn       Boolean    @default(false)
   updatedAt        DateTime?  @db.Timestamptz(6)
+  email            String?    @unique
 }
 
 enum Position {

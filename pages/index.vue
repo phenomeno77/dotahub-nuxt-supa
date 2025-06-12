@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import AddUserForm from "~/components/admin/AddUserForm.vue";
+import { useRouter } from "vue-router";
 
 const showDialog = ref(false);
+const loading = useLoading();
+const router = useRouter();
 
 useSeoMeta({
   title: "Dota 2 Party Finder - Connect with Ranked Players",
@@ -29,15 +32,22 @@ useHead({
     {
       rel: "icon",
       type: "image/png",
-      href: "/favicon.png",
+      href: "",
     },
   ],
 });
 </script>
 <template>
   <div>
-    <Button label="Add User" @click="showDialog = true" />
-
+    <div>
+      <Button label="Add User" @click="showDialog = true" />
+    </div>
+    <div class="mt-3">
+      <Button
+        label="Redirect to Admin Login"
+        @click="router.push('/admin-login')"
+      />
+    </div>
     <AddUserForm v-model:showDialog="showDialog" />
   </div>
 </template>

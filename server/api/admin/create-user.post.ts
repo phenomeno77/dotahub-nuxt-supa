@@ -1,6 +1,6 @@
 // server/api/admin/create-user.post.ts
-import { supabaseAdmin } from "~/server/utils/supabaseAdmin";
-import prisma from "~/server/utils/prisma";
+import { supabaseClient } from "~/server/utils/supabaseClient";
+import prisma from "~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -14,9 +14,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+  const { data, error } = await supabaseClient.auth.admin.createUser({
     email,
     password,
+    email_confirm: true,
   });
 
   if (error || !data?.user) {
@@ -32,6 +33,7 @@ export default defineEventHandler(async (event) => {
       id: data.user.id,
       username,
       role,
+      email,
     },
   });
 

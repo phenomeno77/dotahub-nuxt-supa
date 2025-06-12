@@ -61,6 +61,7 @@ export const errorMessage = {
   FIRST_NAME_REQUIRED: "First name is required",
   LAST_NAME_REQUIRED: "Last name is required",
   USERNAME_REQUIRED: "Username is required",
+  ROLE_REQUIRED: "Role is required",
   USERNAME_PASSWORD_REQUIRED: "Username and password is required",
   COUNTRY_REQUIRED: "Country is required",
   VALID_EMAIL: "Enter a valid email address 'example@mail.com'",
