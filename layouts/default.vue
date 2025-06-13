@@ -20,11 +20,13 @@
     >
       <div class="container-fluid h-100">
         <div class="row justify-content-center h-100">
-          <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
-          <div :class="layoutColumns.center">
-            <NuxtPage />
-          </div>
-          <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
+          <ClientOnly>
+            <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
+            <div :class="layoutColumns.center">
+              <NuxtPage />
+            </div>
+            <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
+          </ClientOnly>
         </div>
       </div>
     </main>
