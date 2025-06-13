@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import type { UserProfile } from "~/types/userProfile";
-
 definePageMeta({
   middleware: "auth-admin-dashboard",
 });
 
-const user = useState("currentUser");
+const user = await useCurrentUser();
 </script>
 
 <template>

@@ -1,17 +1,24 @@
 <script lang="ts" setup>
 import AddUserForm from "~/components/admin/AddUserForm.vue";
-import { useRouter } from "vue-router";
 
 const showDialog = ref(false);
-const router = useRouter();
-const currentUser = await useCurrentUser();
 const userState = useState("currentUser");
+const supabase = useSupabaseClient();
 
 const logout = async () => {
+  // 1. Call server first while the token is still valid
   await $fetch("/api/logout", { method: "POST" });
 
+  // 2. Now sign out the client
+  await supabase.auth.signOut();
+
+  // 3. Clear state
+  const { clear } = useUserSession();
+  clear();
+  const userState = useState("currentUser");
   userState.value = null;
 
+  // 4. Navigate away
   await navigateTo("/", { replace: true });
 };
 
@@ -54,7 +61,7 @@ useHead({
     <div v-if="!userState" class="mt-3">
       <Button
         label="Redirect to Admin Login"
-        @click="router.push('/admin-login')"
+        @click="navigateTo('/admin-login')"
       />
     </div>
 

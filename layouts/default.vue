@@ -1,7 +1,7 @@
 <template>
   <Toast />
   <ConfirmDialog />
-  <div v-if="loading" class="loading-overlay">
+  <div v-show="loading" class="loading-overlay">
     <ProgressSpinner />
   </div>
   <!--

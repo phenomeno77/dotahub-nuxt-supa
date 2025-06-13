@@ -49,6 +49,14 @@ export default defineEventHandler(async (event) => {
     },
   });
 
+  await replaceUserSession(event, {
+    user: {
+      id: updatedUser.id,
+      role: updatedUser.role,
+    },
+    loggedInAt: new Date(),
+  });
+
   return {
     success: true,
     access_token: data.session.access_token,

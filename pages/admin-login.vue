@@ -49,6 +49,9 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
     });
 
     if (response.success) {
+      const { fetch } = useUserSession();
+      await fetch();
+
       await supabase.auth.setSession({
         access_token: response.access_token,
         refresh_token: response.refresh_token,
@@ -57,7 +60,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       const currentUser = useState("currentUser");
       currentUser.value = response.user;
 
-      router.push("/admin-dashboard");
+      navigateTo("/admin-dashboard");
     }
   } catch (error: any) {
     notifications(toast, "warn", "Login failed", error.statusMessage, 3000);

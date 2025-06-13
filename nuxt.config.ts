@@ -1,7 +1,11 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
-  modules: ["@primevue/nuxt-module", "@nuxtjs/supabase"],
+  modules: [
+    "@primevue/nuxt-module",
+    "@nuxtjs/supabase",
+    "nuxt-auth-utils",
+  ],
   css: ["@/assets/main.css"],
 
   supabase: {

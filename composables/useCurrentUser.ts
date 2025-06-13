@@ -1,18 +1,16 @@
-import type { UserProfile } from "~/types/userProfile";
+import type { user_profile } from "@prisma/client";
 
-// Correctly typed composable
 export const useCurrentUser = async () => {
-  const user = useState<UserProfile | null>("currentUser", () => null);
+  const user = useState<user_profile | null>("currentUser", () => null);
 
   if (!user.value) {
-    const authUser = useSupabaseUser();
-    if (!authUser.value) return null;
+    const { loggedIn } = useUserSession();
 
-    const { data, error } = await useFetch<UserProfile>("/api/user/profile", {
-      query: { id: authUser.value.id },
-    });
+    if (!loggedIn.value) return null;
 
-    if (!error.value) {
+    const { data, error } = await useFetch<user_profile>("/api/auth/me");
+
+    if (!error.value && data.value) {
       user.value = data.value;
     }
   }

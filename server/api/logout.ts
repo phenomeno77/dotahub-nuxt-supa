@@ -1,25 +1,22 @@
-import { supabaseClient } from "~/server/utils/supabaseClient";
+import { serverSupabaseClient } from "#supabase/server";
 import prisma from "~/lib/prisma";
-import { ErrorMessages } from "../constants/errors";
 
 export default defineEventHandler(async (event) => {
-  const { data, error } = await supabaseClient.auth.getUser();
+  const supabase = await serverSupabaseClient(event);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (error) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.INTERNAL_SERVER_ERROR,
-    });
+  if (!user) {
+    return { success: true };
   }
 
   await prisma.user_profile.update({
-    where: { id: data.user.id },
-    data: {
-      isLoggedIn: false,
-    },
+    where: { id: user.id },
+    data: { isLoggedIn: false },
   });
 
-  await supabaseClient.auth.signOut();
+  await clearUserSession(event);
 
   return { success: true };
 });
