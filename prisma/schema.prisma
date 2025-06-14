@@ -21,9 +21,6 @@ model user_profile {
   commentsToday    Int        @default(0)
   lastPostReset    DateTime   @default(now()) @db.Timestamptz(6)
   lastCommentReset DateTime   @default(now()) @db.Timestamptz(6)
-  lastLoginAt      DateTime?  @db.Timestamptz(6)
-  isLoggedIn       Boolean    @default(false)
-  updatedAt        DateTime?  @db.Timestamptz(6)
   email            String?    @unique
 }
 

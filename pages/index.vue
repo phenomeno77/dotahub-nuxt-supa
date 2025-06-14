@@ -2,24 +2,21 @@
 import AddUserForm from "~/components/admin/AddUserForm.vue";
 
 const showDialog = ref(false);
-const userState = useState("currentUser");
 const supabase = useSupabaseClient();
+const { loggedIn } = useUserSession();
 
 const logout = async () => {
-  // 1. Call server first while the token is still valid
-  await $fetch("/api/logout", { method: "POST" });
+  try {
+    await $fetch("/api/user/logout", { method: "POST" });
+    await supabase.auth.signOut();
+  } catch (e) {
+    console.error("Logout error", e);
+  } finally {
+    const { clear } = useUserSession();
+    clear();
 
-  // 2. Now sign out the client
-  await supabase.auth.signOut();
-
-  // 3. Clear state
-  const { clear } = useUserSession();
-  clear();
-  const userState = useState("currentUser");
-  userState.value = null;
-
-  // 4. Navigate away
-  await navigateTo("/", { replace: true });
+    await navigateTo("/", { replace: true });
+  }
 };
 
 useSeoMeta({
@@ -58,7 +55,7 @@ useHead({
     <div>
       <Button label="Add User" @click="showDialog = true" />
     </div>
-    <div v-if="!userState" class="mt-3">
+    <div v-if="!loggedIn" class="mt-3">
       <Button
         label="Redirect to Admin Login"
         @click="navigateTo('/admin-login')"

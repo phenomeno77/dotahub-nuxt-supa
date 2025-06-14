@@ -23,7 +23,7 @@
           <ClientOnly>
             <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
             <div :class="layoutColumns.center">
-              <NuxtPage />
+              <slot />
             </div>
             <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
           </ClientOnly>

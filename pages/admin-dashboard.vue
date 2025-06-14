@@ -3,7 +3,7 @@ definePageMeta({
   middleware: "auth-admin-dashboard",
 });
 
-const user = await useCurrentUser();
+const user = useState("currentUser");
 </script>
 
 <template>

@@ -85,7 +85,7 @@ const submitForm = async () => {
   if (!validateForm()) return;
 
   try {
-    const response = await $fetch("/api/admin/create-user", {
+    const response = await $fetch("/api/auth/admin/create-user", {
       method: "POST",
       body: {
         username: username.value.trim(),

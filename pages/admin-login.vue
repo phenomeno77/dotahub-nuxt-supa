@@ -10,9 +10,7 @@ definePageMeta({
 
 const toast = useToast();
 const errors = ref<Record<string, string>>({});
-const router = useRouter();
 const loading = useLoading();
-const supabase = useSupabaseClient();
 
 const validateForm = (email: string, password: string) => {
   errors.value = {};
@@ -43,25 +41,15 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
   }
 
   try {
-    const response = await $fetch("/api/admin/login", {
+    const response = await $fetch("/api/auth/admin/login", {
       method: "POST",
       body: loginData,
     });
 
-    if (response.success) {
-      const { fetch } = useUserSession();
-      await fetch();
+    const { fetch } = useUserSession();
+    await fetch();
 
-      await supabase.auth.setSession({
-        access_token: response.access_token,
-        refresh_token: response.refresh_token,
-      });
-
-      const currentUser = useState("currentUser");
-      currentUser.value = response.user;
-
-      navigateTo("/admin-dashboard");
-    }
+    navigateTo(response.redirectTo);
   } catch (error: any) {
     notifications(toast, "warn", "Login failed", error.statusMessage, 3000);
   } finally {
