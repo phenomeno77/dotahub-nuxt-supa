@@ -36,6 +36,7 @@ const submitForm = () => {
     );
     return;
   }
+
   emit("submit", {
     email: email.value,
     password: password.value,

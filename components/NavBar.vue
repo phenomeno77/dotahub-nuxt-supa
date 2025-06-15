@@ -2,9 +2,15 @@
 import { NuxtLink } from "#components";
 import steamLogo from "~/assets/steam.svg";
 import { labels, buttons } from "~/constants/labels";
+import ProfileAvatar from "~/components/ProfileAvatar.vue";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
+const { loggedIn } = useUserSession();
+
+const handleLoginSteam = () => {
+  // window.location.href = '/auth/steam';
+};
 </script>
 
 <template>
@@ -37,15 +43,25 @@ const appName = config.public.appName;
 
       <template #end>
         <div class="d-flex align-items-center">
-          <Button severity="secondary" variant="outlined" class="ms-2">
+          <Button
+            v-if="!loggedIn"
+            severity="secondary"
+            variant="outlined"
+            class="ms-2"
+          >
             <img
               :src="steamLogo"
               alt="Steam Logo"
               class="me-2"
               style="width: 24px; height: 24px"
+              @click="handleLoginSteam"
             />
             {{ buttons.SIGN_IN }}
           </Button>
+
+          <!-- <div v-else class="d-flex align-items-center gap-3">
+            <ProfileAvatar />
+          </div> -->
         </div>
       </template>
     </Menubar>

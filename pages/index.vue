@@ -2,22 +2,7 @@
 import AddUserForm from "~/components/admin/AddUserForm.vue";
 
 const showDialog = ref(false);
-const supabase = useSupabaseClient();
 const { loggedIn } = useUserSession();
-
-const logout = async () => {
-  try {
-    await $fetch("/api/user/logout", { method: "POST" });
-    await supabase.auth.signOut();
-  } catch (e) {
-    console.error("Logout error", e);
-  } finally {
-    const { clear } = useUserSession();
-    clear();
-
-    await navigateTo("/", { replace: true });
-  }
-};
 
 useSeoMeta({
   title: "Dota 2 Party Finder - Connect with Ranked Players",
@@ -60,10 +45,6 @@ useHead({
         label="Redirect to Admin Login"
         @click="navigateTo('/admin-login')"
       />
-    </div>
-
-    <div v-else class="mt-3">
-      <Button label="Logout" severity="danger" @click="logout()" />
     </div>
     <AddUserForm v-model:showDialog="showDialog" />
   </div>

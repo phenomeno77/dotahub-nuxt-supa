@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     "@primevue/nuxt-module",
     "@nuxtjs/supabase",
     "nuxt-auth-utils",
+    "@pinia/nuxt",
   ],
   css: ["@/assets/main.css"],
 

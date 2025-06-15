@@ -1,12 +1,14 @@
 <script lang="ts" setup>
-definePageMeta({
-  middleware: "auth-admin-dashboard",
-});
+import { useAuthStore } from "~/stores/auth";
 
-const user = useState("currentUser");
+// definePageMeta({
+//   middleware: "auth-admin-dashboard",
+// });
+
+const authStore = useAuthStore();
 </script>
 
 <template>
-  <div v-if="user">{{ user }}</div>
+  <div>{{ authStore.userRole }}</div>
   <div>Hello admin!</div>
 </template>

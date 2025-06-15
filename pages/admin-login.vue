@@ -3,6 +3,7 @@ import AdminLoginForm from "~/components/admin/AdminLoginForm.vue";
 import notifications from "@/utils/notifications";
 import { errorMessage } from "~/constants/labels";
 import validator from "validator";
+import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   middleware: "auth-admin-login",
@@ -11,6 +12,7 @@ definePageMeta({
 const toast = useToast();
 const errors = ref<Record<string, string>>({});
 const loading = useLoading();
+const authStore = useAuthStore();
 
 const validateForm = (email: string, password: string) => {
   errors.value = {};
@@ -41,7 +43,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
   }
 
   try {
-    const response = await $fetch("/api/auth/admin/login", {
+    const { user, redirectTo } = await $fetch("/api/auth/admin/login", {
       method: "POST",
       body: loginData,
     });
@@ -49,7 +51,15 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
     const { fetch } = useUserSession();
     await fetch();
 
-    navigateTo(response.redirectTo);
+    authStore.login(
+      user.role,
+      user.username,
+      user.avatarUrl,
+      user.isPremium,
+      user.id
+    );
+
+    navigateTo(redirectTo);
   } catch (error: any) {
     notifications(toast, "warn", "Login failed", error.statusMessage, 3000);
   } finally {

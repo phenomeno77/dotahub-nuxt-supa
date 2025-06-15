@@ -1,9 +1,10 @@
 import { UserRole } from "@prisma/client";
+import { useAuthStore } from "~/stores/auth";
 
 export default defineNuxtRouteMiddleware(async () => {
-  const user = await useCurrentUser();
+  const authStore = useAuthStore();
 
-  if (!user || user.role !== UserRole.admin) {
+  if (authStore.userRole !== UserRole.admin) {
     return navigateTo("/");
   }
 });
