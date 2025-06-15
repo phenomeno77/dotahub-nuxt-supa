@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "nuxt-auth-utils",
     "@pinia/nuxt",
+    "pinia-plugin-persistedstate/nuxt",
   ],
   css: ["@/assets/main.css"],
 

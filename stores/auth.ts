@@ -2,8 +2,6 @@
 import type { UserRole } from "@prisma/client";
 import { defineStore } from "pinia";
 
-const session = useUserSession();
-
 interface AuthState {
   userId: string | null;
   userRole: UserRole | null;
@@ -37,6 +35,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     logout() {
+      this.$reset();
       this.userRole = null;
       this.username = "";
       this.avatarUrl = null;
@@ -72,4 +71,5 @@ export const useAuthStore = defineStore("auth", {
     //   }
     // },
   },
+  persist: true,
 });

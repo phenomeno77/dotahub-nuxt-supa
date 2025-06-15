@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { NuxtLink } from "#components";
 import steamLogo from "~/assets/steam.svg";
-import { labels, buttons } from "~/constants/labels";
-import ProfileAvatar from "~/components/ProfileAvatar.vue";
+import { buttons } from "~/constants/labels";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
@@ -59,9 +58,9 @@ const handleLoginSteam = () => {
             {{ buttons.SIGN_IN }}
           </Button>
 
-          <!-- <div v-else class="d-flex align-items-center gap-3">
+          <div v-else class="d-flex align-items-center gap-3">
             <ProfileAvatar />
-          </div> -->
+          </div>
         </div>
       </template>
     </Menubar>

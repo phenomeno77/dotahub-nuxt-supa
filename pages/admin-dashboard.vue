@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { useAuthStore } from "~/stores/auth";
 
-// definePageMeta({
-//   middleware: "auth-admin-dashboard",
-// });
+definePageMeta({
+  middleware: "auth-admin-dashboard",
+});
 
 const authStore = useAuthStore();
 </script>

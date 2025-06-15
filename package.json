@@ -21,6 +21,7 @@
     "bootstrap": "^5.3.6",
     "nuxt": "^3.17.5",
     "nuxt-auth-utils": "^0.5.20",
+    "pinia-plugin-persistedstate": "^4.3.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.5",
     "validator": "^13.15.15",

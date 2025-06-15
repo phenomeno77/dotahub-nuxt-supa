@@ -1,20 +1,17 @@
 <script lang="ts" setup>
 import { buttons } from "~/constants/labels";
 import { useRouter } from "vue-router";
-import type { user_profile } from "@prisma/client";
 
 const profileMenu = ref();
 const { user, loggedIn } = useUserSession();
 const router = useRouter();
 const supabase = useSupabaseClient();
-await useCurrentUser();
+const authStore = useAuthStore();
 
-const currentUser = useState<user_profile | null>("currentUser");
-
-const avatarImage = computed(() => currentUser.value?.avatarUrl ?? undefined);
+const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 const avatarLabel = computed(() =>
-  !currentUser.value?.avatarUrl && currentUser.value?.username
-    ? currentUser.value.username.charAt(0).toUpperCase()
+  !authStore?.avatarUrl && authStore?.username
+    ? authStore.username.charAt(0).toUpperCase()
     : ""
 );
 
@@ -27,6 +24,7 @@ const handleLogout = async () => {
   } finally {
     const { clear } = useUserSession();
     clear();
+    authStore.logout();
 
     await navigateTo("/", { replace: true });
   }
