@@ -1,3 +1,5 @@
+import { defineNuxtConfig } from "nuxt/config";
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
@@ -8,7 +10,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
   ],
-  css: ["@/assets/main.css"],
+  css: ["@/assets/main.css", "primeicons/primeicons.css"],
 
   supabase: {
     redirect: false,

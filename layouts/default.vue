@@ -1,50 +1,6 @@
-<template>
-  <Toast />
-  <ConfirmDialog />
-  <div v-show="loading" class="loading-overlay">
-    <ProgressSpinner />
-  </div>
-  <!--
-  <PremiumPlan v-if="premiumStore.showPremiumDialog" /> -->
-
-  <div class="container-fluid d-flex flex-column h-100">
-    <header class="row">
-      <div class="col-12 px-0 fixed-top" style="height: 7%">
-        <NavBar />
-      </div>
-    </header>
-
-    <main
-      class="position-absolute start-0 end-0"
-      style="top: 7%; bottom: 3%; overflow-y: auto"
-    >
-      <div class="container-fluid h-100">
-        <div class="row justify-content-center h-100">
-          <ClientOnly>
-            <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
-            <div :class="layoutColumns.center">
-              <slot />
-            </div>
-            <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
-          </ClientOnly>
-        </div>
-      </div>
-    </main>
-
-    <footer
-      class="d-flex justify-content-end align-items-center fixed-bottom"
-      style="height: 3%; background-color: var(--navmenubar-background)"
-    >
-      <p class="m-0 me-3">Powered by: Phenomeno</p>
-    </footer>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { NuxtPage } from "#components";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { useLoading } from "~/composables/useLoading";
 
 const config = useRuntimeConfig();
 useHead({
@@ -52,7 +8,7 @@ useHead({
 });
 
 const route = useRoute();
-const loading = useLoading();
+const loading = useLoadingStore();
 
 const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");
@@ -85,3 +41,43 @@ const layoutColumns = computed(() => {
 //   match.addEventListener('change', e => updateDarkMode(e.matches));
 // });
 </script>
+
+<template>
+  <Toast />
+  <ConfirmDialog />
+  <div v-show="loading.isLoading" class="loading-overlay">
+    <ProgressSpinner />
+  </div>
+  <!--
+  <PremiumPlan v-if="premiumStore.showPremiumDialog" /> -->
+
+  <div class="container-fluid d-flex flex-column h-100">
+    <header class="row">
+      <div class="col-12 px-0 fixed-top" style="height: 7%">
+        <NavBar />
+      </div>
+    </header>
+
+    <main
+      class="position-absolute start-0 end-0"
+      style="top: 7%; bottom: 3%; overflow-y: auto"
+    >
+      <div class="container-fluid h-100">
+        <div class="row justify-content-center h-100">
+          <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
+          <div :class="layoutColumns.center">
+            <slot />
+          </div>
+          <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="d-flex justify-content-end align-items-center fixed-bottom"
+      style="height: 3%; background-color: var(--navmenubar-background)"
+    >
+      <p class="m-0 me-3">Powered by: Phenomeno</p>
+    </footer>
+  </div>
+</template>

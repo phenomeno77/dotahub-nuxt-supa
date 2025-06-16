@@ -9,6 +9,8 @@ const authStore = useAuthStore();
 </script>
 
 <template>
-  <div>{{ authStore.userRole }}</div>
-  <div>Hello admin!</div>
+  <div>
+    <div>{{ authStore.userRole }}</div>
+    <div>Hello admin!</div>
+  </div>
 </template>

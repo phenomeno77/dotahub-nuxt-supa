@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AdminLoginForm from "~/components/admin/AdminLoginForm.vue";
+import AdminLoginForm from "~/components/AdminLoginForm.vue";
 import notifications from "@/utils/notifications";
 import { errorMessage } from "~/constants/labels";
 import validator from "validator";
@@ -11,7 +11,7 @@ definePageMeta({
 
 const toast = useToast();
 const errors = ref<Record<string, string>>({});
-const loading = useLoading();
+const loading = useLoadingStore();
 const authStore = useAuthStore();
 
 const validateForm = (email: string, password: string) => {
@@ -28,7 +28,7 @@ const validateForm = (email: string, password: string) => {
 };
 
 const handleLogin = async (loginData: { email: string; password: string }) => {
-  loading.value = true;
+  loading.startLoading();
 
   if (!validateForm(loginData.email, loginData.password)) {
     notifications(
@@ -38,7 +38,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       errors.value.email || errors.value.password,
       3000
     );
-    loading.value = false;
+    loading.stopLoading();
     return;
   }
 
@@ -64,7 +64,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
     notifications(toast, "warn", "Login failed", error.statusMessage, 3000);
   } finally {
     setTimeout(() => {
-      loading.value = false;
+      loading.stopLoading();
     }, 700);
   }
 };

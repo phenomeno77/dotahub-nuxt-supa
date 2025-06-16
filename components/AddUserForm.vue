@@ -14,7 +14,7 @@ const passwordErrors = ref<string[]>([]);
 const selectedRole = ref<UserRole | null>(UserRole.user);
 const roles = Object.values(UserRole);
 const toast = useToast();
-const loading = useLoading();
+const loading = useLoadingStore();
 
 const onHideClearUserData = () => {
   username.value = "";
@@ -73,7 +73,7 @@ const validateForm = () => {
 
 // Emit form data when submitted
 const submitForm = async () => {
-  loading.value = true;
+  loading.startLoading();
 
   if (
     !selectedRole.value ||
@@ -101,7 +101,7 @@ const submitForm = async () => {
   } catch (error: any) {
     console.error("Failed to create user:", error);
   } finally {
-    loading.value = false;
+    loading.stopLoading();
   }
 };
 </script>

@@ -113,7 +113,7 @@ async function getCurrentUser(event: H3Event<Request>) {
   }
 
   const result = await prisma.user_profile.findUnique({
-    where: { id: (session.user as { id: string }).id },
+    where: { id: session.user.id },
   });
 
   return result;

@@ -2,10 +2,11 @@
 import { buttons } from "~/constants/labels";
 import { useRouter } from "vue-router";
 
+const emits = defineEmits(["logout"]);
+
 const profileMenu = ref();
-const { user, loggedIn } = useUserSession();
+const { loggedIn } = useUserSession();
 const router = useRouter();
-const supabase = useSupabaseClient();
 const authStore = useAuthStore();
 
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
@@ -14,21 +15,6 @@ const avatarLabel = computed(() =>
     ? authStore.username.charAt(0).toUpperCase()
     : ""
 );
-
-const handleLogout = async () => {
-  try {
-    await $fetch("/api/user/logout", { method: "POST" });
-    await supabase.auth.signOut();
-  } catch (e) {
-    console.error("Logout error", e);
-  } finally {
-    const { clear } = useUserSession();
-    clear();
-    authStore.logout();
-
-    await navigateTo("/", { replace: true });
-  }
-};
 
 const toggleProfile = (event: any) => {
   profileMenu.value.toggle(event);
@@ -51,7 +37,7 @@ const profileMenuItems = computed(() => {
     menu.push({
       label: buttons.LOGOUT,
       icon: "pi pi-sign-out",
-      command: () => handleLogout(),
+      command: () => emits("logout"),
     });
   }
 

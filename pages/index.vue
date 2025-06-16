@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import AddUserForm from "~/components/admin/AddUserForm.vue";
-
 const showDialog = ref(false);
 const { loggedIn } = useUserSession();
 
