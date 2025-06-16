@@ -4,11 +4,13 @@ import validator from "validator";
 import notifications from "~/utils/notifications";
 import { errorMessage, labels, buttons } from "~/constants/labels";
 
+const emits = defineEmits(["update-table"]);
+
 const showDialog = defineModel<boolean>("showDialog");
-const username = ref<string>("TestUser");
-const email = ref<string>("testUser@mail.com");
-const password = ref<string>("Delinho01!");
-const repeatedPassword = ref<string>("Delinho01!");
+const username = ref<string>("");
+const email = ref<string>("");
+const password = ref<string>("");
+const repeatedPassword = ref<string>("");
 const errors = ref<Record<string, string>>({});
 const passwordErrors = ref<string[]>([]);
 const selectedRole = ref<UserRole | null>(UserRole.user);
@@ -73,8 +75,6 @@ const validateForm = () => {
 
 // Emit form data when submitted
 const submitForm = async () => {
-  loading.startLoading();
-
   if (
     !selectedRole.value ||
     !Object.values(UserRole).includes(selectedRole.value)
@@ -85,6 +85,8 @@ const submitForm = async () => {
   if (!validateForm()) return;
 
   try {
+    loading.startLoading();
+
     const response = await $fetch("/api/auth/admin/create-user", {
       method: "POST",
       body: {
@@ -97,9 +99,11 @@ const submitForm = async () => {
     if (response.success) {
       notifications(toast, "success", "User Created Successfully!");
       showDialog.value = false;
+      emits("update-table");
     }
   } catch (error: any) {
-    console.error("Failed to create user:", error);
+    const message = error?.statusMessage;
+    notifications(toast, "error", message);
   } finally {
     loading.stopLoading();
   }

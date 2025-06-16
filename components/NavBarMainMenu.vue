@@ -15,7 +15,7 @@ const mainMenuItems = computed(() => {
 
   if (isAdmin.value) {
     menu.push({
-      label: buttons.USER_MANAGEMENT,
+      label: buttons.ADMIN_DASHBOARD,
       icon: "pi pi-users",
       command: () => navigateTo("/admin-dashboard"),
     });

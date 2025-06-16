@@ -35,16 +35,12 @@ useHead({
 </script>
 <template>
   <div>
-    <div>
-      <Button label="Add User" @click="showDialog = true" />
-    </div>
     <div v-if="!loggedIn" class="mt-3">
       <Button
         label="Redirect to Admin Login"
         @click="navigateTo('/admin-login')"
       />
     </div>
-    <AddUserForm v-model:showDialog="showDialog" />
   </div>
 </template>
 

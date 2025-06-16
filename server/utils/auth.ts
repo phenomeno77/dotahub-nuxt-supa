@@ -1,9 +1,9 @@
-import { user_profile, UserRole, UserStatus } from "@prisma/client";
+import { UserProfile, UserRole, UserStatus } from "@prisma/client";
 import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/errors";
 
-async function setSession(event: H3Event<Request>, user: user_profile) {
+async function setSession(event: H3Event<Request>, user: UserProfile) {
   await replaceUserSession(event, {
     user: {
       id: user.id,
@@ -25,7 +25,7 @@ async function adminLogin(
     });
   }
 
-  const foundUser = await prisma.user_profile.findUnique({
+  const foundUser = await prisma.userProfile.findUnique({
     where: { email: email },
   });
 
@@ -65,7 +65,7 @@ async function createNewUser(
 
   if (!isAdmin) {
     throw createError({
-      statusCode: 401,
+      statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
@@ -89,11 +89,11 @@ async function createNewUser(
     console.error("Supabase error:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to create Supabase user",
+      statusMessage: error?.message,
     });
   }
 
-  const user = await prisma.user_profile.create({
+  const user = await prisma.userProfile.create({
     data: {
       id: data.user.id,
       username,
@@ -112,7 +112,7 @@ async function getCurrentUser(event: H3Event<Request>) {
     return null;
   }
 
-  const result = await prisma.user_profile.findUnique({
+  const result = await prisma.userProfile.findUnique({
     where: { id: session.user.id },
   });
 
@@ -135,10 +135,30 @@ async function isAdmin(event: H3Event<Request>) {
   return false;
 }
 
+async function getUsers(event: H3Event<Request>) {
+  const isAdmin = await auth.isAdmin(event);
+
+  if (!isAdmin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const users = await prisma.userProfile.findMany({
+    include: {
+      banHistory: true,
+    },
+  });
+
+  return users;
+}
+
 export default {
   setSession,
   currentUser: getCurrentUser,
   adminLogin,
   isAdmin,
   createNewUser,
+  getUsers,
 };

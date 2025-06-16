@@ -1,12 +1,20 @@
 export default defineEventHandler(async (event) => {
-  await requireUserLoggedIn(event);
+  try {
+    await requireUserLoggedIn(event);
+    const body = await readBody(event);
 
-  const body = await readBody(event);
+    const user = await auth.createNewUser(event, body);
 
-  const user = await auth.createNewUser(event, body);
+    return {
+      success: true,
+      user,
+    };
+  } catch (err: any) {
+    console.log("supabase error!!!!!!!", err);
 
-  return {
-    success: true,
-    user,
-  };
+    throw createError({
+      statusCode: 401,
+      statusMessage: err.statusMessage,
+    });
+  }
 });
