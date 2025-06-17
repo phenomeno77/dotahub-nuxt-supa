@@ -1,10 +1,6 @@
 export interface UpdateUser {
-  id?: number;
-  firstName?: string;
-  lastName?: string;
+  id?: string;
   username?: string;
-  email?: string;
-  password?: string;
   role?: string;
   userStatus?: string;
   isLoggedIn?: boolean;

@@ -2,6 +2,7 @@ import { UserProfile, UserRole, UserStatus } from "@prisma/client";
 import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/errors";
+import { getBanExpiration } from "./banUtills";
 
 async function setSession(event: H3Event<Request>, user: UserProfile) {
   await replaceUserSession(event, {
@@ -105,6 +106,78 @@ async function createNewUser(
   return user;
 }
 
+async function updateUser(
+  event: H3Event<Request>,
+  userData: {
+    id: string;
+    username: string;
+    userStatus: UserStatus;
+    isPremium: boolean;
+    banReason: string;
+    banDuration: any;
+  }
+) {
+  const isAdmin = await auth.isAdmin(event);
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    return null;
+  }
+
+  if (!isAdmin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const { id, username, userStatus, isPremium, banReason, banDuration } =
+    userData;
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id },
+    include: { banHistory: true },
+  });
+
+  if (!user) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.USER_NOT_FOUND,
+    });
+  }
+
+  const updatedUser = await prisma.userProfile.update({
+    where: { id },
+    data: {
+      username,
+      userStatus,
+      isPremium,
+      updatedAt: new Date(),
+    },
+  });
+
+  if (banReason && banDuration) {
+    await prisma.banHistory.create({
+      data: {
+        reason: banReason,
+        banExpiration: getBanExpiration(banDuration),
+        bannedAt: new Date(),
+        user: { connect: { id } },
+        bannedBy: { connect: { id: currentUser.id } },
+      },
+    });
+
+    await prisma.userProfile.update({
+      where: { id },
+      data: { userStatus: UserStatus.banned },
+    });
+  }
+
+  return {
+    user: updatedUser,
+  };
+}
+
 async function getCurrentUser(event: H3Event<Request>) {
   const session = await getUserSession(event);
 
@@ -146,8 +219,14 @@ async function getUsers(event: H3Event<Request>) {
   }
 
   const users = await prisma.userProfile.findMany({
-    include: {
-      banHistory: true,
+    select: {
+      id: true,
+      username: true,
+      steamId: true,
+      role: true,
+      userStatus: true,
+      isPremium: true,
+      email: true,
     },
   });
 
@@ -160,5 +239,6 @@ export default {
   adminLogin,
   isAdmin,
   createNewUser,
+  updateUser,
   getUsers,
 };

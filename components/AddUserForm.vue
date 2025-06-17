@@ -6,7 +6,7 @@ import { errorMessage, labels, buttons } from "~/constants/labels";
 
 const emits = defineEmits(["update-table"]);
 
-const showDialog = defineModel<boolean>("showDialog");
+const showAddUserDialog = defineModel<boolean>("showAddUserDialog");
 const username = ref<string>("");
 const email = ref<string>("");
 const password = ref<string>("");
@@ -98,7 +98,7 @@ const submitForm = async () => {
     });
     if (response.success) {
       notifications(toast, "success", "User Created Successfully!");
-      showDialog.value = false;
+      showAddUserDialog.value = false;
       emits("update-table");
     }
   } catch (error: any) {
@@ -112,7 +112,7 @@ const submitForm = async () => {
 
 <template>
   <Dialog
-    v-model:visible="showDialog"
+    v-model:visible="showAddUserDialog"
     modal
     :header="labels.ADD_NEW_USER"
     :style="{ width: '40%' }"

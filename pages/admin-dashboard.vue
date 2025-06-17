@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { UserRole, UserStatus } from "@prisma/client";
+import type { UpdateUser } from "~/types/UpdateUser";
 import notifications from "~/utils/notifications";
 
 definePageMeta({
@@ -9,15 +10,9 @@ definePageMeta({
 const users = ref();
 const loadingUsers = ref(true);
 const toast = useToast();
-const roles = Object.values(UserRole).map((role) => ({
-  label: role.charAt(0).toUpperCase() + role.slice(1),
-  value: role,
-}));
-
-const statuses = Object.values(UserStatus).map((role) => ({
-  label: role.charAt(0).toUpperCase() + role.slice(1),
-  value: role,
-}));
+const roles = Object.values(UserRole);
+const statuses = Object.values(UserStatus);
+const loadingStore = useLoadingStore();
 
 const fetchUsers = async () => {
   try {
@@ -26,28 +21,41 @@ const fetchUsers = async () => {
     });
     users.value = response;
   } catch (error: any) {
-    notifications(toast, "warn", "Fetching Users Failed", error.message, 3000);
+    notifications(
+      toast,
+      "warn",
+      "Fetching Users Failed",
+      error.statusMessage,
+      3000
+    );
     loadingUsers.value = false;
   }
 };
 
-const updateUser = async () => {
-  // const updateUser = async (userId: number, newData: User) => {
-  // try {
-  //   const response = await api.user.updateUser(userId, newData);
-  //   if (response.status === 'ok') {
-  //     const userIndex = users.value.findIndex((u) => u.id === userId);
-  //     if (userIndex !== -1) {
-  //       users.value[userIndex] = { ...newData }; // Ensure reactivity
-  //     }
-  //     notifications(toast, 'success', response.message);
-  //     loadingStore.startLoading();
-  //   }
-  // } catch (error: any) {
-  //   notifications(toast, 'warn', 'Update failed', error.message, 3000);
-  // } finally {
-  //   loadingStore.stopLoading();
-  // }
+const updateUser = async (newData: UpdateUser) => {
+  try {
+    const response = await $fetch("/api/auth/admin/update-user", {
+      method: "POST",
+      body: { newData },
+    });
+
+    if (response.success) {
+      const userIndex = users.value.findIndex(
+        (u: UpdateUser) => u.id === newData.id
+      );
+      if (userIndex !== -1) {
+        users.value[userIndex] = { ...newData }; // Ensure reactivity
+      }
+
+      notifications(toast, "success", "User created successfully!");
+      loadingStore.startLoading();
+    }
+  } catch (error: any) {
+    const message = error?.statusMessage;
+    notifications(toast, "warn", "Update failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
+  }
 };
 
 onMounted(async () => {

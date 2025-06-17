@@ -6,9 +6,8 @@ export default defineEventHandler(async (event) => {
     return users;
   } catch (err: any) {
     throw createError({
-      statusCode: 401,
-      statusMessage: "NOT_AUTHENTICATED",
-      message: "Login required",
+      statusCode: err.statusCode,
+      statusMessage: err.statusMessage,
     });
   }
 });

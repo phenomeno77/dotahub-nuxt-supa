@@ -1,3 +1,4 @@
+import { ErrorMessages } from "~/server/constants/errors";
 import auth from "~/server/utils/auth";
 import requireUserLoggedIn from "~/server/utils/requireUserLoggedIn";
 
@@ -10,7 +11,7 @@ export default defineEventHandler(async (event) => {
   } catch (err: any) {
     throw createError({
       statusCode: 401,
-      statusMessage: "Login required",
+      statusMessage: ErrorMessages.LOGIN_REQUIRED,
     });
   }
 });

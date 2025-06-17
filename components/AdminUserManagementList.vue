@@ -3,8 +3,9 @@ import { FilterMatchMode } from "@primevue/core/api";
 import { labels } from "~/constants/labels";
 import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
-import { UserStatus, type UserProfile } from "@prisma/client";
+import { UserRole, UserStatus, type UserProfile } from "@prisma/client";
 import type { UpdateUser } from "~/types/UpdateUser";
+import BanUserForm from "./BanUserForm.vue";
 
 const props = defineProps({
   users: {
@@ -34,6 +35,7 @@ const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
   email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  steamId: { value: null, matchMode: FilterMatchMode.EQUALS },
   role: { value: null, matchMode: FilterMatchMode.EQUALS },
   userStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
   isLoggedIn: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -49,7 +51,7 @@ const loggedOrNot = ref([true, false]);
 const editingRows = ref([]);
 const toast = useToast();
 const showAddUserDialog = ref(false);
-const banFormDialogVisible = ref(false);
+const showBanUserDialog = ref(false);
 const banData = ref<{ banReason: string; banDuration: string } | null>(null);
 const userStatus = ref("");
 
@@ -77,14 +79,14 @@ const getSeverityStatus = (status: string) => {
 
 const onStatusChange = (event: any) => {
   userStatus.value = event;
-  if (event === "banned") {
-    banFormDialogVisible.value = true;
+  if (event === UserStatus.banned) {
+    showBanUserDialog.value = true;
   }
 };
 
 const submitBan = (banDataIn: { banReason: string; banDuration: string }) => {
   banData.value = banDataIn;
-  banFormDialogVisible.value = false;
+  showBanUserDialog.value = false;
 };
 
 const onRowEditSave = (event: { newData: UpdateUser }) => {
@@ -106,7 +108,11 @@ const onRowEditSave = (event: { newData: UpdateUser }) => {
   }
 
   banData.value = null;
-  emit("update-user", updatePayload.id, updatePayload);
+  emit("update-user", updatePayload);
+};
+
+const isEditableUsername = (userRole: string) => {
+  return userRole === UserRole.user;
 };
 </script>
 
@@ -167,7 +173,11 @@ const onRowEditSave = (event: { newData: UpdateUser }) => {
         />
       </template>
       <template #editor="{ data, field }">
-        <InputText v-model="data[field]" />
+        <InputText
+          v-if="!isEditableUsername(data.role)"
+          v-model="data[field]"
+        />
+        <td v-else>{{ data.username }}</td>
       </template>
     </Column>
 
@@ -180,9 +190,6 @@ const onRowEditSave = (event: { newData: UpdateUser }) => {
           placeholder="Search by email"
         />
       </template>
-      <template #editor="{ data, field }">
-        <InputText v-model="data[field]" />
-      </template>
     </Column>
 
     <!-- ROLE COLUMN -->
@@ -194,15 +201,6 @@ const onRowEditSave = (event: { newData: UpdateUser }) => {
           :options="props.roles"
           placeholder="Select Role"
         />
-      </template>
-      <template #editor="{ data, field }">
-        <Select
-          v-model="data[field]"
-          :options="roles"
-          placeholder="Select role"
-          fluid
-        >
-        </Select>
       </template>
     </Column>
 
@@ -293,20 +291,14 @@ const onRowEditSave = (event: { newData: UpdateUser }) => {
   </DataTable>
 
   <AddUserForm
-    v-model:showDialog="showAddUserDialog"
+    v-model:showAddUserDialog="showAddUserDialog"
     @update-table="$emit('update-table')"
   />
 
-  <!-- <Dialog
-    v-model:visible="banFormDialogVisible"
-    modal
-    :header="labels.BAN_FORM"
-    :style="{ width: '40%' }"
-    :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
-    :contentStyle="{ height: '100%' }"
-  >
-    <BanForm @submit-ban="submitBan" />
-  </Dialog> -->
+  <BanUserForm
+    v-model:showBanUserDialog="showBanUserDialog"
+    @submit-ban="submitBan"
+  />
 </template>
 
 <style scoped>

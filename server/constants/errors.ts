@@ -22,4 +22,5 @@ export const ErrorMessages = {
   BANNED_USER: "This account has been banned. Time left: ",
   DAILY_POST_LIMIT_REACHED: "You have reached your daily post limit.",
   DAILY_COMMENT_LIMIT_REACHED: "You have reached your daily comment limit.",
+  LOGIN_REQUIRED: "Login required",
 };
