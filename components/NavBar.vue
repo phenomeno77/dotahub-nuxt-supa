@@ -6,7 +6,7 @@ import NavBarProfileAvatar from "./NavBarProfileAvatar.vue";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
-const { loggedIn } = useUserSession();
+const { loggedIn, openInPopup } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
 
@@ -24,8 +24,9 @@ const handleLogout = async () => {
     await navigateTo("/", { replace: true });
   }
 };
+
 const handleLoginSteam = () => {
-  // window.location.href = '/auth/steam';
+  window.location.href = "/api/auth/steam";
 };
 </script>
 
@@ -63,13 +64,15 @@ const handleLoginSteam = () => {
           severity="secondary"
           variant="outlined"
           class="ms-2"
+          @click="handleLoginSteam"
         >
+          <!-- @click="openInPopup('/api/auth/steam')" -->
+
           <img
             :src="steamLogo"
             alt="Steam Logo"
             class="me-2"
             style="width: 24px; height: 24px"
-            @click="handleLoginSteam"
           />
           {{ buttons.SIGN_IN }}
         </Button>
