@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UserRole } from "@prisma/client";
 import { buttons } from "~/constants/labels";
+import { UserRole } from "~/utils/enums";
 
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.userRole === UserRole.admin);

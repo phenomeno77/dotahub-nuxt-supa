@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { UserRole } from "@prisma/client";
 import validator from "validator";
 import notifications from "~/utils/notifications";
 import { errorMessage, labels, buttons } from "~/constants/labels";
+import { UserRole } from "~/utils/enums";
 
 const emits = defineEmits(["update-table"]);
 

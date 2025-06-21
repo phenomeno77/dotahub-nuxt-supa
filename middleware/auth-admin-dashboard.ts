@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { UserRole } from "~/utils/enums";
 
 export default defineNuxtRouteMiddleware(async () => {
   const authStore = useAuthStore();

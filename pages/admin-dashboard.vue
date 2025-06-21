@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UserRole, UserStatus } from "@prisma/client";
 import type { UpdateUser } from "~/types/UpdateUser";
+import { UserRole, UserStatus } from "~/utils/enums";
 import notifications from "~/utils/notifications";
 
 definePageMeta({

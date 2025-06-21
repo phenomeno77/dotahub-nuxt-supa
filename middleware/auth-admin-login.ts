@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { UserRole } from "~/utils/enums";
 
 // middleware/auth-admin-login.ts
 export default defineNuxtRouteMiddleware(async () => {

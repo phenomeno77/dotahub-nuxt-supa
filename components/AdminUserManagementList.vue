@@ -3,9 +3,10 @@ import { FilterMatchMode } from "@primevue/core/api";
 import { labels } from "~/constants/labels";
 import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
-import { UserRole, UserStatus, type UserProfile } from "@prisma/client";
 import type { UpdateUser } from "~/types/UpdateUser";
 import BanUserForm from "./BanUserForm.vue";
+import { UserRole, UserStatus } from "~/utils/enums";
+import type { UserProfile } from "~/types/UserProfile";
 
 const props = defineProps({
   users: {
