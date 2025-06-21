@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const showDialog = ref(false);
-const { loggedIn } = useUserSession();
+const { loggedIn, user } = useUserSession();
 
 useSeoMeta({
   title: "Dota 2 Party Finder - Connect with Ranked Players",
@@ -40,6 +40,9 @@ useHead({
         label="Redirect to Admin Login"
         @click="navigateTo('/admin-login')"
       />
+    </div>
+    <div v-else>
+      {{ user }}
     </div>
   </div>
 </template>

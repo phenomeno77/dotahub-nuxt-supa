@@ -16,8 +16,19 @@ export default defineNuxtConfig({
     redirect: false,
   },
   runtimeConfig: {
+    oauth: {
+      steam: {
+        apiKey: process.env.NUXT_OATH_STEAM_API_KEY,
+      },
+    },
     public: {
       appName: process.env.NUXT_PUBLIC_APP_NAME || "Dotahub",
+    },
+  },
+
+  vite: {
+    server: {
+      allowedHosts: true,
     },
   },
 

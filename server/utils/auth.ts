@@ -233,6 +233,49 @@ async function getUsers(event: H3Event<Request>) {
   return users;
 }
 
+export async function handleSteamUser(
+  event: H3Event,
+  steamData: {
+    steamId: string;
+    username: string;
+    avatarUrl: string;
+  }
+) {
+  const { steamId, username, avatarUrl } = steamData;
+
+  // Find existing user by steamId
+  let user = await prisma.userProfile.findUnique({
+    where: { steamId },
+  });
+
+  // If user exists → update username and avatarUrl
+  if (user) {
+    user = await prisma.userProfile.update({
+      where: { steamId },
+      data: {
+        username,
+        avatarUrl,
+        updatedAt: new Date(),
+      },
+    });
+  } else {
+    // If not exists → create new user
+    user = await prisma.userProfile.create({
+      data: {
+        steamId,
+        username,
+        avatarUrl,
+        role: "user", // default role
+      },
+    });
+  }
+
+  // Set user session
+  await setSession(event, user);
+
+  return user;
+}
+
 export default {
   setSession,
   currentUser: getCurrentUser,
@@ -241,4 +284,5 @@ export default {
   createNewUser,
   updateUser,
   getUsers,
+  handleSteamUser,
 };

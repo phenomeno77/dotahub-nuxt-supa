@@ -1,13 +1,20 @@
-import passport from "passport";
+import { handleSteamUser } from "~/server/utils/auth";
 
-export default defineEventHandler(async (event) => {
-  const req = event.node.req as any;
-  const res = event.node.res as any;
+export default defineOAuthSteamEventHandler({
+  async onSuccess(event, { user }) {
+    const steamUser = {
+      steamId: user.steamid,
+      username: user.personaname,
+      avatarUrl: user.avatarfull,
+    };
 
-  await new Promise<void>((resolve, reject) => {
-    passport.authenticate("steam")(req, res, (err: any) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
+    await handleSteamUser(event, steamUser);
+
+    return sendRedirect(event, "/");
+  },
+
+  onError(event, error) {
+    console.error("Steam login failed:", error);
+    return sendRedirect(event, "/login?error=steam");
+  },
 });
