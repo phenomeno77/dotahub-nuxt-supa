@@ -7,9 +7,10 @@ export default defineOAuthSteamEventHandler({
       username: user.personaname,
       avatarUrl: user.avatarfull,
     };
+
     await handleSteamUser(event, steamUser);
 
-    return sendRedirect(event, "/");
+    return sendRedirect(event, "/auth/callback");
   },
 
   onError(event, error) {

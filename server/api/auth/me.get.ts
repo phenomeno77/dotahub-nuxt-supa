@@ -7,7 +7,22 @@ export default defineEventHandler(async (event) => {
     await requireUserLoggedIn(event);
     const user = await auth.currentUser(event);
 
-    return user;
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: ErrorMessages.LOGIN_REQUIRED,
+      });
+    }
+
+    return {
+      user: {
+        userId: user.id,
+        userRole: user.role,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        isPremium: user.isPremium,
+      },
+    };
   } catch (err: any) {
     throw createError({
       statusCode: 401,

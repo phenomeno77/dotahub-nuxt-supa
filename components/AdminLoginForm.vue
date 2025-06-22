@@ -37,8 +37,10 @@ const submitForm = () => {
     return;
   }
 
+  const lowercasedEmail = email.value.toLowerCase();
+
   emit("submit", {
-    email: email.value,
+    email: lowercasedEmail,
     password: password.value,
   });
 };

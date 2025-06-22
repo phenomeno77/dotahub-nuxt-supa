@@ -193,8 +193,6 @@ async function getCurrentUser(event: H3Event<Request>) {
 }
 
 async function getUsers(event: H3Event<Request>) {
-  console.log("before isAdmin");
-
   const isAdminUser = await isAdmin(event);
 
   if (!isAdminUser) {
@@ -203,8 +201,6 @@ async function getUsers(event: H3Event<Request>) {
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
-
-  console.log("fetching users using prisma....");
 
   const users = await prisma.userProfile.findMany({
     select: {
@@ -217,8 +213,6 @@ async function getUsers(event: H3Event<Request>) {
       email: true,
     },
   });
-
-  console.log("return fetched users from prisma user profile..");
 
   return users;
 }
@@ -267,11 +261,7 @@ export async function handleSteamUser(
 }
 
 async function isAdmin(event: H3Event<Request>) {
-  console.log("idAdmin before getting session..");
-
   const session = await getUserSession(event);
-
-  console.log("idAdmin after getting session..");
 
   if (!session.user) {
     return null;
