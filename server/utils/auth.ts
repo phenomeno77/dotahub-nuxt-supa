@@ -193,7 +193,11 @@ async function getCurrentUser(event: H3Event<Request>) {
 }
 
 async function isAdmin(event: H3Event<Request>) {
+  console.log("idAdmin before getting session..");
+
   const session = await getUserSession(event);
+
+  console.log("idAdmin after getting session..");
 
   if (!session.user) {
     return null;
