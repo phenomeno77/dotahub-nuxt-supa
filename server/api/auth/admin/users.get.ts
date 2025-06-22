@@ -8,6 +8,8 @@ export default defineEventHandler(async (event) => {
 
     const users = await auth.getUsers(event);
 
+    console.log("users fetched ok");
+
     return users;
   } catch (err: any) {
     throw createError({
