@@ -62,9 +62,9 @@ async function createNewUser(
   event: H3Event<Request>,
   newUserData: { email: any; password: any; username: any; role: any }
 ) {
-  const isAdmin = await auth.isAdmin(event);
+  const isAdminUser = await isAdmin(event);
 
-  if (!isAdmin) {
+  if (!isAdminUser) {
     throw createError({
       statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,
@@ -117,14 +117,14 @@ async function updateUser(
     banDuration: any;
   }
 ) {
-  const isAdmin = await auth.isAdmin(event);
+  const isAdminUser = await isAdmin(event);
   const { user: currentUser } = await getUserSession(event);
 
   if (!currentUser) {
     return null;
   }
 
-  if (!isAdmin) {
+  if (!isAdminUser) {
     throw createError({
       statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,
@@ -192,32 +192,12 @@ async function getCurrentUser(event: H3Event<Request>) {
   return result;
 }
 
-async function isAdmin(event: H3Event<Request>) {
-  console.log("idAdmin before getting session..");
-
-  const session = await getUserSession(event);
-
-  console.log("idAdmin after getting session..");
-
-  if (!session.user) {
-    return null;
-  }
-
-  const current = await getCurrentUser(event);
-
-  if (current) {
-    return current.role === UserRole.admin;
-  }
-
-  return false;
-}
-
 async function getUsers(event: H3Event<Request>) {
   console.log("before isAdmin");
 
-  const isAdmin = await auth.isAdmin(event);
+  const isAdminUser = await isAdmin(event);
 
-  if (!isAdmin) {
+  if (!isAdminUser) {
     throw createError({
       statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,
@@ -284,6 +264,26 @@ export async function handleSteamUser(
   await setSession(event, user);
 
   return user;
+}
+
+async function isAdmin(event: H3Event<Request>) {
+  console.log("idAdmin before getting session..");
+
+  const session = await getUserSession(event);
+
+  console.log("idAdmin after getting session..");
+
+  if (!session.user) {
+    return null;
+  }
+
+  const current = await getCurrentUser(event);
+
+  if (current) {
+    return current.role === UserRole.admin;
+  }
+
+  return false;
 }
 
 export default {
