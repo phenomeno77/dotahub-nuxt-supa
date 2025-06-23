@@ -2,15 +2,9 @@
 import { buttons } from "~/constants/labels";
 import { useRouter } from "vue-router";
 
-const props = defineProps<{
-  isLoggedIn: {
-    type: boolean;
-    default: false;
-  };
-}>();
-
 const emits = defineEmits(["logout"]);
 
+const { loggedIn } = useUserSession();
 const profileMenu = ref();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -29,7 +23,7 @@ const toggleProfile = (event: any) => {
 const profileMenuItems = computed(() => {
   const menu = [];
 
-  if (props.isLoggedIn) {
+  if (loggedIn) {
     menu.push({
       separator: true,
     });

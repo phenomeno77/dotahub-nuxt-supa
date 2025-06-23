@@ -9,9 +9,9 @@ useHead({
 
 const route = useRoute();
 const loading = useLoadingStore();
-
 const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");
+const showPremiumDialog = usePremiumDialog();
 
 const layoutColumns = computed(() => {
   if (isHomePage.value || isProfilePage.value) {
@@ -48,8 +48,6 @@ const layoutColumns = computed(() => {
   <div v-show="loading.isLoading" class="loading-overlay">
     <ProgressSpinner />
   </div>
-  <!--
-  <PremiumPlan v-if="premiumStore.showPremiumDialog" /> -->
 
   <div class="container-fluid d-flex flex-column h-100">
     <header class="row">
@@ -57,6 +55,8 @@ const layoutColumns = computed(() => {
         <NavBar />
       </div>
     </header>
+
+    <PremiumPlan v-if="showPremiumDialog" />
 
     <main
       class="position-absolute start-0 end-0"

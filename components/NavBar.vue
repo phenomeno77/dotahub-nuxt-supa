@@ -10,7 +10,7 @@ const appName = config.public.appName;
 const { loggedIn, user } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
-const showPremiumDialog = useState("showPremiumDialog");
+const showPremiumDialog = usePremiumDialog();
 const showCreatePostDialog = useState("createPostDialog");
 const loadingStore = useLoadingStore();
 
@@ -98,7 +98,7 @@ const mainMenuItems = computed(() => {
         </Button>
 
         <div v-else class="d-flex align-items-center gap-3">
-          <NavBarProfileAvatar @logout="handleLogout" :isLoggedIn="loggedIn" />
+          <NavBarProfileAvatar @logout="handleLogout" />
         </div>
       </div>
     </template>

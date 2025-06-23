@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-const showDialog = ref(false);
 const { loggedIn, user } = useUserSession();
 
 useSeoMeta({
