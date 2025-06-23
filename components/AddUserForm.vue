@@ -119,6 +119,14 @@ const submitForm = async () => {
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
     :contentStyle="{ height: '100%' }"
     @hide="onHideClearUserData"
+    :pt="{
+      root: {
+        style: {
+          background: 'var(--background-color)',
+          color: 'var( --text-color)',
+        },
+      },
+    }"
   >
     <strong class="p-2">*Email address will be used to login</strong>
     <!-- Email -->

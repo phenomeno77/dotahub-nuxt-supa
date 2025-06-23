@@ -51,8 +51,3 @@ a:hover {
     z-index: 9999;
   }
 
-.p-dialog{
-  background-color: var(--background-color);
-  color: var( --text-color)
-}
-

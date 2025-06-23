@@ -12,6 +12,14 @@ const showPremiumDialog = usePremiumDialog();
     :header="labels.UPGRADE_TO_PREMIUM"
     :style="{ minWidth: '300px' }"
     @hide="showPremiumDialog = false"
+    :pt="{
+      root: {
+        style: {
+          background: 'var(--background-color)',
+          color: 'var( --text-color)',
+        },
+      },
+    }"
   >
     <div class="premium-modal">
       <ul class="benefits list-unstyled">
@@ -62,6 +70,7 @@ const showPremiumDialog = usePremiumDialog();
 .premium-modal {
   padding: 1rem;
   background-color: var(--background-color);
+  color: var(--text-color);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
