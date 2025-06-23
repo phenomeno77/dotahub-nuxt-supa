@@ -7,13 +7,15 @@ import { UserRole } from "~/utils/enums";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
-const { loggedIn, user, openInPopup } = useUserSession();
+const { loggedIn, user } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
 const showPremiumDialog = useState("showPremiumDialog");
 const showCreatePostDialog = useState("createPostDialog");
+const loadingStore = useLoadingStore();
 
 const handleLogout = async () => {
+  loadingStore.startLoading();
   try {
     await $fetch("/api/user/logout", { method: "POST" });
     await supabase.auth.signOut();
@@ -24,6 +26,7 @@ const handleLogout = async () => {
     clear();
     authStore.logout();
 
+    loadingStore.stopLoading();
     await navigateTo("/", { replace: true });
   }
 };
@@ -59,19 +62,6 @@ const mainMenuItems = computed(() => {
         showCreatePostDialog;
       },
     });
-
-    menu.push({
-      label: buttons.POST_HISTORY,
-      icon: "pi pi-history",
-      command: () => navigateTo({ path: `/profile` }),
-    });
-
-    menu.push({
-      icon: "pi pi-sign-out",
-      command: () => handleLogout(),
-    });
-
-    return menu;
   }
 
   return menu;
@@ -108,7 +98,7 @@ const mainMenuItems = computed(() => {
         </Button>
 
         <div v-else class="d-flex align-items-center gap-3">
-          <NavBarProfileAvatar />
+          <NavBarProfileAvatar @logout="handleLogout" :isLoggedIn="loggedIn" />
         </div>
       </div>
     </template>

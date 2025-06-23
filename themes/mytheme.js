@@ -18,6 +18,24 @@ const MyPreset = definePreset(Aura, {
     },
   },
   components: {
+    menu: {
+      colorScheme: {
+        root: {
+          background: "var(--navmenubar-background)",
+          color: "var(--text-color)",
+          list: {
+            background: "var(--navmenubar-background)",
+            color: "var(--text-color)",
+          },
+        },
+        item: {
+          color: "var(--text-color)",
+        },
+        itemIcon: {
+          color: "var(--text-color)",
+        },
+      },
+    },
     menubar: {
       colorScheme: {
         root: {

@@ -127,7 +127,6 @@ const isEditableUsername = (userRole: string) => {
     filterDisplay="row"
     :loading="props.loading"
     :globalFilterFields="globalFilterFields"
-    stripedRows
     :virtualScrollerOptions="{ itemSize: 30 }"
     responsiveLayout="scroll"
     v-model:editingRows="editingRows"
@@ -136,6 +135,36 @@ const isEditableUsername = (userRole: string) => {
     scrollable
     scrollHeight="flex"
     @row-edit-save="onRowEditSave"
+    :pt="{
+      bodyRow: {
+        style: {
+          background: 'var(--background-color)',
+          color: 'var(--text-color)',
+        },
+      },
+      header: {
+        style: {
+          background: 'var(--background-color)',
+        },
+      },
+      column: {
+        headerCell: {
+          style: {
+            background: 'var(--background-color)',
+            color: 'var(--text-color)',
+          },
+        },
+      },
+      pcPaginator: {
+        root: {
+          style: {
+            background: 'var(--background-color)',
+            color: 'var(--text-color)',
+            border: 'none',
+          },
+        },
+      },
+    }"
   >
     <template #header>
       <div class="action-bar mt-3">
