@@ -3,6 +3,7 @@ import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/errors";
 import { getBanExpiration } from "./banUtills";
+import steamThrottle from "../middleware/steam-throttle";
 
 async function setSession(event: H3Event<Request>, user: UserProfile) {
   await replaceUserSession(event, {
@@ -233,6 +234,7 @@ export async function handleSteamUser(
     avatarUrl: string;
   }
 ) {
+  await steamThrottle(event);
   const { steamId, username, avatarUrl } = steamData;
 
   // Find existing user by steamId
