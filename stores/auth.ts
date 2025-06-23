@@ -1,5 +1,5 @@
 // authStore.ts
-import type { UserRole } from "@prisma/client";
+import { UserRole } from "~/utils/enums";
 import { defineStore } from "pinia";
 
 interface AuthState {
