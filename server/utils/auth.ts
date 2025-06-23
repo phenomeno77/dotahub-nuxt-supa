@@ -55,7 +55,14 @@ async function adminLogin(
 
   await setSession(event, foundUser);
 
-  return foundUser;
+  const updatedUser = await prisma.userProfile.update({
+    where: { id: foundUser.id },
+    data: {
+      isLoggedIn: true,
+    },
+  });
+
+  return updatedUser;
 }
 
 async function createNewUser(
@@ -99,7 +106,7 @@ async function createNewUser(
       id: data.user.id,
       username,
       role,
-      email,
+      email: email.toLowerCase(),
     },
   });
 
@@ -211,6 +218,7 @@ async function getUsers(event: H3Event<Request>) {
       userStatus: true,
       isPremium: true,
       email: true,
+      isLoggedIn: true,
     },
   });
 
@@ -240,6 +248,7 @@ export async function handleSteamUser(
         username,
         avatarUrl,
         updatedAt: new Date(),
+        isLoggedIn: true,
       },
     });
   } else {
@@ -249,7 +258,8 @@ export async function handleSteamUser(
         steamId,
         username,
         avatarUrl,
-        role: "user", // default role
+        role: UserRole.user,
+        isLoggedIn: true,
       },
     });
   }
@@ -258,6 +268,27 @@ export async function handleSteamUser(
   await setSession(event, user);
 
   return user;
+}
+
+async function logout(event: H3Event<Request>) {
+  const session = await getUserSession(event);
+
+  if (!session.user) {
+    return null;
+  }
+
+  const current = await getCurrentUser(event);
+
+  if (current?.isLoggedIn) {
+    await prisma.userProfile.update({
+      where: { id: current.id },
+      data: {
+        isLoggedIn: false,
+      },
+    });
+  }
+
+  await clearUserSession(event);
 }
 
 async function isAdmin(event: H3Event<Request>) {
@@ -285,4 +316,5 @@ export default {
   updateUser,
   getUsers,
   handleSteamUser,
+  logout,
 };

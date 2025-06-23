@@ -14,7 +14,7 @@ const avatarLabel = computed(() =>
     <Avatar
       :image="avatarImage"
       :label="avatarLabel"
-      :class="['avatar-clickable', { 'premium-avatar': false }]"
+      :class="{ 'premium-avatar': false }"
       size="large"
       shape="circle"
       aria-haspopup="true"
@@ -64,17 +64,5 @@ const avatarLabel = computed(() =>
   padding: 2px 6px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
-a {
-  all: unset;
-}
-
-a:hover {
-  cursor: pointer;
-}
-
-.avatar-clickable {
-  cursor: pointer;
 }
 </style>
