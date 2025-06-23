@@ -1,6 +1,6 @@
 // authStore.ts
-import { UserRole } from "~/utils/enums";
 import { defineStore } from "pinia";
+import { UserRole } from "~/utils/enums";
 
 interface AuthState {
   userId: string | null;

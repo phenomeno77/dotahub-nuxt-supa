@@ -34,7 +34,7 @@ const mainMenuItems = computed(() => {
   const menu = [];
 
   if (loggedIn) {
-    if (user.value.role === UserRole.admin) {
+    if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
         icon: "pi pi-users",
