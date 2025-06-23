@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
+import type { UserRole } from "@prisma/client";
 
 const authStore = useAuthStore();
 const router = useRouter();

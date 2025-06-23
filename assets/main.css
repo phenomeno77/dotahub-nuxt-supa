@@ -6,6 +6,10 @@
   --text-color: #f0f0f0;
 }
 
+.ul {
+  background-color: var(----navmenubar-background);
+}
+
 html,
 body {
   height: 100dvh;
@@ -46,3 +50,4 @@ a:hover {
     align-items: center;
     z-index: 9999;
   }
+

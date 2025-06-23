@@ -47,6 +47,7 @@ export const buttons = {
   ADMIN_DASHBOARD: "Admin Dashboard",
   USER_MANAGEMENT: "User management",
   CREATE_POST: "Create a Post",
+  POSTS: "Posts",
   SUBMIT_POST: "Post Now",
   EDIT_POST: "Edit post",
   SUBMIT_CHANGES: "Submit changes",

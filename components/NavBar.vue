@@ -3,10 +3,11 @@ import { buttons } from "~/constants/labels";
 import { useAuthStore } from "~/stores/auth";
 import steamLogo from "~/assets/steam.svg";
 import NavBarProfileAvatar from "./NavBarProfileAvatar.vue";
+import { UserRole } from "~/utils/enums";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
-const { loggedIn, openInPopup } = useUserSession();
+const { loggedIn, user, openInPopup } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
 
@@ -28,28 +29,49 @@ const handleLogout = async () => {
 const handleLoginSteam = () => {
   window.location.href = "/api/auth/steam";
 };
+
+const mainMenuItems = computed(() => {
+  const menu = [];
+
+  if (loggedIn) {
+    if (user.value.role === UserRole.admin) {
+      menu.push({
+        label: buttons.ADMIN_DASHBOARD,
+        icon: "pi pi-users",
+        command: () => navigateTo("/admin-dashboard"),
+      });
+    }
+
+    menu.push({
+      label: buttons.GO_PREMIUM,
+      icon: "pi pi-crown",
+      command: () => {},
+    });
+
+    menu.push({
+      label: buttons.CREATE_POST,
+      icon: "pi pi-pen-to-square",
+      command: () => {},
+    });
+
+    menu.push({
+      label: buttons.POST_HISTORY,
+      icon: "pi pi-history",
+      command: () => navigateTo({ path: `/profile` }),
+    });
+
+    menu.push({
+      icon: "pi pi-sign-out",
+      command: () => handleLogout(),
+    });
+  }
+
+  return menu;
+});
 </script>
 
 <template>
-  <Menubar
-    :pt="{
-      root: {
-        class: ['d-flex justify-content-between border-0'],
-        style: {
-          width: '100%',
-          backgroundColor: 'var(--navmenubar-background)',
-          color: 'var(--text-primary)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        },
-      },
-      start: {
-        class: ['ms-3'],
-      },
-      end: {
-        class: ['me-3'],
-      },
-    }"
-  >
+  <Menubar :model="mainMenuItems">
     <!-- Logo / Title -->
     <template #start>
       <NuxtLink :to="{ path: '/' }" class="font-bold text-lg me-3">
@@ -78,8 +100,7 @@ const handleLoginSteam = () => {
         </Button>
 
         <div v-else class="d-flex align-items-center gap-3">
-          <NavBarMainMenu />
-          <NavBarProfileAvatar @logout="handleLogout" />
+          <NavBarProfileAvatar />
         </div>
       </div>
     </template>

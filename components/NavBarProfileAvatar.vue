@@ -1,12 +1,4 @@
 <script lang="ts" setup>
-import { buttons } from "~/constants/labels";
-import { useRouter } from "vue-router";
-
-const emits = defineEmits(["logout"]);
-
-const profileMenu = ref();
-const { loggedIn } = useUserSession();
-const router = useRouter();
 const authStore = useAuthStore();
 
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
@@ -15,34 +7,6 @@ const avatarLabel = computed(() =>
     ? authStore.username.charAt(0).toUpperCase()
     : ""
 );
-
-const toggleProfile = (event: any) => {
-  profileMenu.value.toggle(event);
-};
-
-const profileMenuItems = computed(() => {
-  const menu = [];
-
-  if (loggedIn.value) {
-    menu.push({
-      label: buttons.POST_HISTORY,
-      icon: "pi pi-history",
-      command: () => router.push({ path: `/profile` }),
-    });
-
-    menu.push({
-      separator: true,
-    });
-
-    menu.push({
-      label: buttons.LOGOUT,
-      icon: "pi pi-sign-out",
-      command: () => emits("logout"),
-    });
-  }
-
-  return menu;
-});
 </script>
 
 <template>
@@ -55,18 +19,10 @@ const profileMenuItems = computed(() => {
       shape="circle"
       aria-haspopup="true"
       aria-controls="overlay_menu"
-      @click="toggleProfile"
     />
 
     <div v-if="false" class="premium-avatar-label">Premium</div>
   </div>
-
-  <Menu
-    ref="profileMenu"
-    id="overlay_menu"
-    :model="profileMenuItems"
-    :popup="true"
-  />
 </template>
 
 <style scoped>

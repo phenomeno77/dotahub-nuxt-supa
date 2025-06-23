@@ -44,8 +44,8 @@ const toggleMainMenu = (event: any) => {
 </script>
 
 <template>
+  <!-- TODO: ADD MARGIN TO MENU -->
   <Button icon="pi pi-th-large" aria-haspopup="true" @click="toggleMainMenu" />
-
   <Menu ref="mainMenu" id="overlay_menu" :model="mainMenuItems" :popup="true" />
 </template>
 
