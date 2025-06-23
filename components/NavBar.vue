@@ -10,6 +10,8 @@ const appName = config.public.appName;
 const { loggedIn, user, openInPopup } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
+const showPremiumDialog = useState("showPremiumDialog");
+const showCreatePostDialog = useState("createPostDialog");
 
 const handleLogout = async () => {
   try {
@@ -31,9 +33,9 @@ const handleLoginSteam = () => {
 };
 
 const mainMenuItems = computed(() => {
-  const menu = [];
+  const menu: any[] = [];
 
-  if (loggedIn) {
+  if (loggedIn.value) {
     if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
@@ -45,13 +47,17 @@ const mainMenuItems = computed(() => {
     menu.push({
       label: buttons.GO_PREMIUM,
       icon: "pi pi-crown",
-      command: () => {},
+      command: () => {
+        showPremiumDialog.value = true;
+      },
     });
 
     menu.push({
       label: buttons.CREATE_POST,
       icon: "pi pi-pen-to-square",
-      command: () => {},
+      command: () => {
+        showCreatePostDialog;
+      },
     });
 
     menu.push({
@@ -64,6 +70,8 @@ const mainMenuItems = computed(() => {
       icon: "pi pi-sign-out",
       command: () => handleLogout(),
     });
+
+    return menu;
   }
 
   return menu;
