@@ -89,22 +89,27 @@ const submitBan = (banDataIn: { banReason: string; banDuration: string }) => {
   showBanUserDialog.value = false;
 };
 
-const onRowEditSave = (event: { newData: UpdateUser }) => {
-  const { newData } = event;
+const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
+  const { newData, data } = event;
 
   if (!newData.id) {
     notifications(toast, "error", "User ID is missing");
     return;
   }
 
+  console.log(data.userStatus);
+
   const updatePayload = { ...newData };
 
   if (banData.value && userStatus.value === UserStatus.banned) {
     updatePayload.banReason = banData.value.banReason;
     updatePayload.banDuration = banData.value.banDuration;
+  } else if (userStatus.value === UserStatus.active) {
+    updatePayload.userStatus = newData.userStatus;
   } else {
     updatePayload.banReason = "";
     updatePayload.banDuration = "";
+    updatePayload.userStatus = data.userStatus;
   }
 
   banData.value = null;

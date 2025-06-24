@@ -36,6 +36,8 @@ const fetchUsers = async () => {
 };
 
 const updateUser = async (newData: UpdateUser) => {
+  loadingStore.startLoading();
+
   try {
     const response = await $fetch("/api/auth/admin/update-user", {
       method: "POST",
@@ -50,8 +52,7 @@ const updateUser = async (newData: UpdateUser) => {
         users.value[userIndex] = { ...newData }; // Ensure reactivity
       }
 
-      notifications(toast, "success", "User created successfully!");
-      loadingStore.startLoading();
+      notifications(toast, "success", "User Updated successfully!");
     }
   } catch (error: any) {
     const message = error?.statusMessage;
