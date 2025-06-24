@@ -46,6 +46,18 @@ const profileMenuItems = computed(() => {
 
   return menu;
 });
+
+const formattedPremiumDate = computed(() => {
+  if (!authStore.premiumExpiresAt) return "N/A";
+  return new Date(authStore.premiumExpiresAt).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+});
 </script>
 
 <template>
@@ -61,7 +73,18 @@ const profileMenuItems = computed(() => {
       @click="toggleProfile"
     />
 
-    <div v-if="authStore.isPremium" class="premium-avatar-label">Premium</div>
+    <div
+      v-if="authStore.isPremium"
+      class="premium-avatar-label"
+      v-tooltip.bottom="{
+        value: `Premium until ${formattedPremiumDate}`,
+        autoHide: false,
+      }"
+      type="text"
+      placeholder="autoHide: false"
+    >
+      Premium
+    </div>
   </div>
 
   <Menu
@@ -94,9 +117,8 @@ const profileMenuItems = computed(() => {
         />
         <div class="d-flex flex-column justify-content-center">
           <span class="name-truncate">
-            Test name Test name Test name Test name Test name
+            {{ authStore.username }}
           </span>
-          <span v-if="!authStore.isPremium" class="text-sm"> Premium </span>
         </div>
       </div>
     </template>

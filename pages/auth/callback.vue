@@ -14,13 +14,27 @@ onMounted(async () => {
   try {
     const res = await $fetch("/api/auth/me");
     if (res?.user) {
-      const { userId, userRole, username, avatarUrl, isPremium } = res.user;
+      const {
+        userId,
+        userRole,
+        username,
+        avatarUrl,
+        isPremium,
+        premiumExpiresAt,
+      } = res.user;
 
       if (!isValidUserRole(userRole)) {
         throw new Error("Invalid user role");
       }
 
-      authStore.login(userRole, username, avatarUrl, isPremium, userId);
+      authStore.login(
+        userRole,
+        username,
+        avatarUrl,
+        isPremium,
+        userId,
+        premiumExpiresAt
+      );
       router.replace("/");
     } else {
       router.replace("/login?error=session_not_found");

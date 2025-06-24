@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
         username: user.username,
         avatarUrl: user.avatarUrl,
         isPremium: user.isPremium,
+        premiumExpiresAt: user.premiumExpiresAt,
       },
     };
   } catch (err: any) {

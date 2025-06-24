@@ -19,7 +19,7 @@ model UserProfile {
   userStatus       UserStatus     @default(active)
   isPremium        Boolean        @default(false)
   isLoggedIn       Boolean        @default(false)
-  premiumExpiresAt DateTime?
+  premiumExpiresAt DateTime?     
   postsToday       Int            @default(0)
   commentsToday    Int            @default(0)
   lastPostReset    DateTime       @default(now())

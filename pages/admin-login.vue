@@ -27,6 +27,10 @@ const validateForm = (email: string, password: string) => {
   return Object.keys(errors.value).length === 0;
 };
 
+function isValidUserRole(value: any): value is UserRole {
+  return Object.values(UserRole).includes(value);
+}
+
 const handleLogin = async (loginData: { email: string; password: string }) => {
   loading.startLoading();
 
@@ -51,12 +55,19 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
     const { fetch } = useUserSession();
     await fetch();
 
+    if (!isValidUserRole(user.role)) {
+      throw new Error("Invalid user role");
+    }
+
+    console.log(user);
+
     authStore.login(
       user.role,
       user.username,
       user.avatarUrl,
       user.isPremium,
-      user.id
+      user.id,
+      user.premiumExpiresAt
     );
 
     navigateTo(redirectTo);

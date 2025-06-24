@@ -17,6 +17,7 @@ const showPremiumDialog = usePremiumDialog();
         style: {
           background: 'var(--background-color)',
           color: 'var( --text-color)',
+          border: 'none',
         },
       },
     }"

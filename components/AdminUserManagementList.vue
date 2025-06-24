@@ -185,6 +185,13 @@ const isEditableUsername = (userRole: string) => {
               class="w-100"
             />
           </IconField>
+
+          <Button
+            icon="pi pi-refresh"
+            variant="text"
+            severity="secondary"
+            @click="$emit('update-table')"
+          />
         </div>
       </div>
     </template>
@@ -342,6 +349,8 @@ const isEditableUsername = (userRole: string) => {
 .button-wrapper,
 .search-wrapper {
   max-width: 300px; /* optional for desktop constraint */
+  display: flex;
+  gap: 0.5rem;
 }
 
 .search-wrapper {

@@ -15,6 +15,7 @@ const statuses = Object.values(UserStatus);
 const loadingStore = useLoadingStore();
 
 const fetchUsers = async () => {
+  loadingStore.startLoading();
   try {
     const response = await $fetch("/api/auth/admin/users", {
       method: "GET",
@@ -29,6 +30,8 @@ const fetchUsers = async () => {
       3000
     );
     loadingUsers.value = false;
+  } finally {
+    loadingStore.stopLoading();
   }
 };
 
