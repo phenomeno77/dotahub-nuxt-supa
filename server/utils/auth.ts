@@ -217,7 +217,6 @@ async function getUsers(event: H3Event<Request>) {
       role: true,
       userStatus: true,
       isPremium: true,
-      email: true,
       isLoggedIn: true,
     },
   });

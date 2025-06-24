@@ -35,7 +35,6 @@ const emit = defineEmits(["update-user", "update-table"]);
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
   steamId: { value: null, matchMode: FilterMatchMode.EQUALS },
   role: { value: null, matchMode: FilterMatchMode.EQUALS },
   userStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -211,13 +210,13 @@ const isEditableUsername = (userRole: string) => {
       </template>
     </Column>
 
-    <!-- EMAIL COLUMN -->
-    <Column field="email" header="Email" sortable>
+    <!-- STEAMID COLUMN -->
+    <Column field="steamId" header="Steam ID" sortable>
       <template #filter="{ filterModel, filterCallback }">
         <InputText
           v-model="filterModel.value"
           @input="filterCallback()"
-          placeholder="Search by email"
+          placeholder="Search by Steam ID"
         />
       </template>
     </Column>

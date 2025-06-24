@@ -47,20 +47,34 @@ const showPremiumDialog = usePremiumDialog();
 
       <div class="pricing-options mt-4 d-flex gap-2 flex-column">
         <Button
-          label="Monthly - $2.99"
-          class="mb-2 w-full premium-btn border-0"
-          icon="pi pi-star"
-        />
+          class="mb-2 w-100 premium-btn border-0 d-flex justify-content-between align-items-center"
+        >
+          <span class="d-flex align-items-center">
+            <i class="pi pi-star me-2"></i>
+            Monthly
+          </span>
+          <span>$2.99</span>
+        </Button>
+
         <Button
-          label="6 Months - $14.99"
-          class="mb-2 w-full premium-btn border-0"
-          icon="pi pi-star-fill"
-        />
+          class="mb-2 w-100 premium-btn border-0 d-flex justify-content-between align-items-center"
+        >
+          <span class="d-flex align-items-center">
+            <i class="pi pi-star-fill"></i>
+            <span class="ms-2">6 Months</span>
+          </span>
+          <span>$14.99</span>
+        </Button>
+
         <Button
-          label="Yearly - $24.99"
-          class="mb-2 w-full premium-btn border-0"
-          icon="pi pi-prime"
-        />
+          class="mb-2 w-100 premium-btn border-0 d-flex justify-content-between align-items-center"
+        >
+          <span class="d-flex align-items-center">
+            <i class="pi pi-prime me-2"></i>
+            Yearly
+          </span>
+          <span>$24.99</span>
+        </Button>
       </div>
     </div>
   </Dialog>
