@@ -1,4 +1,4 @@
-import { UserRole } from "~/utils/enums";
+import { UserRole } from "~/types/enums";
 
 // middleware/auth-admin-login.ts
 export default defineNuxtRouteMiddleware(async () => {

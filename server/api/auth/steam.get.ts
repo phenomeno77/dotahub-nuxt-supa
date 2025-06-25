@@ -10,11 +10,11 @@ export default defineOAuthSteamEventHandler({
 
     await handleSteamUser(event, steamUser);
 
-    return sendRedirect(event, "/auth/callback");
+    return sendRedirect(event, "/steam/callback");
   },
 
   onError(event, error) {
     console.error("Steam login failed:", error);
-    return sendRedirect(event, "/login?error=steam");
+    return sendRedirect(event, "/steam/login?error=steam_login_failed");
   },
 });

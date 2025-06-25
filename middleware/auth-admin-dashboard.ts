@@ -1,4 +1,4 @@
-import { UserRole } from "~/utils/enums";
+import { UserRole } from "~/types/enums";
 
 export default defineNuxtRouteMiddleware(async () => {
   const authStore = useAuthStore();

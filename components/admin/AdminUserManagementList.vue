@@ -5,7 +5,7 @@ import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import type { UpdateUser } from "~/types/UpdateUser";
 import BanUserForm from "./BanUserForm.vue";
-import { UserRole, UserStatus } from "~/utils/enums";
+import { UserRole, UserStatus } from "~/types/enums";
 import type { UserProfile } from "~/types/UserProfile";
 
 const props = defineProps({

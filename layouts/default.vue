@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import CreatePost from "~/components/posts/CreatePost.vue";
 
 const config = useRuntimeConfig();
 useHead({
@@ -12,6 +13,7 @@ const loading = useLoadingStore();
 const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");
 const showPremiumDialog = usePremiumDialog();
+const createPostDialog = useCreatePostDialog();
 
 const layoutColumns = computed(() => {
   if (isHomePage.value || isProfilePage.value) {
@@ -57,6 +59,7 @@ const layoutColumns = computed(() => {
     </header>
 
     <PremiumPlan v-if="showPremiumDialog" />
+    <CreatePost v-if="createPostDialog" />
 
     <main
       class="position-absolute start-0 end-0"

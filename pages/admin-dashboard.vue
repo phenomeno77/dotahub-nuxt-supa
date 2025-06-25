@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { UpdateUser } from "~/types/UpdateUser";
-import { UserRole, UserStatus } from "~/utils/enums";
+import { UserRole, UserStatus } from "~/types/enums";
 import notifications from "~/utils/notifications";
 
 definePageMeta({

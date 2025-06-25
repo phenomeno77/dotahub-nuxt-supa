@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { onMounted } from "vue";
-import { UserRole } from "~/utils/enums";
+import { UserRole } from "~/types/enums";
 
 const authStore = useAuthStore();
 const router = useRouter();

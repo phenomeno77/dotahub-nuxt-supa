@@ -3,7 +3,7 @@ import { buttons } from "~/constants/labels";
 import { useAuthStore } from "~/stores/auth";
 import steamLogo from "~/assets/steam.svg";
 import NavBarProfileAvatar from "./NavBarProfileAvatar.vue";
-import { UserRole } from "~/utils/enums";
+import { UserRole } from "~/types/enums";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
@@ -11,7 +11,7 @@ const { loggedIn, user } = useUserSession();
 const supabase = useSupabaseClient();
 const authStore = useAuthStore();
 const showPremiumDialog = usePremiumDialog();
-const showCreatePostDialog = useState("createPostDialog");
+const showCreatePostDialog = useCreatePostDialog();
 const loadingStore = useLoadingStore();
 
 const handleLogout = async () => {
@@ -59,7 +59,7 @@ const mainMenuItems = computed(() => {
       label: buttons.CREATE_POST,
       icon: "pi pi-pen-to-square",
       command: () => {
-        showCreatePostDialog;
+        showCreatePostDialog.value = true;
       },
     });
   }
