@@ -66,10 +66,18 @@ const mainMenuItems = computed(() => {
 
   return menu;
 });
+
+const menuPt = computed(() => ({
+  root: {
+    style: {
+      height: "100%",
+    },
+  },
+}));
 </script>
 
 <template>
-  <Menubar :model="mainMenuItems">
+  <Menubar :model="mainMenuItems" :pt="menuPt">
     <!-- Logo / Title -->
     <template #start>
       <NuxtLink :to="{ path: '/' }" class="font-bold text-lg me-3">

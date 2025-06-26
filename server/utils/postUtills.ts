@@ -131,6 +131,9 @@ async function createPost(
   });
 }
 
+async function getPosts(event: H3Event) {}
+
 export default {
   createPost,
+  getPosts,
 };

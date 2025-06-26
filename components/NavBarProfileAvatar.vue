@@ -8,7 +8,6 @@ const { loggedIn } = useUserSession();
 const profileMenu = ref();
 const router = useRouter();
 const authStore = useAuthStore();
-
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 const avatarLabel = computed(() =>
   !authStore?.avatarUrl && authStore?.username
@@ -58,6 +57,21 @@ const formattedPremiumDate = computed(() => {
     second: "2-digit",
   });
 });
+
+const menuPt = computed(() => ({
+  root: {
+    style: {
+      border: "none",
+      top: "9%",
+    },
+  },
+  item: {
+    style: {
+      paddingTop: "4px",
+      paddingBottom: "4px",
+    },
+  },
+}));
 </script>
 
 <template>
@@ -92,20 +106,7 @@ const formattedPremiumDate = computed(() => {
     id="overlay_menu"
     :model="profileMenuItems"
     :popup="true"
-    :pt="{
-      root: {
-        style: {
-          border: 'none',
-          top: '7%',
-        },
-      },
-      item: {
-        style: {
-          paddingTop: '4px',
-          paddingBottom: '4px',
-        },
-      },
-    }"
+    :pt="menuPt"
   >
     <template #start>
       <div class="d-flex align-items-center justify-content-start gap-2 p-1">
