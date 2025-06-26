@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
     "@pinia/nuxt",
     "pinia-plugin-persistedstate/nuxt",
+    "@vueuse/nuxt",
   ],
   css: ["@/assets/main.css", "primeicons/primeicons.css"],
 

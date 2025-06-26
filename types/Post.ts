@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string;
   username: string;
   avatarUrl?: string | null;
   isPremium: boolean;
@@ -23,10 +23,9 @@ export interface Post {
   positionsNeeded?: string[];
   minRank?: string;
   maxRank?: string;
-  description?: string;
+  description?: string | null; // ← add `null` here
   createdAt?: Date;
   updatedAt?: Date;
   user?: User;
-  comments?: Comment[];
   commentCount?: number;
 }

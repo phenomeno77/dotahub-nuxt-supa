@@ -1,5 +1,3 @@
-// server/services/postService.ts
-
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { UserStatus, Rank } from "@prisma/client";
@@ -131,7 +129,92 @@ async function createPost(
   });
 }
 
-async function getPosts(event: H3Event) {}
+async function getPosts(event: H3Event, limit: number, skip: number) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  // Fetch posts from premium and free users
+  const [premiumPosts, freePosts] = await Promise.all([
+    prisma.posts.findMany({
+      where: { user: { isPremium: true } },
+      orderBy: { createdAt: "desc" },
+      include: { user: true },
+    }),
+    prisma.posts.findMany({
+      where: { user: { isPremium: false } },
+      orderBy: { createdAt: "desc" },
+      include: { user: true },
+    }),
+  ]);
+
+  // Merge: 2 premium : 1 free
+  const merged: typeof premiumPosts = [];
+  let p = 0,
+    f = 0;
+  while (p < premiumPosts.length || f < freePosts.length) {
+    for (let i = 0; i < 2 && p < premiumPosts.length; i++) {
+      merged.push(premiumPosts[p++]);
+    }
+    if (f < freePosts.length) {
+      merged.push(freePosts[f++]);
+    }
+  }
+
+  const paginated = merged.slice(skip, skip + limit);
+
+  // Get comment counts with groupBy
+  const postIds = paginated.map((post) => post.id);
+
+  const commentCounts = await prisma.postComments.groupBy({
+    by: ["postId"],
+    where: {
+      postId: { in: postIds },
+    },
+    _count: {
+      postId: true,
+    },
+  });
+
+  // Convert counts to a map for quick lookup
+  const countMap = new Map(
+    commentCounts.map((item) => [item.postId, item._count.postId])
+  );
+
+  const formattedPosts = paginated.map((post) => ({
+    id: post.id,
+    userId: post.user.id,
+    partySize: post.partySize,
+    positionsNeeded: post.positionsNeeded,
+    minRank: post.minRank,
+    maxRank: post.maxRank,
+    description: post.description,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    user: {
+      id: post.user.id,
+      username: post.user.username,
+      avatarUrl: post.user.avatarUrl,
+      isPremium: post.user.isPremium,
+    },
+    commentCount: countMap.get(post.id) ?? 0,
+  }));
+
+  console.log(
+    "Positions Needed for all posts:",
+    formattedPosts.map((post) => post.positionsNeeded)
+  );
+
+  return {
+    posts: formattedPosts,
+    total: premiumPosts.length + freePosts.length,
+  };
+}
 
 export default {
   createPost,

@@ -5,6 +5,7 @@ import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import type { UpdateUser } from "~/types/UpdateUser";
 import BanUserForm from "./BanUserForm.vue";
+import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
 import type { UserProfile } from "~/types/UserProfile";
 
