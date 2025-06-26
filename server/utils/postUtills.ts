@@ -205,11 +205,6 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
     commentCount: countMap.get(post.id) ?? 0,
   }));
 
-  console.log(
-    "Positions Needed for all posts:",
-    formattedPosts.map((post) => post.positionsNeeded)
-  );
-
   return {
     posts: formattedPosts,
     total: premiumPosts.length + freePosts.length,
