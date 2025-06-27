@@ -48,7 +48,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
   }
 
   try {
-    const { user, redirectTo } = await $fetch("/api/auth/admin/login", {
+    const { success, user } = await $fetch("/api/auth/admin/login", {
       method: "POST",
       body: loginData,
     });
@@ -69,7 +69,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       user.premiumExpiresAt
     );
 
-    navigateTo(redirectTo);
+    navigateTo("/admin/dashboard");
   } catch (error: any) {
     console.log(error.statusMessage);
     notifications(
