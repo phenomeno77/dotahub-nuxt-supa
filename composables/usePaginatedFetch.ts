@@ -1,5 +1,4 @@
 import { useToast } from "primevue/usetoast";
-import { shallowRef } from "vue";
 
 export function usePaginatedFetch<T>(url: string, limit = 5) {
   const items = ref<T[]>([]) as Ref<T[]>;

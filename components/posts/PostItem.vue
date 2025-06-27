@@ -25,6 +25,7 @@ const showAddComment = ref(false);
 const comment = ref<string>("");
 const showComments = ref(false);
 const comments = ref<Comment[]>([]);
+const expandedPosts = ref<number[]>([]);
 const menu = ref();
 const postStore = usePostStore();
 const toast = useToast();
@@ -32,7 +33,6 @@ const confirm = useConfirm();
 const isEditPost = ref(false);
 const premiumStore = usePremiumDialog();
 
-const isLoadingMore = ref(false);
 const COMMENTS_PER_SCROLL = ref(3);
 const postCommentCount = ref<number>(0);
 
@@ -43,6 +43,18 @@ const positionLabels: Record<string, string> = {
   soft_support: "Soft Support",
   hard_support: "Hard Support",
 };
+
+function isPostExpanded(id: number) {
+  return expandedPosts.value.includes(id);
+}
+
+function togglePostExpand(id: number) {
+  if (isPostExpanded(id)) {
+    expandedPosts.value = expandedPosts.value.filter((i) => i !== id);
+  } else {
+    expandedPosts.value.push(id);
+  }
+}
 
 const toggleShowComments = async () => {
   showComments.value = !showComments.value;
@@ -249,7 +261,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="post-item shadow-sm mb-4">
+  <div class="post-item mb-4">
     <!-- Header -->
     <div
       class="d-flex justify-content-between align-items-center mb-3 px-3 pt-3 w-100"
@@ -302,7 +314,36 @@ onMounted(() => {
 
     <!-- Description -->
     <div class="px-3">
-      <p class="post-description">{{ props.post.description }}</p>
+      <div
+        :class="[
+      'post-description-wrapper',
+      { 'scrollable-description': isPostExpanded(props.post.id as number) }
+    ]"
+      >
+        <p class="post-description">
+          {{
+            isPostExpanded(props.post.id as number)
+              ? props.post.description ?? ""
+              : (props.post.description ?? "").slice(0, 255) +
+                ((props.post.description?.length ?? 0) > 255 ? "..." : "")
+          }}
+        </p>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <Button
+          v-if="
+            (props.post.description?.length ?? 0) > 255 &&
+            props.post.id !== undefined
+          "
+          variant="link"
+          @click="togglePostExpand(props.post.id as number)"
+        >
+          {{
+            isPostExpanded(props.post.id as number) ? "Show Less" : "Show More"
+          }}
+        </Button>
+      </div>
     </div>
 
     <!-- Rank Row -->
@@ -437,8 +478,31 @@ onMounted(() => {
 }
 
 .post-description {
-  margin-bottom: 1rem;
   color: var(--text-primary);
+  white-space: pre-line;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.post-description-wrapper {
+  transition: max-height 0.3s ease;
+}
+
+.scrollable-description {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Optional scrollbar customization */
+.scrollable-description::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-description::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 
 .rank-box {

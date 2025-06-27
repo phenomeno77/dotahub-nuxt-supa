@@ -115,7 +115,7 @@ useHead({
         <div class="container-fluid h-100">
           <div class="row justify-content-center h-100">
             <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
-            <div :class="layoutColumns.center">
+            <div :class="layoutColumns.center" class="center-layout">
               <NuxtPage />
             </div>
             <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>

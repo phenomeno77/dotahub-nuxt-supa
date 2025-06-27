@@ -23,7 +23,7 @@ export interface Post {
   positionsNeeded?: string[];
   minRank?: string;
   maxRank?: string;
-  description?: string | null; // ← add `null` here
+  description?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
   user?: User;

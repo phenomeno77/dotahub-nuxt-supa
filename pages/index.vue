@@ -6,6 +6,8 @@ import { useRoute } from "vue-router";
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
+import PostItem from "~/components/posts/PostItem.vue";
+import { usePostStore } from "~/stores/posts";
 
 const loadingStore = useLoadingStore();
 const isBanned = ref(false);
@@ -27,8 +29,7 @@ watch(
   async (shouldRefresh) => {
     if (shouldRefresh) {
       loadingStore.startLoading();
-      fetchInitial();
-
+      await fetchInitial();
       postStore.clearRefreshFlag();
       loadingStore.stopLoading();
     }
@@ -42,19 +43,21 @@ watch(
     steamLoginFailed.value = route.query.error === "steam_login_failed";
 
     if (!isBanned.value && !steamLoginFailed.value) {
-      fetchInitial();
+      loadingStore.startLoading();
+      await fetchInitial();
+      loadingStore.stopLoading();
     }
   },
-  { immediate: false }
+  { immediate: true }
 );
 
-onMounted(() => {
+onMounted(async () => {
   loadingStore.startLoading();
   isBanned.value = route.query.error === "account_banned";
   steamLoginFailed.value = route.query.error === "steam_login_failed";
 
-  if (!isBanned.value || !steamLoginFailed.value) {
-    fetchInitial();
+  if (!isBanned.value && !steamLoginFailed.value) {
+    await fetchInitial();
   }
 
   loadingStore.stopLoading();
@@ -74,10 +77,14 @@ onMounted(() => {
     <PostSkeleton v-for="n in 3" :key="'skeleton-' + n" />
   </div>
 
-  <Posts v-else :posts="posts" />
+  <div v-else>
+    <div v-for="post in posts" :key="post.id" style="padding: 1rem 0">
+      <PostItem :post="post" />
+    </div>
 
-  <div v-if="posts.length >= total && !isBanned" class="no-more-posts">
-    You've reached the end! 🎉
+    <div v-if="posts.length >= total && !isBanned" class="no-more-posts">
+      You've reached the end! 🎉
+    </div>
   </div>
 </template>
 
