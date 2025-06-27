@@ -210,6 +210,8 @@ async function updatePost(
   },
   postId: number
 ) {
+  console.log("Test log: 1");
+
   const { user: currentUser } = await getUserSession(event);
 
   if (!currentUser) {
@@ -218,6 +220,8 @@ async function updatePost(
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
+
+  console.log("Test log: 2");
 
   const user = await prisma.userProfile.findUnique({
     where: { id: currentUser.id },
@@ -230,6 +234,8 @@ async function updatePost(
     });
   }
 
+  console.log("Test log: 3");
+
   const post = await prisma.posts.findUnique({ where: { id: postId } });
 
   if (!post) {
@@ -239,12 +245,16 @@ async function updatePost(
     });
   }
 
+  console.log("Test log: 4");
+
   if (post.userId !== user.id && user.role !== UserRole.admin) {
     throw createError({
       statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
+
+  console.log("Test log: 5");
 
   const {
     minRank,
@@ -254,6 +264,8 @@ async function updatePost(
     description = "",
   } = postData;
 
+  console.log("Test log: 6");
+
   if (!minRank || !maxRank) {
     throw createError({
       statusCode: 400,
@@ -261,9 +273,13 @@ async function updatePost(
     });
   }
 
+  console.log("Test log: 7");
+
   const rankOrder = Object.values(Rank);
   const minIndex = rankOrder.indexOf(minRank);
   const maxIndex = rankOrder.indexOf(maxRank);
+
+  console.log("Test log: 8");
 
   if (minIndex === -1 || maxIndex === -1) {
     throw createError({
@@ -272,12 +288,16 @@ async function updatePost(
     });
   }
 
+  console.log("Test log: 9");
+
   if (minIndex > maxIndex) {
     throw createError({
       statusCode: 400,
       statusMessage: ErrorMessages.MIN_RANK_LESS_THAN_MAX_RANK,
     });
   }
+
+  console.log("Test log: 10");
 
   if (!positionsNeeded || positionsNeeded.length === 0) {
     throw createError({
@@ -286,12 +306,16 @@ async function updatePost(
     });
   }
 
+  console.log("Test log: 11");
+
   if (!partySize || partySize < 1 || partySize > 5) {
     throw createError({
       statusCode: 400,
       statusMessage: ErrorMessages.PARTY_SIZE_ERROR,
     });
   }
+
+  console.log("Test log: 12");
 
   const updatedPost = await prisma.posts.update({
     where: { id: postId },
@@ -303,6 +327,8 @@ async function updatePost(
       description,
     },
   });
+
+  console.log("Test log: 13");
 
   return updatedPost;
 }
