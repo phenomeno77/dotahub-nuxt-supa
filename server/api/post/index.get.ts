@@ -1,6 +1,4 @@
 export default defineEventHandler(async (event) => {
-  await requireUserLoggedIn(event);
-
   const query = getQuery(event);
   const limit = parseInt(query.limit as string) || 5;
   const skip = parseInt(query.skip as string) || 0;

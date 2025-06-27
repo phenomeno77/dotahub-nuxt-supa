@@ -127,15 +127,6 @@ async function createPost(
 }
 
 async function getPosts(event: H3Event, limit: number, skip: number) {
-  const { user: currentUser } = await getUserSession(event);
-
-  if (!currentUser) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: ErrorMessages.UNAUTHORIZED,
-    });
-  }
-
   // Fetch posts from premium and free users
   const [premiumPosts, freePosts] = await Promise.all([
     prisma.posts.findMany({

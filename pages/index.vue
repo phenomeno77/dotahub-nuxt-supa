@@ -95,6 +95,9 @@ watch(
     isBanned.value = route.query.error === "account_banned";
     steamLoginFailed.value = route.query.error === "steam_login_failed";
 
+    console.log(isBanned.value);
+    console.log(steamLoginFailed.value);
+
     if (!isBanned.value && !steamLoginFailed.value) {
       await fetchPosts();
     }

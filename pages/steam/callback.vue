@@ -41,7 +41,7 @@ onMounted(async () => {
     }
   } catch (err) {
     console.error("Error loading user session:", err);
-    router.replace("/login?error=auth_failed");
+    router.replace("/error=auth_failed");
   }
 });
 </script>
