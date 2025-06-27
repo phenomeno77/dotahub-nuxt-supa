@@ -71,14 +71,15 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
 
     navigateTo("/admin/dashboard");
   } catch (error: any) {
-    console.log(error.statusMessage);
-    notifications(
-      toast,
-      "warn",
-      "Login failed",
-      error.statusMessage || error.message,
-      3000
-    );
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    console.log(message);
+
+    notifications(toast, "warn", "Login failed", message, 3000);
   } finally {
     setTimeout(() => {
       loading.stopLoading();
@@ -90,7 +91,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
   <div
     class="container d-flex flex-column justify-content-center align-items-center h-100"
   >
-    <div class="admin-form-wrapper card p-4 w-75">
+    <div class="admin-form-wrapper card p-4">
       <AdminLoginForm @submit="handleLogin" />
     </div>
   </div>
@@ -102,5 +103,12 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
   color: var(--text-color);
   padding: 2rem;
   border-radius: none;
+  width: 60%;
+}
+
+@media (max-width: 768px) {
+  .admin-form-wrapper {
+    width: 90%;
+  }
 }
 </style>
