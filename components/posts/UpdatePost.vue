@@ -1,25 +1,32 @@
-<script setup lang="ts">
-import { errorMessage, labels, buttons } from "~/constants/labels";
-import { Position, Rank } from "~/types/enums";
+<script lang="ts" setup>
+import { buttons, errorMessage, labels } from "~/constants/labels";
+import Select from "primevue/select";
 import type { Post } from "~/types/Post";
+import { Position, Rank } from "~/types/enums";
+
+const emit = defineEmits(["update-post"]);
+
+const props = defineProps<{
+  postId: number | undefined;
+  description: string | null | undefined;
+  minRank: string | undefined;
+  maxRank: string | undefined;
+  positionsNeeded: string[] | undefined;
+}>();
 
 const positions = ref(Object.entries(Position));
 const ranks = ref(Object.values(Rank));
-
-const description = ref<string>("");
 const errors = ref<Record<string, string>>({});
-const minRank = ref<Rank>();
-const maxRank = ref<Rank>();
-const selectedPositions = ref<Position[]>([]);
-const showPremiumDialog = usePremiumDialog();
-const confirm = useConfirm();
-const createPostDialog = useCreatePostDialog();
-const toast = useToast();
-const postStore = usePostStore();
+const description = ref(props.description);
+const minRank = ref(props.minRank);
+const maxRank = ref(props.maxRank);
+const selectedPositions = ref([...(props.positionsNeeded ?? [])]);
+const isEditPost = defineModel("isEditPost", { type: Boolean, default: false });
 
 const validateForm = () => {
   errors.value = {};
-  if (!description.value.trim()) {
+
+  if (!description.value || !description.value.trim()) {
     errors.value.description = errorMessage.DESCRIPTION;
   }
   if (!minRank.value || !maxRank.value) {
@@ -37,59 +44,30 @@ const submitPost = async () => {
   if (!validateForm()) return;
 
   const post: Post = {
+    id: props.postId,
     partySize: selectedPositions.value.length,
     positionsNeeded: selectedPositions.value,
     minRank: minRank.value,
     maxRank: maxRank.value,
     description: description.value,
-    createdAt: new Date(),
   };
 
   try {
-    const response = await $fetch("/api/post/create", {
-      method: "POST",
+    const response = await $fetch("/api/post/update", {
+      method: "PUT",
       body: {
         post,
       },
     });
+
     if (response.success) {
-      createPostDialog.value = false;
-      postStore.triggerRefresh();
+      emit("update-post");
+    } else {
+      throw new Error("Failed to fetch roles");
     }
   } catch (error: any) {
-    if (error.isLimitError) {
-      // Handle the case where post limit is reached
-      confirmDialog();
-    } else {
-      // For other errors
-      console.error(
-        error.message || "An error occurred while submitting the post."
-      );
-      const message = error?.statusMessage;
-      notifications(toast, "error", message);
-    }
-  } finally {
+    console.error(error);
   }
-};
-
-const confirmDialog = () => {
-  confirm.require({
-    message: labels.CONFIRM_HEADER_POST_LIMIT_MESSAGE,
-    header: labels.CONFIRM_HEADER_POST_LIMIT_HEADER,
-    rejectProps: {
-      label: "Close",
-      severity: "secondary",
-      outlined: true,
-    },
-    acceptProps: {
-      label: labels.PREMIUM_PLAN,
-      icon: "pi pi-crown",
-    },
-    accept: () => {
-      showPremiumDialog.value = true;
-    },
-    reject: () => {},
-  });
 };
 
 const getPositionIcon = (position: string) => {
@@ -112,7 +90,7 @@ const getPositionIcon = (position: string) => {
 const minOptions = computed(() => {
   if (!maxRank.value) return ranks.value.map((r) => ({ label: r, value: r }));
 
-  const maxIndex = ranks.value.indexOf(maxRank.value);
+  const maxIndex = ranks.value.indexOf(maxRank.value as Rank);
   return ranks.value.slice(0, maxIndex + 1).map((r) => ({
     label: r,
     value: r,
@@ -122,7 +100,7 @@ const minOptions = computed(() => {
 const maxOptions = computed(() => {
   if (!minRank.value) return ranks.value.map((r) => ({ label: r, value: r }));
 
-  const minIndex = ranks.value.indexOf(minRank.value);
+  const minIndex = ranks.value.indexOf(minRank.value as Rank);
   return ranks.value.slice(minIndex).map((r) => ({
     label: r,
     value: r,
@@ -132,9 +110,9 @@ const maxOptions = computed(() => {
 
 <template>
   <Dialog
-    v-model:visible="createPostDialog"
+    v-model:visible="isEditPost"
     modal
-    :header="buttons.CREATE_POST"
+    :header="buttons.EDIT_POST"
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
     :contentStyle="{ height: '100%' }"
@@ -148,7 +126,6 @@ const maxOptions = computed(() => {
       },
     }"
   >
-    <!-- Description -->
     <div class="mb-3 w-100 d-flex flex-column p-2 gap-3">
       <div>
         <FloatLabel variant="on">
@@ -227,6 +204,7 @@ const maxOptions = computed(() => {
             </label>
           </div>
         </div>
+
         <Message
           v-if="errors.positions"
           severity="error"
@@ -240,16 +218,15 @@ const maxOptions = computed(() => {
 
     <div class="w-100 text-center">
       <Button
-        :label="buttons.SUBMIT_POST"
+        :label="buttons.SUBMIT_CHANGES"
         class="w-100"
-        severity="primary"
         @click="submitPost"
       />
     </div>
   </Dialog>
 </template>
 
-<style scoped>
+<style>
 .checkbox-group {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -12,6 +12,7 @@ import notifications from "~/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { Position } from "~/types/enums";
+import UpdatePost from "./UpdatePost.vue";
 // import PostComments from "./PostComments.vue";
 
 dayjs.extend(relativeTime);
@@ -343,14 +344,14 @@ onMounted(() => {
       />
     </div>
 
-    <PostComments
+    <!-- <PostComments
       v-if="showComments && !isLoadingMore"
       :comments="comments"
       :totalCommentsCount="postCommentCount"
       :postId="props.post.id || 0"
       :commentsPerScroll="COMMENTS_PER_SCROLL"
       @on-delete-comment="handleCommentDelete"
-    />
+    /> -->
 
     <div class="d-flex justify-content-end gap-2 pb-3 pe-3" v-if="loggedIn">
       <Button
@@ -363,7 +364,7 @@ onMounted(() => {
       />
     </div>
 
-    <div v-if="showAddComment && loggedIn">
+    <!-- <div v-if="showAddComment && loggedIn">
       <AddPostComment v-model="comment" />
       <div class="d-flex justify-content-end p-2 gap-1">
         <Button
@@ -388,26 +389,18 @@ onMounted(() => {
           @click="addComment"
         />
       </div>
-    </div>
+    </div> -->
   </div>
 
-  <Dialog
-    v-model:visible="isEditPost"
-    modal
-    :header="buttons.EDIT_POST"
-    :style="{ width: '40%' }"
-    :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
-    :contentStyle="{ height: '100%' }"
-  >
-    <UpdatePost
-      @update-post="updatePost"
-      :postId="props.post.id"
-      :description="props.post.description"
-      :minRank="props.post.minRank"
-      :maxRank="props.post.maxRank"
-      :positionsNeeded="props.post.positionsNeeded"
-    />
-  </Dialog>
+  <UpdatePost
+    @update-post="updatePost"
+    :postId="props.post.id"
+    :description="props.post.description"
+    :minRank="props.post.minRank"
+    :maxRank="props.post.maxRank"
+    :positionsNeeded="props.post.positionsNeeded"
+    v-model:isEditPost="isEditPost"
+  />
 </template>
 
 <style scoped>

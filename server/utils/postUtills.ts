@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
-import { UserStatus, Rank } from "@prisma/client";
+import { UserStatus, Rank, UserRole, Position } from "@prisma/client";
 import { ErrorMessages } from "../constants/errors";
 import { checkAndUpdatePremiumStatus } from "./premiumCheck";
 import { RATE_LIMITS } from "../constants/rateLimits";
@@ -10,7 +10,7 @@ async function createPost(
   event: H3Event,
   postData: {
     partySize?: number;
-    positionsNeeded?: string[];
+    positionsNeeded?: Position[];
     minRank: Rank;
     maxRank: Rank;
     description?: string;
@@ -97,8 +97,6 @@ async function createPost(
     });
   }
 
-  const parsedPositions = parseAndValidatePositions(positionsNeeded);
-
   if (partySize < 1 || partySize > 5) {
     throw createError({
       statusCode: 400,
@@ -110,7 +108,7 @@ async function createPost(
   await prisma.posts.create({
     data: {
       partySize,
-      positionsNeeded: parsedPositions,
+      positionsNeeded: positionsNeeded,
       minRank,
       maxRank,
       description,
@@ -211,7 +209,116 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
   };
 }
 
+async function updatePost(
+  event: H3Event,
+  postData: {
+    id?: number;
+    partySize?: number;
+    positionsNeeded?: Position[];
+    minRank: Rank;
+    maxRank: Rank;
+    description?: string;
+  }
+) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: currentUser.id },
+  });
+
+  if (!user || user.userStatus !== UserStatus.active) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const post = await prisma.posts.findUnique({ where: { id: postData.id } });
+
+  if (!post) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.POST_NOT_FOUND,
+    });
+  }
+
+  if (post.userId !== user.id && user.role !== UserRole.admin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const {
+    minRank,
+    maxRank,
+    partySize,
+    positionsNeeded,
+    description = "",
+  } = postData;
+
+  if (!minRank || !maxRank) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.MIN_RANK_MAX_RANK_REQUIRED,
+    });
+  }
+
+  const rankOrder = Object.values(Rank);
+  const minIndex = rankOrder.indexOf(minRank);
+  const maxIndex = rankOrder.indexOf(maxRank);
+
+  if (minIndex === -1 || maxIndex === -1) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.INVALID_RANK,
+    });
+  }
+
+  if (minIndex > maxIndex) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.MIN_RANK_LESS_THAN_MAX_RANK,
+    });
+  }
+
+  if (!positionsNeeded || positionsNeeded.length === 0) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.NO_POSITION_SELECTED,
+    });
+  }
+
+  if (!partySize || partySize < 1 || partySize > 5) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.PARTY_SIZE_ERROR,
+    });
+  }
+
+  const updatedPost = await prisma.posts.update({
+    where: { id: postData.id },
+    data: {
+      partySize,
+      positionsNeeded: positionsNeeded,
+      minRank,
+      maxRank,
+      description,
+    },
+  });
+
+  return updatedPost;
+}
+
 export default {
   createPost,
   getPosts,
+  updatePost,
 };
