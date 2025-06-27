@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     await requireUserLoggedIn(event);
     const body = await readBody(event);
 
-    await postUtills.createPost(event, body.post);
+    await postUtils.createPost(event, body.post);
 
     return {
       success: true,

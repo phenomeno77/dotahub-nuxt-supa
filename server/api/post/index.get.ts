@@ -6,11 +6,7 @@ export default defineEventHandler(async (event) => {
   const skip = parseInt(query.skip as string) || 0;
 
   try {
-    const result = await postUtills.getPosts(
-      event,
-      Number(limit),
-      Number(skip)
-    );
+    const result = await postUtils.getPosts(event, Number(limit), Number(skip));
 
     return {
       success: true,

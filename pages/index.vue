@@ -20,24 +20,28 @@ const POSTS_PER_PAGE = 5;
 const maxPosts = ref(0);
 const postStore = usePostStore();
 let scrollElement: HTMLElement;
+const loadingPosts = ref(false);
 
 const fetchPosts = async () => {
   try {
     isLoadingMore.value = true;
-    const response = await $fetch(`/api/post?limit=${POSTS_PER_PAGE}&skip=0`);
+    loadingPosts.value = true;
+    const response = await $fetch<{
+      success: boolean;
+      posts: Array<Post>;
+      total: number;
+    }>(`/api/post?limit=${POSTS_PER_PAGE}&skip=0`);
 
     if (response.success) {
-      posts.value = response.posts.map((post) => ({
-        ...post,
-        createdAt: new Date(post.createdAt),
-        updatedAt: new Date(post.updatedAt),
-      }));
+      posts.value = response.posts;
+
       maxPosts.value = response.total;
     }
   } catch (error: any) {
     notifications(toast, "warn", "Fetching Posts Failed", error.message, 3000);
   } finally {
     isLoadingMore.value = false;
+    loadingPosts.value = false;
   }
 };
 
@@ -106,6 +110,7 @@ onMounted(async () => {
   if (!isBanned.value || !steamLoginFailed.value) {
     await fetchPosts();
   }
+
   loadingStore.stopLoading();
 });
 </script>
@@ -114,13 +119,11 @@ onMounted(async () => {
   <BannedAlert v-if="isBanned" />
   <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
 
-  <div v-else>
-    <Posts v-if="!loadingStore.isLoading" :posts="posts" />
-
-    <div v-if="loadingStore.isLoading">
-      <PostSkeleton v-for="n in 3" :key="'skeleton-' + n" />
-    </div>
+  <div v-if="loadingPosts">
+    <PostSkeleton v-for="n in 3" :key="'skeleton-' + n" />
   </div>
+
+  <Posts v-else :posts="posts" />
 
   <div v-if="posts.length >= maxPosts && !isBanned" class="no-more-posts">
     You've reached the end! 🎉

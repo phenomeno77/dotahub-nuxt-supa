@@ -77,8 +77,29 @@ useHead({
 </script>
 <template>
   <Toast />
-  <ConfirmDialog />
-
+  <ConfirmDialog
+    :pt="{
+      root: {
+        style: {
+          background: 'var(--background-color)',
+          color: 'var(--text-color)',
+          border: 'none',
+        },
+      },
+      icon: {
+        style: {
+          color: 'var(--text-color)',
+        },
+      },
+      pcRejectButton: {
+        root: {
+          style: {
+            color: 'var(--text-color)',
+          },
+        },
+      },
+    }"
+  />
   <div v-show="loading.isLoading" class="loading-overlay">
     <ProgressSpinner />
   </div>

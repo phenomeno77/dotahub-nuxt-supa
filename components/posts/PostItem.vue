@@ -11,7 +11,6 @@ import { usePostStore } from "~/stores/posts";
 import notifications from "~/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-import { Position } from "~/types/enums";
 import UpdatePost from "./UpdatePost.vue";
 // import PostComments from "./PostComments.vue";
 
@@ -170,18 +169,23 @@ const confirmDialog = () => {
 };
 
 const deletePost = async () => {
-  // try {
-  //   const response = await api.post.deletePost(props.post.id!);
-  //   const response = await $fetch('/api/post/delete')
-  //   if (response.status === "ok") {
-  //     notifications(toast, "success", "Post deleted successfully");
-  //     postStore.triggerRefresh();
-  //   } else {
-  //     throw new Error("Failed to remove post...");
-  //   }
-  // } catch (error: any) {
-  //   console.error(error);
-  // }
+  try {
+    const response = await $fetch<{ success: boolean }>(
+      `/api/post/${props.post.id!}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (response.success) {
+      notifications(toast, "success", "Post deleted successfully");
+      postStore.triggerRefresh();
+    } else {
+      throw new Error("Failed to remove post...");
+    }
+  } catch (error: any) {
+    console.error(error);
+  }
 };
 
 const confirmPostDelete = () => {

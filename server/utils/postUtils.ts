@@ -316,17 +316,7 @@ async function updatePost(
   return updatedPost;
 }
 
-async function deletePost(
-  event: H3Event,
-  postData: {
-    id?: number;
-    partySize?: number;
-    positionsNeeded?: Position[];
-    minRank: Rank;
-    maxRank: Rank;
-    description?: string;
-  }
-) {
+async function deletePost(event: H3Event, postId: number) {
   const { user: currentUser } = await getUserSession(event);
 
   if (!currentUser) {
@@ -347,7 +337,7 @@ async function deletePost(
     });
   }
 
-  const post = await prisma.posts.findUnique({ where: { id: postData.id } });
+  const post = await prisma.posts.findUnique({ where: { id: postId } });
 
   if (!post) {
     throw createError({
@@ -363,65 +353,9 @@ async function deletePost(
     });
   }
 
-  const {
-    minRank,
-    maxRank,
-    partySize,
-    positionsNeeded,
-    description = "",
-  } = postData;
+  await prisma.posts.delete({ where: { id: postId } });
 
-  if (!minRank || !maxRank) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.MIN_RANK_MAX_RANK_REQUIRED,
-    });
-  }
-
-  const rankOrder = Object.values(Rank);
-  const minIndex = rankOrder.indexOf(minRank);
-  const maxIndex = rankOrder.indexOf(maxRank);
-
-  if (minIndex === -1 || maxIndex === -1) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.INVALID_RANK,
-    });
-  }
-
-  if (minIndex > maxIndex) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.MIN_RANK_LESS_THAN_MAX_RANK,
-    });
-  }
-
-  if (!positionsNeeded || positionsNeeded.length === 0) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.NO_POSITION_SELECTED,
-    });
-  }
-
-  if (!partySize || partySize < 1 || partySize > 5) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: ErrorMessages.PARTY_SIZE_ERROR,
-    });
-  }
-
-  const updatedPost = await prisma.posts.update({
-    where: { id: postData.id },
-    data: {
-      partySize,
-      positionsNeeded: positionsNeeded,
-      minRank,
-      maxRank,
-      description,
-    },
-  });
-
-  return updatedPost;
+  return post;
 }
 
 export default {
