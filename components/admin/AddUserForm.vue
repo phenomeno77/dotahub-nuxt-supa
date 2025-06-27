@@ -102,7 +102,12 @@ const submitForm = async () => {
       emits("update-table");
     }
   } catch (error: any) {
-    const message = error?.statusMessage;
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
     notifications(toast, "error", message);
   } finally {
     loading.stopLoading();

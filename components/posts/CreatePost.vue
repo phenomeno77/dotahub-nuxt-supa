@@ -57,18 +57,19 @@ const submitPost = async () => {
       postStore.triggerRefresh();
     }
   } catch (error: any) {
-    if (error.isLimitError) {
-      // Handle the case where post limit is reached
+    const isLimitError = error?.response?._data?.data?.isLimitError;
+
+    if (isLimitError) {
       confirmDialog();
     } else {
-      // For other errors
-      console.error(
-        error.message || "An error occurred while submitting the post."
-      );
-      const message = error?.statusMessage;
+      const message =
+        error?.response?._data?.statusMessage ||
+        error?.message ||
+        "An error occurred while submitting the post.";
+
+      console.error(message);
       notifications(toast, "error", message);
     }
-  } finally {
   }
 };
 

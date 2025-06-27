@@ -38,7 +38,12 @@ const fetchPosts = async () => {
       maxPosts.value = response.total;
     }
   } catch (error: any) {
-    notifications(toast, "warn", "Fetching Posts Failed", error.message, 3000);
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+    notifications(toast, "warn", "Fetching Posts Failed", message, 3000);
   } finally {
     isLoadingMore.value = false;
     loadingPosts.value = false;

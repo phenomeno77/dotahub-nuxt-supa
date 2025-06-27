@@ -2,6 +2,7 @@
 import { buttons, errorMessage, labels } from "~/constants/labels";
 import Select from "primevue/select";
 import type { Post } from "~/types/Post";
+import { useToast } from "primevue/usetoast";
 import { Position, Rank } from "~/types/enums";
 
 const emit = defineEmits(["update-post"]);
@@ -16,6 +17,7 @@ const minRank = ref(props.post.minRank);
 const maxRank = ref(props.post.maxRank);
 const selectedPositions = ref([...(props.post.positionsNeeded ?? [])]);
 const isEditPost = defineModel("isEditPost", { type: Boolean, default: false });
+const toast = useToast();
 
 const validateForm = () => {
   errors.value = {};
@@ -63,7 +65,13 @@ const submitPost = async () => {
       throw new Error("Failed to fetch roles");
     }
   } catch (error: any) {
-    console.error(error);
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Update Post Failed", message, 3000);
   }
 };
 

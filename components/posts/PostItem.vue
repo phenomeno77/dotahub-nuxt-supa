@@ -184,7 +184,13 @@ const deletePost = async () => {
       throw new Error("Failed to remove post...");
     }
   } catch (error: any) {
-    console.error(error);
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Delete Post Failed", message, 3000);
   }
 };
 

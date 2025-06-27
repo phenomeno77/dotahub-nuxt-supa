@@ -24,9 +24,12 @@ export default defineEventHandler(async (event) => {
       },
     };
   } catch (err: any) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: ErrorMessages.LOGIN_REQUIRED,
-    });
+    return sendError(
+      event,
+      createError({
+        statusCode: err.statusCode || 500,
+        statusMessage: err.statusMessage || "Something went wrong",
+      })
+    );
   }
 });

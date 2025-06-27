@@ -31,10 +31,10 @@ export const labels = {
   PREMIUM_PLAN: "Premium Plan",
   CONFIRM_HEADER_POST_LIMIT_HEADER: "Daily Post Limit",
   CONFIRM_HEADER_POST_LIMIT_MESSAGE:
-    "Want to post more? You have hit the daily limit — unlock unlimited posts with Premium!",
+    "You’ve hit your daily post limit. It will reset in 24 hours. Want unlimited posts? Go Premium!",
   CONFIRM_HEADER_COMMENT_LIMIT_HEADER: "Daily Comment Limit",
   CONFIRM_HEADER_COMMENT_LIMIT_MESSAGE:
-    "Want to comment more? You have hit the daily limit — unlock unlimited comments with Premium!",
+    "You’ve hit your daily comment limit. It will reset in 24 hours. Want unlimited comments? Go Premium!",
   BAN_FORM: "Ban Form",
   BAN_REASON: "Ban Reason",
 };

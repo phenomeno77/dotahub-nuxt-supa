@@ -1,3 +1,5 @@
+import { sendError, createError } from "h3";
+
 export default defineEventHandler(async (event) => {
   try {
     await requireUserLoggedIn(event);
@@ -9,9 +11,28 @@ export default defineEventHandler(async (event) => {
       success: true,
     };
   } catch (err: any) {
-    throw createError({
-      statusCode: err.statusCode,
-      statusMessage: err.statusMessage,
-    });
+    if (
+      err.statusCode === 429 &&
+      err.statusMessage === "You have reached your daily post limit."
+    ) {
+      return sendError(
+        event,
+        createError({
+          statusCode: 429,
+          statusMessage: err.statusMessage,
+          data: {
+            isLimitError: true,
+          },
+        })
+      );
+    }
+
+    return sendError(
+      event,
+      createError({
+        statusCode: err.statusCode || 500,
+        statusMessage: err.statusMessage || "Unknown error",
+      })
+    );
   }
 });

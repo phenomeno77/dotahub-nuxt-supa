@@ -69,15 +69,13 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       user.premiumExpiresAt
     );
 
-    navigateTo("/admin/dashboard");
+    navigateTo("/admin-dashboard");
   } catch (error: any) {
     const message =
       error?.response?._data?.statusMessage ||
       error.statusMessage ||
       error.message ||
       "Unexpected error";
-
-    console.log(message);
 
     notifications(toast, "warn", "Login failed", message, 3000);
   } finally {

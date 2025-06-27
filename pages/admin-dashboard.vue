@@ -22,13 +22,14 @@ const fetchUsers = async () => {
     });
     users.value = response;
   } catch (error: any) {
-    notifications(
-      toast,
-      "warn",
-      "Fetching Users Failed",
-      error.statusMessage,
-      3000
-    );
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Fetching Users Failed", message, 3000);
+
     loadingUsers.value = false;
   } finally {
     loadingStore.stopLoading();
@@ -58,7 +59,12 @@ const updateUser = async (newData: UpdateUser) => {
       notifications(toast, "success", "User Updated successfully!");
     }
   } catch (error: any) {
-    const message = error?.statusMessage;
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
     notifications(toast, "warn", "Update failed", message, 3000);
   } finally {
     loadingStore.stopLoading();
