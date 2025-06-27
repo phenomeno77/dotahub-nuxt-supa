@@ -489,7 +489,7 @@ onMounted(() => {
 }
 
 .scrollable-description {
-  max-height: 300px;
+  max-height: 180px;
   overflow-y: auto;
   padding-right: 4px;
   margin-bottom: 0.5rem;
