@@ -194,7 +194,7 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
   }));
 
   return {
-    posts: formattedPosts,
+    items: formattedPosts,
     total: premiumPosts.length + freePosts.length,
   };
 }
