@@ -172,6 +172,7 @@ const confirmDialog = () => {
 const deletePost = async () => {
   // try {
   //   const response = await api.post.deletePost(props.post.id!);
+  //   const response = await $fetch('/api/post/delete')
   //   if (response.status === "ok") {
   //     notifications(toast, "success", "Post deleted successfully");
   //     postStore.triggerRefresh();

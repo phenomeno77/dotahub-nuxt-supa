@@ -2,7 +2,7 @@ import { UserProfile, UserRole, UserStatus } from "@prisma/client";
 import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/errors";
-import { getBanExpiration } from "./banUtills";
+import { getBanExpiration } from "./banUtils";
 
 async function setSession(event: H3Event<Request>, user: UserProfile) {
   await replaceUserSession(event, {

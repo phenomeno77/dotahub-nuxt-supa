@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
     await requireUserLoggedIn(event);
     const body = await readBody(event);
 
-    await postUtills.updatePost(event, body.post);
+    await postUtills.deletePost(event, body.postId);
 
     return {
       success: true,

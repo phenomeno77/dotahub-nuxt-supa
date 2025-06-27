@@ -17,7 +17,7 @@ const loadingStore = useLoadingStore();
 const fetchUsers = async () => {
   loadingStore.startLoading();
   try {
-    const response = await $fetch("/api/auth/admin/users", {
+    const response = await $fetch("/api/auth/admin", {
       method: "GET",
     });
     users.value = response;
@@ -39,10 +39,13 @@ const updateUser = async (newData: UpdateUser) => {
   loadingStore.startLoading();
 
   try {
-    const response = await $fetch("/api/auth/admin/update-user", {
-      method: "POST",
-      body: { newData },
-    });
+    const response = await $fetch<{ success: boolean; user: UpdateUser }>(
+      `/api/auth/admin/${newData.id}`,
+      {
+        method: "PUT",
+        body: { newData },
+      }
+    );
 
     if (response.success) {
       const userIndex = users.value.findIndex(

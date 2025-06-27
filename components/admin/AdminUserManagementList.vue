@@ -98,8 +98,6 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
     return;
   }
 
-  console.log(data.userStatus);
-
   const updatePayload = { ...newData };
 
   if (banData.value && userStatus.value === UserStatus.banned) {

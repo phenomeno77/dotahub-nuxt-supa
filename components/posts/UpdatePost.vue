@@ -44,7 +44,6 @@ const submitPost = async () => {
   if (!validateForm()) return;
 
   const post: Post = {
-    id: props.postId,
     partySize: selectedPositions.value.length,
     positionsNeeded: selectedPositions.value,
     minRank: minRank.value,
@@ -53,12 +52,16 @@ const submitPost = async () => {
   };
 
   try {
-    const response = await $fetch("/api/post/update", {
-      method: "PUT",
-      body: {
-        post,
-      },
-    });
+    const response = await $fetch<{ success: boolean }>(
+      `/api/post/${props.postId}`,
+      {
+        method: "PUT",
+        body: {
+          ...post,
+          id: props.postId,
+        },
+      }
+    );
 
     if (response.success) {
       emit("update-post");

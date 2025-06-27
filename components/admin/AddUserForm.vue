@@ -87,7 +87,7 @@ const submitForm = async () => {
   try {
     loading.startLoading();
 
-    const response = await $fetch("/api/auth/admin/create-user", {
+    const response = await $fetch<{ success: boolean }>("/api/auth/admin", {
       method: "POST",
       body: {
         username: username.value.trim(),
