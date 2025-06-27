@@ -4,6 +4,7 @@ import notifications from "@/utils/notifications";
 import { errorMessage } from "~/constants/labels";
 import validator from "validator";
 import { useAuthStore } from "~/stores/auth";
+import { UserRole } from "~/types/enums";
 
 definePageMeta({
   middleware: "auth-admin-login",
@@ -58,8 +59,6 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
     if (!isValidUserRole(user.role)) {
       throw new Error("Invalid user role");
     }
-
-    console.log(user);
 
     authStore.login(
       user.role,

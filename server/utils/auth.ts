@@ -62,8 +62,6 @@ async function adminLogin(
     },
   });
 
-  console.log(updatedUser);
-
   return updatedUser;
 }
 
