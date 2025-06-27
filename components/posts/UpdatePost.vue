@@ -6,21 +6,15 @@ import { Position, Rank } from "~/types/enums";
 
 const emit = defineEmits(["update-post"]);
 
-const props = defineProps<{
-  postId: number | undefined;
-  description: string | null | undefined;
-  minRank: string | undefined;
-  maxRank: string | undefined;
-  positionsNeeded: string[] | undefined;
-}>();
+const props = defineProps<{ post: Post }>();
 
 const positions = ref(Object.entries(Position));
 const ranks = ref(Object.values(Rank));
 const errors = ref<Record<string, string>>({});
-const description = ref(props.description);
-const minRank = ref(props.minRank);
-const maxRank = ref(props.maxRank);
-const selectedPositions = ref([...(props.positionsNeeded ?? [])]);
+const description = ref(props.post.description);
+const minRank = ref(props.post.minRank);
+const maxRank = ref(props.post.maxRank);
+const selectedPositions = ref([...(props.post.positionsNeeded ?? [])]);
 const isEditPost = defineModel("isEditPost", { type: Boolean, default: false });
 
 const validateForm = () => {
@@ -53,12 +47,12 @@ const submitPost = async () => {
 
   try {
     const response = await $fetch<{ success: boolean }>(
-      `/api/post/${props.postId}`,
+      `/api/post/${props.post.id}`,
       {
         method: "PUT",
         body: {
-          ...post,
-          id: props.postId,
+          post,
+          id: props.post.id,
         },
       }
     );

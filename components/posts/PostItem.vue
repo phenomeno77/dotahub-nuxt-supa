@@ -399,11 +399,7 @@ onMounted(() => {
 
   <UpdatePost
     @update-post="updatePost"
-    :postId="props.post.id"
-    :description="props.post.description"
-    :minRank="props.post.minRank"
-    :maxRank="props.post.maxRank"
-    :positionsNeeded="props.post.positionsNeeded"
+    :post="props.post"
     v-model:isEditPost="isEditPost"
   />
 </template>

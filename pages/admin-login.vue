@@ -71,8 +71,14 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
 
     navigateTo(redirectTo);
   } catch (error: any) {
-    console.log(error);
-    notifications(toast, "warn", "Login failed", error.statusMessage, 3000);
+    console.log(error.statusMessage);
+    notifications(
+      toast,
+      "warn",
+      "Login failed",
+      error.statusMessage || error.message,
+      3000
+    );
   } finally {
     setTimeout(() => {
       loading.stopLoading();
