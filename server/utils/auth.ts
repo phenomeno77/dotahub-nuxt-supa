@@ -27,14 +27,16 @@ async function adminLogin(
   }
 
   const foundUser = await prisma.userProfile.findUnique({
-    where: { email: email },
+    where: { email },
+    include: {
+      banHistory: {
+        orderBy: { bannedAt: "desc" },
+        take: 1,
+      },
+    },
   });
 
-  if (
-    !foundUser ||
-    foundUser.role !== UserRole.admin ||
-    foundUser.userStatus !== UserStatus.active
-  ) {
+  if (!foundUser || foundUser.role !== UserRole.admin) {
     throw createError({
       statusCode: 401,
       statusMessage: ErrorMessages.INVALID_USERAME_OR_PASSWORD,
@@ -50,6 +52,22 @@ async function adminLogin(
     throw createError({
       statusCode: 401,
       statusMessage: ErrorMessages.INVALID_USERAME_OR_PASSWORD,
+    });
+  }
+
+  const latestBan = foundUser?.banHistory?.[0];
+
+  const isStillBanned =
+    foundUser?.userStatus === UserStatus.banned &&
+    (!latestBan?.banExpiration ||
+      new Date(latestBan.banExpiration) > new Date());
+
+  if (isStillBanned) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: `User is banned. Reason: ${
+        latestBan?.reason
+      }. Ban expires at: ${latestBan?.banExpiration?.toISOString()}`,
     });
   }
 
@@ -125,11 +143,16 @@ async function updateUser(
   }
 ) {
   const isAdminUser = await isAdmin(event);
-  const { user: currentUser } = await getUserSession(event);
+  const currentUser = await getCurrentUser(event);
 
   if (!currentUser) {
-    return null;
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
   }
+
+  const { user, latestBan } = currentUser;
 
   if (!isAdminUser) {
     throw createError({
@@ -141,12 +164,12 @@ async function updateUser(
   const { id, username, userStatus, isPremium, banReason, banDuration } =
     userData;
 
-  const user = await prisma.userProfile.findUnique({
+  const userToUpdae = await prisma.userProfile.findUnique({
     where: { id },
     include: { banHistory: true },
   });
 
-  if (!user) {
+  if (!userToUpdae) {
     throw createError({
       statusCode: 404,
       statusMessage: ErrorMessages.USER_NOT_FOUND,
@@ -170,7 +193,7 @@ async function updateUser(
         banExpiration: getBanExpiration(banDuration),
         bannedAt: new Date(),
         user: { connect: { id } },
-        bannedBy: { connect: { id: currentUser.id } },
+        bannedBy: { connect: { id: user.id } },
       },
     });
 
@@ -192,11 +215,42 @@ async function getCurrentUser(event: H3Event<Request>) {
     return null;
   }
 
-  const result = await prisma.userProfile.findUnique({
+  const user = await prisma.userProfile.findUnique({
     where: { id: session.user.id },
+    include: {
+      banHistory: {
+        orderBy: {
+          bannedAt: "desc",
+        },
+      },
+    },
   });
 
-  return result;
+  if (!user) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.USER_NOT_FOUND,
+    });
+  }
+
+  const latestBan = user.banHistory?.[0];
+
+  // 🔒 If user is banned and ban is still active, throw 403
+  if (
+    latestBan &&
+    (!latestBan.banExpiration || new Date(latestBan.banExpiration) > new Date())
+  ) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "User is banned.",
+      data: {
+        reason: latestBan.reason,
+        banExpiration: latestBan.banExpiration?.toISOString() || null,
+      },
+    });
+  }
+
+  return { user, latestBan: null };
 }
 
 async function getUsers(event: H3Event<Request>) {
@@ -234,12 +288,37 @@ export async function handleSteamUser(
 ) {
   const { steamId, username, avatarUrl } = steamData;
 
-  // Find existing user by steamId
   let user = await prisma.userProfile.findUnique({
     where: { steamId },
+    include: {
+      banHistory: {
+        orderBy: {
+          bannedAt: "desc",
+        },
+      },
+    },
   });
 
-  // If user exists → update username and avatarUrl
+  // ⛔ If banned, return ban info without creating or updating session
+  const latestBan = user?.banHistory?.[0];
+  const isStillBanned =
+    user?.userStatus === UserStatus.banned &&
+    (!latestBan?.banExpiration ||
+      new Date(latestBan.banExpiration) > new Date());
+
+  if (isStillBanned) {
+    return {
+      user,
+      latestBan: latestBan
+        ? {
+            reason: latestBan.reason,
+            banExpiration: latestBan.banExpiration?.toISOString() || null,
+          }
+        : null,
+    };
+  }
+
+  // ✅ Update or create user
   if (user) {
     user = await prisma.userProfile.update({
       where: { steamId },
@@ -249,9 +328,15 @@ export async function handleSteamUser(
         updatedAt: new Date(),
         isLoggedIn: true,
       },
+      include: {
+        banHistory: {
+          orderBy: {
+            bannedAt: "desc",
+          },
+        },
+      },
     });
   } else {
-    // If not exists → create new user
     user = await prisma.userProfile.create({
       data: {
         steamId,
@@ -259,14 +344,24 @@ export async function handleSteamUser(
         avatarUrl,
         role: UserRole.user,
         isLoggedIn: true,
+        userStatus: UserStatus.active,
+      },
+      include: {
+        banHistory: {
+          orderBy: {
+            bannedAt: "desc",
+          },
+        },
       },
     });
   }
 
-  // Set user session
   await setSession(event, user);
 
-  return user;
+  return {
+    user,
+    latestBan: null,
+  };
 }
 
 async function logout(event: H3Event<Request>) {
@@ -276,11 +371,20 @@ async function logout(event: H3Event<Request>) {
     return null;
   }
 
-  const current = await getCurrentUser(event);
+  const currentUser = await getCurrentUser(event);
 
-  if (current?.isLoggedIn) {
+  if (!currentUser) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const { user, latestBan } = currentUser;
+
+  if (user.isLoggedIn) {
     await prisma.userProfile.update({
-      where: { id: current.id },
+      where: { id: user.id },
       data: {
         isLoggedIn: false,
       },
@@ -297,10 +401,19 @@ async function isAdmin(event: H3Event<Request>) {
     return null;
   }
 
-  const current = await getCurrentUser(event);
+  const currentUser = await getCurrentUser(event);
 
-  if (current) {
-    return current.role === UserRole.admin;
+  if (!currentUser) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const { user, latestBan } = currentUser;
+
+  if (user) {
+    return user.role === UserRole.admin;
   }
 
   return false;
@@ -308,7 +421,7 @@ async function isAdmin(event: H3Event<Request>) {
 
 export default {
   setSession,
-  currentUser: getCurrentUser,
+  getCurrentUser,
   adminLogin,
   isAdmin,
   createNewUser,

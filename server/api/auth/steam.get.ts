@@ -8,13 +8,30 @@ export default defineOAuthSteamEventHandler({
       avatarUrl: user.avatarfull,
     };
 
-    await handleSteamUser(event, steamUser);
+    const currentUser = await handleSteamUser(event, steamUser);
 
+    if (currentUser.latestBan) {
+      const query = new URLSearchParams({
+        error: "account_banned",
+        banReason: encodeURIComponent(currentUser.latestBan.reason),
+      });
+
+      if (currentUser.latestBan.banExpiration) {
+        query.set(
+          "banExpiration",
+          encodeURIComponent(currentUser.latestBan.banExpiration)
+        );
+      }
+
+      return sendRedirect(event, `/?${query.toString()}`);
+    }
+
+    // ✅ Success: redirect to callback
     return sendRedirect(event, "/steam/callback");
   },
 
   onError(event, error) {
     console.error("Steam login failed:", error);
-    return sendRedirect(event, "?error=steam_login_failed");
+    return sendRedirect(event, "/?error=steam_login_failed");
   },
 });

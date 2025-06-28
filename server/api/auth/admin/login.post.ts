@@ -1,5 +1,3 @@
-import auth from "~/server/utils/auth";
-
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { email, password } = body;
@@ -17,6 +15,7 @@ export default defineEventHandler(async (event) => {
       createError({
         statusCode: err.statusCode || 500,
         statusMessage: err.statusMessage || "Something went wrong",
+        data: err.data || null, // pass ban info if present
       })
     );
   }

@@ -4,24 +4,20 @@ export default defineEventHandler(async (event) => {
   await requireUserLoggedIn(event);
 
   try {
-    const user = await auth.currentUser(event);
+    const currentUser = await auth.getCurrentUser(event);
 
-    if (!user) {
+    if (!currentUser) {
       throw createError({
         statusCode: 401,
-        statusMessage: ErrorMessages.LOGIN_REQUIRED,
+        statusMessage: ErrorMessages.UNAUTHORIZED,
       });
     }
 
+    const { user, latestBan } = currentUser;
+
     return {
-      user: {
-        userId: user.id,
-        userRole: user.role,
-        username: user.username,
-        avatarUrl: user.avatarUrl,
-        isPremium: user.isPremium,
-        premiumExpiresAt: user.premiumExpiresAt,
-      },
+      user,
+      latestBan,
     };
   } catch (err: any) {
     return sendError(

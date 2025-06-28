@@ -77,7 +77,7 @@ const handleLogin = async (loginData: { email: string; password: string }) => {
       error.message ||
       "Unexpected error";
 
-    notifications(toast, "warn", "Login failed", message, 3000);
+    notifications(toast, "warn", "Login failed", message, 10000);
   } finally {
     setTimeout(() => {
       loading.stopLoading();
