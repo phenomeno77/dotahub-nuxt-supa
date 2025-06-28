@@ -164,12 +164,12 @@ async function updateUser(
   const { id, username, userStatus, isPremium, banReason, banDuration } =
     userData;
 
-  const userToUpdae = await prisma.userProfile.findUnique({
+  const userToUpdate = await prisma.userProfile.findUnique({
     where: { id },
     include: { banHistory: true },
   });
 
-  if (!userToUpdae) {
+  if (!userToUpdate) {
     throw createError({
       statusCode: 404,
       statusMessage: ErrorMessages.USER_NOT_FOUND,
@@ -186,7 +186,7 @@ async function updateUser(
     },
   });
 
-  if (banReason && banDuration) {
+  if (banReason && banDuration && userStatus === UserStatus.banned) {
     await prisma.banHistory.create({
       data: {
         reason: banReason,

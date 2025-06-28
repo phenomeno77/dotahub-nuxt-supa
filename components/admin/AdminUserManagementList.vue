@@ -105,6 +105,8 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
     updatePayload.banDuration = banData.value.banDuration;
   } else if (userStatus.value === UserStatus.active) {
     updatePayload.userStatus = newData.userStatus;
+    updatePayload.banReason = "";
+    updatePayload.banDuration = "";
   } else {
     updatePayload.banReason = "";
     updatePayload.banDuration = "";
