@@ -93,7 +93,7 @@ const submitForm = () => {
       <Button
         :label="buttons.SUBMIT_BAN"
         icon="pi pi-ban"
-        class="btn btn-primary w-100"
+        class="w-100"
         @click="submitForm"
       />
     </div>

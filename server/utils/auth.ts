@@ -299,23 +299,24 @@ export async function handleSteamUser(
     },
   });
 
-  // ⛔ If banned, return ban info without creating or updating session
-  const latestBan = user?.banHistory?.[0];
-  const isStillBanned =
-    user?.userStatus === UserStatus.banned &&
-    (!latestBan?.banExpiration ||
-      new Date(latestBan.banExpiration) > new Date());
+  if (user?.userStatus === UserStatus.banned) {
+    const latestBan = user?.banHistory?.[0];
+    const isStillBanned =
+      user?.userStatus === UserStatus.banned &&
+      (!latestBan?.banExpiration ||
+        new Date(latestBan.banExpiration) > new Date());
 
-  if (isStillBanned) {
-    return {
-      user,
-      latestBan: latestBan
-        ? {
-            reason: latestBan.reason,
-            banExpiration: latestBan.banExpiration?.toISOString() || null,
-          }
-        : null,
-    };
+    if (isStillBanned) {
+      return {
+        user,
+        latestBan: latestBan
+          ? {
+              reason: latestBan.reason,
+              banExpiration: latestBan.banExpiration?.toISOString() || null,
+            }
+          : null,
+      };
+    }
   }
 
   // ✅ Update or create user
