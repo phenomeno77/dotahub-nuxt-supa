@@ -233,21 +233,23 @@ async function getCurrentUser(event: H3Event<Request>) {
     });
   }
 
-  const latestBan = user.banHistory?.[0];
+  if (user.userStatus === UserStatus.banned) {
+    const latestBan = user.banHistory?.[0];
 
-  // 🔒 If user is banned and ban is still active, throw 403
-  if (
-    latestBan &&
-    (!latestBan.banExpiration || new Date(latestBan.banExpiration) > new Date())
-  ) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: "User is banned.",
-      data: {
-        reason: latestBan.reason,
-        banExpiration: latestBan.banExpiration?.toISOString() || null,
-      },
-    });
+    if (
+      latestBan &&
+      (!latestBan.banExpiration ||
+        new Date(latestBan.banExpiration) > new Date())
+    ) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "User is banned.",
+        data: {
+          reason: latestBan.reason,
+          banExpiration: latestBan.banExpiration?.toISOString() || null,
+        },
+      });
+    }
   }
 
   return { user, latestBan: null };
