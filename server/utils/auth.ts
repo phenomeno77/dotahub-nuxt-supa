@@ -65,9 +65,7 @@ async function adminLogin(
   if (isStillBanned) {
     throw createError({
       statusCode: 403,
-      statusMessage: `User is banned. Reason: ${
-        latestBan?.reason
-      }. Ban expires at: ${latestBan?.banExpiration?.toISOString()}`,
+      statusMessage: `User is banned. Please contant the administration for more details.`,
     });
   }
 
