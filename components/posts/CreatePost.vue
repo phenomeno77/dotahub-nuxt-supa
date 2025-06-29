@@ -11,8 +11,6 @@ const errors = ref<Record<string, string>>({});
 const minRank = ref<Rank>();
 const maxRank = ref<Rank>();
 const selectedPositions = ref<Position[]>([]);
-const showPremiumDialog = usePremiumDialog();
-const confirm = useConfirm();
 const createPostDialog = useCreatePostDialog();
 const toast = useToast();
 const postStore = usePostStore();
@@ -57,40 +55,14 @@ const submitPost = async () => {
       postStore.triggerRefresh();
     }
   } catch (error: any) {
-    const isLimitError = error?.response?._data?.data?.isLimitError;
+    const message =
+      error?.response?._data?.statusMessage ||
+      error?.message ||
+      "An error occurred while submitting the post.";
 
-    if (isLimitError) {
-      confirmDialog();
-    } else {
-      const message =
-        error?.response?._data?.statusMessage ||
-        error?.message ||
-        "An error occurred while submitting the post.";
-
-      console.error(message);
-      notifications(toast, "error", message);
-    }
+    console.error(message);
+    notifications(toast, "error", message);
   }
-};
-
-const confirmDialog = () => {
-  confirm.require({
-    message: labels.CONFIRM_HEADER_POST_LIMIT_MESSAGE,
-    header: labels.CONFIRM_HEADER_POST_LIMIT_HEADER,
-    rejectProps: {
-      label: "Close",
-      severity: "secondary",
-      outlined: true,
-    },
-    acceptProps: {
-      label: labels.PREMIUM_PLAN,
-      icon: "pi pi-crown",
-    },
-    accept: () => {
-      showPremiumDialog.value = true;
-    },
-    reject: () => {},
-  });
 };
 
 const getPositionIcon = (position: string) => {

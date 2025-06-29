@@ -1,19 +1,21 @@
-import { useRouter } from "vue-router";
+export default defineNuxtPlugin((nuxtApp) => {
+  if (process.client) {
+    const loading = useLoadingStore();
+    const router = useRouter();
 
-export default defineNuxtPlugin(() => {
-  const loading = useLoadingStore();
-  const router = useRouter();
-
-  router.beforeEach((to, from, next) => {
-    setTimeout(() => {
+    router.beforeEach((to, from, next) => {
       loading.startLoading();
-    }, 150);
-    next();
-  });
+      next();
+    });
 
-  router.afterEach(() => {
-    setTimeout(() => {
+    router.afterEach(() => {
+      setTimeout(() => {
+        loading.stopLoading();
+      }, 300);
+    });
+
+    router.onError(() => {
       loading.stopLoading();
-    }, 700);
-  });
+    });
+  }
 });

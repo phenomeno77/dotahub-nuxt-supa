@@ -317,15 +317,15 @@ onMounted(() => {
       <div
         :class="[
       'post-description-wrapper',
-      { 'scrollable-description': isPostExpanded(props.post.id as number) }
+      { 'expandable-description': isPostExpanded(props.post.id as number) }
     ]"
       >
         <p class="post-description">
           {{
             isPostExpanded(props.post.id as number)
               ? props.post.description ?? ""
-              : (props.post.description ?? "").slice(0, 255) +
-                ((props.post.description?.length ?? 0) > 255 ? "..." : "")
+              : (props.post.description ?? "").slice(0, 300) +
+                ((props.post.description?.length ?? 0) > 300 ? "..." : "")
           }}
         </p>
       </div>
@@ -349,11 +349,11 @@ onMounted(() => {
     <!-- Rank Row -->
     <div class="px-3 pb-2">
       <div
-        class="rank-box d-flex flex-column flex-md-row align-items-start align-items-md-center"
+        class="rank-box d-flex align-items-start align-items-center p-2 gap-1"
       >
-        <i class="pi pi-star-fill me-md-2 mb-2 mb-md-0" style="color: silver" />
+        <i class="pi pi-star-fill" style="color: silver" />
         <span class="rank-text">{{ props.post.minRank }}</span>
-        <span class="mx-1 d-none d-md-inline">to</span>
+        <span class="mx-1">to</span>
         <span class="rank-text">{{ props.post.maxRank }}</span>
       </div>
     </div>
@@ -488,19 +488,19 @@ onMounted(() => {
   transition: max-height 0.3s ease;
 }
 
-.scrollable-description {
-  max-height: 180px;
-  overflow-y: auto;
+.expandable-description {
+  height: 100%;
   padding-right: 4px;
   margin-bottom: 0.5rem;
   border-radius: 0.25rem;
 }
 
 /* Optional scrollbar customization */
-.scrollable-description::-webkit-scrollbar {
+.expandable-description::-webkit-scrollbar {
   width: 6px;
 }
-.scrollable-description::-webkit-scrollbar-thumb {
+
+.expandable-description::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
@@ -508,12 +508,8 @@ onMounted(() => {
 .rank-box {
   background-color: var(--bg-rank-box);
   color: var(--text-primary);
-  padding: 8px 12px;
   border-radius: 8px;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .rank-text {
@@ -536,17 +532,5 @@ onMounted(() => {
   border-radius: 20px;
   display: flex;
   align-items: center;
-}
-
-@media (max-width: 768px) {
-  .send-request .p-button {
-    width: 100%;
-    max-width: none;
-  }
-
-  .rank-box {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 </style>

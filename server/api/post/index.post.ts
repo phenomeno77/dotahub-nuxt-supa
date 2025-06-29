@@ -11,22 +11,6 @@ export default defineEventHandler(async (event) => {
       success: true,
     };
   } catch (err: any) {
-    if (
-      err.statusCode === 429 &&
-      err.statusMessage === "You have reached your daily post limit."
-    ) {
-      return sendError(
-        event,
-        createError({
-          statusCode: 429,
-          statusMessage: err.statusMessage,
-          data: {
-            isLimitError: true,
-          },
-        })
-      );
-    }
-
     return sendError(
       event,
       createError({

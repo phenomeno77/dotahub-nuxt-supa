@@ -3,7 +3,6 @@ import prisma from "~/lib/prisma";
 import { UserStatus, Rank, UserRole, Position } from "@prisma/client";
 import { ErrorMessages } from "../constants/errors";
 import { checkAndUpdatePremiumStatus } from "./premiumCheck";
-import { RATE_LIMITS } from "../constants/rateLimits";
 
 async function createPost(
   event: H3Event,
@@ -38,29 +37,6 @@ async function createPost(
 
   // Check premium status
   await checkAndUpdatePremiumStatus(user);
-
-  const now = new Date();
-  const resetTime = user.lastPostReset ?? new Date(0);
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  let postsToday = user.postsToday;
-  let commentsToday = user.commentsToday;
-
-  if (now.getTime() - resetTime.getTime() > oneDay) {
-    postsToday = 0;
-    commentsToday = 0;
-  }
-
-  const maxPosts = user.isPremium
-    ? RATE_LIMITS.POSTS_PER_DAY.PREMIUM
-    : RATE_LIMITS.POSTS_PER_DAY.FREE;
-
-  if (postsToday >= maxPosts) {
-    throw createError({
-      statusCode: 429,
-      statusMessage: ErrorMessages.DAILY_POST_LIMIT_REACHED,
-    });
-  }
 
   // Input validation
   const {
@@ -112,16 +88,6 @@ async function createPost(
       maxRank,
       description,
       userId: user.id,
-    },
-  });
-
-  // Update user counts
-  await prisma.userProfile.update({
-    where: { id: user.id },
-    data: {
-      postsToday: postsToday + 1,
-      commentsToday,
-      lastPostReset: postsToday === 0 ? now : user.lastPostReset,
     },
   });
 }
