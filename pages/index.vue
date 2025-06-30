@@ -31,6 +31,8 @@ const steamLoginFailed = computed(
 const banReason = computed(() => route.query.banReason || "");
 const banExpiration = computed(() => route.query.banExpiration || "");
 
+//TODO: Fix the scroll on load more - potentially check watchers or ...
+
 // Reactively fetch posts when route query changes (error flags)
 watch(
   () => route.query,
