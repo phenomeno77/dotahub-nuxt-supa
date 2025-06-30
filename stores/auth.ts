@@ -46,34 +46,6 @@ export const useAuthStore = defineStore("auth", {
       this.isPremium = false;
       this.userId = null;
     },
-
-    // async verifyUserStatus() {
-    //   try {
-    //     const response = await api.user.getCurrentUser();
-    //     const { user, latestBan } = response.data;
-
-    //     this.isPremium = user.isPremium;
-
-    //     if (user.userStatus === "banned") {
-    //       const reason = latestBan?.reason || "";
-    //       const expiration = latestBan?.banExpiration || "";
-
-    //       const FRONTEND_URL =
-    //         import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
-
-    //       const redirectUrl = `${FRONTEND_URL}?error=account_banned${
-    //         expiration ? `&banExpiration=${encodeURIComponent(expiration)}` : ""
-    //       }${reason ? `&banReason=${encodeURIComponent(reason)}` : ""}`;
-
-    //       await api.user.logoutUser();
-
-    //       window.location.href = redirectUrl;
-    //     }
-    //   } catch (error) {
-    //     console.error("Failed to verify user status:", error);
-    //     this.logout();
-    //   }
-    // },
   },
   persist: true,
 });

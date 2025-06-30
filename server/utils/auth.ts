@@ -433,6 +433,57 @@ async function isAdmin(event: H3Event<Request>) {
   return false;
 }
 
+async function verifyCurrentUserStatus(event: H3Event<Request>) {
+  const session = await getUserSession(event);
+
+  if (!session.user) {
+    return null;
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: session.user.id },
+    include: {
+      banHistory: {
+        orderBy: {
+          bannedAt: "desc",
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  if (user.userStatus === UserStatus.banned) {
+    const latestBan = user.banHistory?.[0];
+
+    if (
+      latestBan &&
+      (!latestBan.banExpiration ||
+        new Date(latestBan.banExpiration) > new Date())
+    ) {
+      return {
+        user,
+        latestBan: latestBan
+          ? {
+              reason: latestBan.reason,
+              banExpiration: latestBan.banExpiration?.toISOString() || null,
+            }
+          : null,
+      };
+    }
+  }
+
+  return {
+    user,
+    latestBan: null,
+  };
+}
+
 export default {
   setSession,
   getCurrentUser,
@@ -443,4 +494,5 @@ export default {
   getUsers,
   handleSteamUser,
   logout,
+  verifyCurrentUserStatus,
 };

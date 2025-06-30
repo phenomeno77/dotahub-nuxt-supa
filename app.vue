@@ -11,7 +11,7 @@ const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");
 const showPremiumDialog = usePremiumDialog();
 const createPostDialog = useCreatePostDialog();
-const { start, stop } = useHeartbeat();
+useHeartbeat();
 
 useHead({
   title: config.public.appName,
