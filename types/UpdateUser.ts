@@ -3,7 +3,7 @@ export interface UpdateUser {
   username?: string;
   role?: string;
   userStatus?: string;
-  isLoggedIn?: boolean;
+  lastSeenAt?: Date;
   banReason?: string;
   banDuration?: string;
 }

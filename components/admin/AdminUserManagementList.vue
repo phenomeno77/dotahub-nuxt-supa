@@ -39,7 +39,7 @@ const filters = ref({
   steamId: { value: null, matchMode: FilterMatchMode.EQUALS },
   role: { value: null, matchMode: FilterMatchMode.EQUALS },
   userStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
-  isLoggedIn: { value: null, matchMode: FilterMatchMode.EQUALS },
+  lastSeenAt: { value: null, matchMode: FilterMatchMode.EQUALS },
   isPremium: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
@@ -47,6 +47,7 @@ const globalFilterFields = ref(
   Object.keys(filters.value).filter((key) => key !== "global")
 );
 
+const ONLINE_THRESHOLD_MINUTES = 5;
 const authStore = useAuthStore();
 const loggedOrNot = ref([true, false]);
 const editingRows = ref([]);
@@ -120,6 +121,14 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
 const isEditableUsername = (userRole: string) => {
   return userRole === UserRole.user;
 };
+
+function isUserOnline(lastSeenAt: string | Date | null): boolean {
+  if (!lastSeenAt) return false;
+  const lastSeenDate = new Date(lastSeenAt);
+  const now = new Date();
+  const diffMs = now.getTime() - lastSeenDate.getTime();
+  return diffMs < ONLINE_THRESHOLD_MINUTES * 60 * 1000; // less than 5 minutes ago
+}
 </script>
 
 <template>
@@ -305,14 +314,15 @@ const isEditableUsername = (userRole: string) => {
       </template>
     </Column>
 
-    <!-- LOGGED IN COLUMN -->
-    <Column field="isLoggedIn" header="Logged In" sortable>
+    <!-- IS ONLINE COLUMN -->
+    <Column field="lastSeenAt" header="Online" sortable>
       <template #body="{ data }">
         <Tag
-          :value="data.isLoggedIn ? 'Logged In' : 'Logged Out'"
-          :severity="data.isLoggedIn ? 'success' : 'warn'"
+          :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
+          :severity="isUserOnline(data.lastSeenAt) ? 'success' : 'warn'"
         />
       </template>
+
       <template #filter="{ filterModel, filterCallback }">
         <Select
           v-model="filterModel.value"

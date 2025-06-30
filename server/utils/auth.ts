@@ -74,7 +74,7 @@ async function adminLogin(
   const updatedUser = await prisma.userProfile.update({
     where: { id: foundUser.id },
     data: {
-      isLoggedIn: true,
+      lastSeenAt: new Date(),
     },
   });
 
@@ -263,6 +263,9 @@ async function getUsers(event: H3Event<Request>) {
     });
   }
 
+  const fiveMinutes = 5 * 60 * 1000;
+  const now = Date.now();
+
   const users = await prisma.userProfile.findMany({
     select: {
       id: true,
@@ -271,11 +274,18 @@ async function getUsers(event: H3Event<Request>) {
       role: true,
       userStatus: true,
       isPremium: true,
-      isLoggedIn: true,
+      lastSeenAt: true,
     },
   });
 
-  return users;
+  const usersWithStatus = users.map((user) => ({
+    ...user,
+    isOnline: user.lastSeenAt
+      ? now - new Date(user.lastSeenAt).getTime() < fiveMinutes
+      : false,
+  }));
+
+  return usersWithStatus;
 }
 
 export async function handleSteamUser(
@@ -327,7 +337,7 @@ export async function handleSteamUser(
         username,
         avatarUrl,
         updatedAt: new Date(),
-        isLoggedIn: true,
+        lastSeenAt: new Date(),
       },
       include: {
         banHistory: {
@@ -344,7 +354,7 @@ export async function handleSteamUser(
         username,
         avatarUrl,
         role: UserRole.user,
-        isLoggedIn: true,
+        lastSeenAt: new Date(),
         userStatus: UserStatus.active,
       },
       include: {
@@ -381,16 +391,14 @@ async function logout(event: H3Event<Request>) {
     });
   }
 
-  const { user, latestBan } = currentUser;
+  const { user } = currentUser;
 
-  if (user.isLoggedIn) {
-    await prisma.userProfile.update({
-      where: { id: user.id },
-      data: {
-        isLoggedIn: false,
-      },
-    });
-  }
+  await prisma.userProfile.update({
+    where: { id: user.id },
+    data: {
+      lastSeenAt: new Date(),
+    },
+  });
 
   await clearUserSession(event);
 }

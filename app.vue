@@ -2,8 +2,9 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import CreatePost from "~/components/posts/CreatePost.vue";
+import { useHeartbeat } from "~/composables/useHeartbeat";
 
-const { loggedIn, user } = useUserSession();
+const { start } = useHeartbeat();
 const config = useRuntimeConfig();
 const route = useRoute();
 const loading = useLoadingStore();
@@ -73,6 +74,10 @@ useHead({
       href: "",
     },
   ],
+});
+
+onMounted(() => {
+  start();
 });
 </script>
 <template>
