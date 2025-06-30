@@ -25,14 +25,6 @@ const showPremiumDialog = usePremiumDialog();
     <div class="premium-modal">
       <ul class="benefits list-unstyled">
         <li>
-          <i class="pi pi-check-circle text-success me-2"></i> Unlimited Posts
-          per Day
-        </li>
-        <li>
-          <i class="pi pi-check-circle text-success me-2"></i> Unlimited
-          Comments
-        </li>
-        <li>
           <i class="pi pi-check-circle text-success me-2"></i> Priority Post
           Placement
         </li>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useLoadingStore } from "../stores/loading";
 import type { Post } from "~/types/Post";
 import { useRoute } from "vue-router";
@@ -10,11 +10,10 @@ import PostItem from "~/components/posts/PostItem.vue";
 import { usePostStore } from "~/stores/posts";
 
 const loadingStore = useLoadingStore();
-const isBanned = ref(false);
-const steamLoginFailed = ref(false);
 const route = useRoute();
-const POSTS_PER_PAGE = 5;
 const postStore = usePostStore();
+
+const POSTS_PER_PAGE = 20;
 
 const {
   items: posts,
@@ -24,6 +23,28 @@ const {
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
 
+// Computed for error flags & query info
+const isBanned = computed(() => route.query.error === "account_banned");
+const steamLoginFailed = computed(
+  () => route.query.error === "steam_login_failed"
+);
+const banReason = computed(() => route.query.banReason || "");
+const banExpiration = computed(() => route.query.banExpiration || "");
+
+// Reactively fetch posts when route query changes (error flags)
+watch(
+  () => route.query,
+  async () => {
+    if (!isBanned.value && !steamLoginFailed.value) {
+      loadingStore.startLoading();
+      await fetchMore();
+      loadingStore.stopLoading();
+    }
+  },
+  { immediate: true }
+);
+
+// Also watch for postStore refresh flag
 watch(
   () => postStore.shouldRefreshPosts,
   async (shouldRefresh) => {
@@ -36,41 +57,25 @@ watch(
   }
 );
 
-watch(
-  () => route.query,
-  async () => {
-    isBanned.value = route.query.error === "account_banned";
-    steamLoginFailed.value = route.query.error === "steam_login_failed";
-
-    if (!isBanned.value && !steamLoginFailed.value) {
-      loadingStore.startLoading();
-      await fetchInitial();
-      loadingStore.stopLoading();
-    }
-  },
-  { immediate: true }
-);
-
 onMounted(async () => {
-  loadingStore.startLoading();
-  isBanned.value = route.query.error === "account_banned";
-  steamLoginFailed.value = route.query.error === "steam_login_failed";
-
-  if (!isBanned.value && !steamLoginFailed.value) {
-    await fetchInitial();
+  await fetchInitial();
+  // Setup infinite scroll only once on mount
+  const scrollEl = document.querySelector("main") as HTMLElement;
+  if (scrollEl) {
+    useInfiniteScroll(scrollEl, fetchMore, {
+      distance: 10,
+      canLoadMore: () => posts.value.length < total.value,
+    });
   }
-
-  loadingStore.stopLoading();
-
-  useInfiniteScroll(document.querySelector("main") as HTMLElement, fetchMore, {
-    distance: 10,
-    canLoadMore: () => posts.value.length < total.value,
-  });
 });
 </script>
 
 <template>
-  <BannedAlert v-if="isBanned" />
+  <BannedAlert
+    v-if="isBanned"
+    :ban-reason="banReason"
+    :ban-expiration="banExpiration"
+  />
   <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
 
   <div v-if="isLoading">

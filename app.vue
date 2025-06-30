@@ -4,7 +4,6 @@ import { useRoute } from "vue-router";
 import CreatePost from "~/components/posts/CreatePost.vue";
 import { useHeartbeat } from "~/composables/useHeartbeat";
 
-const { start } = useHeartbeat();
 const config = useRuntimeConfig();
 const route = useRoute();
 const loading = useLoadingStore();
@@ -12,6 +11,7 @@ const isHomePage = computed(() => route.path === "/");
 const isProfilePage = computed(() => route.path === "/my-posts");
 const showPremiumDialog = usePremiumDialog();
 const createPostDialog = useCreatePostDialog();
+const { start, stop } = useHeartbeat();
 
 useHead({
   title: config.public.appName,
@@ -74,10 +74,6 @@ useHead({
       href: "",
     },
   ],
-});
-
-onMounted(() => {
-  start();
 });
 </script>
 <template>

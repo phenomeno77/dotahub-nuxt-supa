@@ -1,19 +1,42 @@
+import { ref, watchEffect, onUnmounted, onMounted } from "vue";
+
 export function useHeartbeat(intervalMs = 60000) {
-  let interval: ReturnType<typeof setInterval>;
+  let interval: ReturnType<typeof setInterval> | null = null;
+  const { loggedIn } = useUserSession();
 
   const start = () => {
+    if (interval) return;
     interval = setInterval(async () => {
-      try {
-        await $fetch("/api/heartbeat", { method: "POST" });
-      } catch (err) {
-        console.error("Heartbeat failed:", err);
+      if (loggedIn.value) {
+        try {
+          await $fetch("/api/heartbeat", { method: "POST" });
+        } catch (err) {
+          console.error("Heartbeat failed:", err);
+        }
       }
     }, intervalMs);
   };
 
   const stop = () => {
-    clearInterval(interval);
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
   };
+
+  onMounted(() => {
+    watchEffect(() => {
+      if (loggedIn.value) {
+        start();
+      } else {
+        stop();
+      }
+    });
+  });
+
+  onUnmounted(() => {
+    stop();
+  });
 
   return { start, stop };
 }

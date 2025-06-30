@@ -75,6 +75,7 @@ async function adminLogin(
     where: { id: foundUser.id },
     data: {
       lastSeenAt: new Date(),
+      userStatus: UserStatus.active,
     },
   });
 
@@ -305,6 +306,7 @@ export async function handleSteamUser(
         orderBy: {
           bannedAt: "desc",
         },
+        take: 1,
       },
     },
   });
@@ -329,7 +331,7 @@ export async function handleSteamUser(
     }
   }
 
-  // ✅ Update or create user
+  // ✅ Update or create user and set userStatus active if not banned
   if (user) {
     user = await prisma.userProfile.update({
       where: { steamId },
@@ -338,12 +340,14 @@ export async function handleSteamUser(
         avatarUrl,
         updatedAt: new Date(),
         lastSeenAt: new Date(),
+        userStatus: UserStatus.active, // <-- set active here
       },
       include: {
         banHistory: {
           orderBy: {
             bannedAt: "desc",
           },
+          take: 1,
         },
       },
     });
@@ -362,6 +366,7 @@ export async function handleSteamUser(
           orderBy: {
             bannedAt: "desc",
           },
+          take: 1,
         },
       },
     });
