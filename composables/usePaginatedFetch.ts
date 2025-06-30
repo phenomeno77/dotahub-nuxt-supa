@@ -1,6 +1,6 @@
 import { useToast } from "primevue/usetoast";
 
-export function usePaginatedFetch<T>(url: string, limit = 5) {
+export function usePaginatedFetch<T>(url: string, limit = 20) {
   const items = ref<T[]>([]) as Ref<T[]>;
   const total = ref(0);
   const isLoading = ref(false);
