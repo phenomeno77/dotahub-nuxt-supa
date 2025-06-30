@@ -13,7 +13,7 @@ const loadingStore = useLoadingStore();
 const route = useRoute();
 const postStore = usePostStore();
 
-const POSTS_PER_PAGE = 20;
+const POSTS_PER_PAGE = 5;
 
 const {
   items: posts,
