@@ -24,8 +24,6 @@ onMounted(async () => {
 
       const { user, latestBan } = currentUser;
 
-      //TODO: verify status from auth store
-
       if (!isValidUserRole(user.role)) {
         throw createError({
           statusCode: 401,
