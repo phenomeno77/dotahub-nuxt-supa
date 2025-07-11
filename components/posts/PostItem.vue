@@ -5,14 +5,13 @@ import type { Post } from "~/types/Post";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { buttons, labels } from "~/constants/labels";
-// import AddPostComment from "./AddPostComment.vue";
 import type { Comment } from "~/types/Post";
 import { usePostStore } from "~/stores/posts";
 import notifications from "~/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import UpdatePost from "./UpdatePost.vue";
-// import PostComments from "./PostComments.vue";
+import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
 
 dayjs.extend(relativeTime);
 
@@ -21,9 +20,7 @@ const props = defineProps<{ post: Post }>();
 const { loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
-const showAddComment = ref(false);
-const comment = ref<string>("");
-const showComments = ref(false);
+const showPostCommentDialog = ref(false);
 const comments = ref<Comment[]>([]);
 const expandedPosts = ref<number[]>([]);
 const menu = ref();
@@ -31,9 +28,7 @@ const postStore = usePostStore();
 const toast = useToast();
 const confirm = useConfirm();
 const isEditPost = ref(false);
-const premiumStore = usePremiumDialog();
 
-const COMMENTS_PER_SCROLL = ref(3);
 const postCommentCount = ref<number>(0);
 
 const positionLabels: Record<string, string> = {
@@ -56,49 +51,8 @@ function togglePostExpand(id: number) {
   }
 }
 
-const toggleShowComments = async () => {
-  showComments.value = !showComments.value;
-
-  if (showComments.value) {
-    await fetchComments();
-  }
-};
-
-const fetchComments = async () => {
-  // try {
-  //   isLoadingMore.value = true;
-  //   if (!props.post.id) {
-  //     notifications(
-  //       toast,
-  //       "warn",
-  //       "Something went wrong with fetching comments..."
-  //     );
-  //     return;
-  //   }
-  //   const response = await api.post.getCommentsByScroll(
-  //     props.post.id,
-  //     COMMENTS_PER_SCROLL.value,
-  //     0
-  //   );
-  //   if (response.status === "ok") {
-  //     comments.value = response.data.comments;
-  //   }
-  // } catch (error: any) {
-  //   notifications(
-  //     toast,
-  //     "warn",
-  //     "Fetching Comments Failed",
-  //     error.message,
-  //     3000
-  //   );
-  // } finally {
-  //   isLoadingMore.value = false;
-  // }
-};
-
-const toggleAddComment = () => {
-  showComments.value = true;
-  showAddComment.value = true;
+const toggleShowPostCommentsDialog = async () => {
+  showPostCommentDialog.value = !showPostCommentDialog.value;
 };
 
 const avatarLabel = computed(() =>
@@ -126,58 +80,6 @@ const getPositionIcon = (position: string) => {
     default:
       return "pi pi-user";
   }
-};
-
-const abortPost = () => {
-  showAddComment.value = false;
-  comment.value = "";
-};
-
-const addComment = async () => {
-  // try {
-  //   const response = await api.post.addPostComment(
-  //     comment.value,
-  //     props.post.id!
-  //   );
-  //   if (response.status === "ok") {
-  //     showAddComment.value = false;
-  //     comments.value.unshift(response.data);
-  //     postCommentCount.value++;
-  //     comment.value = "";
-  //   } else {
-  //     throw new Error("Failed to Comment...please try again later");
-  //   }
-  // } catch (error: any) {
-  //   if (error.isLimitError) {
-  //     // Handle the case where comment limit is reached
-  //     confirmDialog();
-  //   } else {
-  //     // For other errors
-  //     console.error(
-  //       error.message || "An error occurred while submitting the post."
-  //     );
-  //   }
-  // }
-};
-
-const confirmDialog = () => {
-  confirm.require({
-    message: labels.CONFIRM_HEADER_COMMENT_LIMIT_MESSAGE,
-    header: labels.CONFIRM_HEADER_COMMENT_LIMIT_HEADER,
-    rejectProps: {
-      label: "Close",
-      severity: "secondary",
-      outlined: true,
-    },
-    acceptProps: {
-      label: labels.PREMIUM_PLAN,
-      icon: "pi pi-crown",
-    },
-    accept: () => {
-      premiumStore.value = true;
-    },
-    reject: () => {},
-  });
 };
 
 const deletePost = async () => {
@@ -376,34 +278,17 @@ onMounted(() => {
     </div>
 
     <div
-      v-if="postCommentCount"
-      class="d-flex justify-content-end px-3 show-comments"
+      v-if="postCommentCount && loggedIn"
+      class="d-flex justify-content-end px-3 py-2 show-comments"
     >
       <Button
-        v-if="!showComments"
+        v-if="!showPostCommentDialog"
         :label="`${labels.SHOW_COMMENTS} (${postCommentCount})`"
         size="small"
         variant="text"
-        @click="toggleShowComments"
-      />
-
-      <Button
-        v-else
-        :label="labels.HIDE_COMMENTS"
-        size="small"
-        variant="text"
-        @click="toggleShowComments"
+        @click="toggleShowPostCommentsDialog"
       />
     </div>
-
-    <!-- <PostComments
-      v-if="showComments && !isLoadingMore"
-      :comments="comments"
-      :totalCommentsCount="postCommentCount"
-      :postId="props.post.id || 0"
-      :commentsPerScroll="COMMENTS_PER_SCROLL"
-      @on-delete-comment="handleCommentDelete"
-    /> -->
 
     <div class="d-flex justify-content-end gap-2 pb-3 pe-3" v-if="loggedIn">
       <Button
@@ -412,36 +297,15 @@ onMounted(() => {
         variant="outlined"
         iconPos="left"
         class="border-0"
-        @click="toggleAddComment"
+        @click="toggleShowPostCommentsDialog"
       />
     </div>
 
-    <!-- <div v-if="showAddComment && loggedIn">
-      <AddPostComment v-model="comment" />
-      <div class="d-flex justify-content-end p-2 gap-1">
-        <Button
-          icon="pi pi-times"
-          variant="text"
-          severity="danger"
-          v-tooltip.bottom="{
-            value: labels.POST_ABORT,
-            showDelay: 500,
-            hideDelay: 300,
-          }"
-          @click="abortPost"
-        />
-        <Button
-          icon="pi pi-send"
-          variant="text"
-          v-tooltip.bottom="{
-            value: labels.COMMENT_SUBMIT,
-            showDelay: 500,
-            hideDelay: 300,
-          }"
-          @click="addComment"
-        />
-      </div>
-    </div> -->
+    <PostCommentDialog
+      v-if="showPostCommentDialog"
+      v-model:showPostCommentDialog="showPostCommentDialog"
+      :post="props.post"
+    />
   </div>
 
   <UpdatePost
@@ -451,86 +315,4 @@ onMounted(() => {
   />
 </template>
 
-<style scoped>
-.post-item {
-  background-color: var(--bg-post);
-  border-radius: 12px;
-  transition: box-shadow 0.2s ease;
-}
-
-.post-item:hover {
-  box-shadow: 0 4px 12px var(--shadow-hover);
-}
-
-.username {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.postedAgo {
-  font-weight: 300;
-  color: var(--text-primary);
-}
-
-.show-comments {
-  font-weight: 300;
-  color: var(--text-primary);
-}
-
-.post-description {
-  color: var(--text-primary);
-  white-space: pre-line;
-  line-height: 1.6;
-  margin-bottom: 0;
-}
-
-.post-description-wrapper {
-  transition: max-height 0.3s ease;
-}
-
-.expandable-description {
-  height: 100%;
-  padding-right: 4px;
-  margin-bottom: 0.5rem;
-  border-radius: 0.25rem;
-}
-
-/* Optional scrollbar customization */
-.expandable-description::-webkit-scrollbar {
-  width: 6px;
-}
-
-.expandable-description::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.rank-box {
-  background-color: var(--bg-rank-box);
-  color: var(--text-primary);
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.rank-text {
-  color: var(--rank-text);
-  font-weight: bold;
-  margin: 0 4px;
-}
-
-.position-box {
-  background: #0d9488;
-  padding: 12px;
-  border-radius: 10px;
-}
-
-.position-pill {
-  background-color: var(--bg-position-pill);
-  color: var(--text-pill);
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-}
-</style>
+<style scoped></style>

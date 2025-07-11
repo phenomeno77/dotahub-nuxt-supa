@@ -17,7 +17,7 @@ export const labels = {
   RANK_RANGE: "Rank Range",
   COMMENT: "Comment",
   COMMENT_PLACEHOLDER: "Share your thoughts...",
-  POST_ABORT: "Abort",
+  POST_ABORT: "Reset",
   POST_SUBMIT: "Submit Post",
   COMMENT_SUBMIT: "Submit Comment",
   SHOW_COMMENTS: "Show comments",

@@ -102,7 +102,12 @@ useHead({
       <main
         ref="mainEl"
         class="position-absolute start-0 end-0"
-        style="top: 9%; bottom: 3%; overflow-y: auto"
+        style="
+          top: 9%;
+          bottom: 3%;
+          overflow-y: auto;
+          height: calc(100dvh - 12%);
+        "
       >
         <div class="container-fluid h-100">
           <div class="row justify-content-center h-100">

@@ -12,7 +12,7 @@ export interface Comment {
   user: {
     username: string | null;
     avatarUrl: string | null;
-    id: number;
+    id: string;
     isPremium: boolean;
   };
 }
