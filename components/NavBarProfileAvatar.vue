@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { buttons } from "~/constants/labels";
-import { useRouter } from "vue-router";
 
 const emits = defineEmits(["logout"]);
 
 const { loggedIn } = useUserSession();
 const profileMenu = ref();
-const router = useRouter();
 const authStore = useAuthStore();
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 const avatarLabel = computed(() =>
@@ -29,7 +27,7 @@ const profileMenuItems = computed(() => {
     menu.push({
       label: buttons.POST_HISTORY,
       icon: "pi pi-history",
-      command: () => router.push({ path: `/profile` }),
+      command: () => navigateTo(`/profile/${authStore.userId}`),
     });
 
     menu.push({

@@ -15,9 +15,12 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
   const fetchInitial = async () => {
     isLoading.value = true;
     try {
-      const res = await $fetch<PaginatedResponse>(
-        `${url}?limit=${limit}&skip=0`
-      );
+      const res = await $fetch<PaginatedResponse>(`${url}`, {
+        query: {
+          limit: limit,
+          skip: 0,
+        },
+      });
       if (res.success) {
         items.value = res.items;
         total.value = res.total;
@@ -39,9 +42,12 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     isLoading.value = true;
 
     try {
-      const res = await $fetch<PaginatedResponse>(
-        `${url}?limit=${limit}&skip=${items.value.length}`
-      );
+      const res = await $fetch<PaginatedResponse>(`${url}`, {
+        query: {
+          limit: limit,
+          skip: items.value.length,
+        },
+      });
       if (res.success) {
         items.value = [...items.value, ...res.items] as T[];
       }

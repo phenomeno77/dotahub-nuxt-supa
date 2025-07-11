@@ -19,6 +19,13 @@ const selectedPositions = ref([...(props.post.positionsNeeded ?? [])]);
 const isEditPost = defineModel("isEditPost", { type: Boolean, default: false });
 const toast = useToast();
 
+const onHide = () => {
+  description.value = props.post.description;
+  minRank.value = props.post.minRank;
+  maxRank.value = props.post.maxRank;
+  selectedPositions.value = [...(props.post.positionsNeeded ?? [])];
+};
+
 const validateForm = () => {
   errors.value = {};
 
@@ -117,6 +124,7 @@ const maxOptions = computed(() => {
   <Dialog
     v-model:visible="isEditPost"
     modal
+    @hide="onHide"
     :header="buttons.EDIT_POST"
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"

@@ -165,6 +165,95 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
   };
 }
 
+async function getUsersPostHistory(
+  event: H3Event,
+  userId: string,
+  limit: number,
+  skip: number
+) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: currentUser.id },
+  });
+
+  if (!user || user.userStatus !== UserStatus.active) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  // Count total posts for the user
+  const total = await prisma.posts.count({
+    where: {
+      userId,
+    },
+  });
+
+  // Paginated posts for the user
+  const posts = await prisma.posts.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      user: true,
+    },
+    skip,
+    take: limit,
+  });
+
+  const postIds = posts.map((post) => post.id);
+
+  const commentCounts = await prisma.postComments.groupBy({
+    by: ["postId"],
+    where: {
+      postId: { in: postIds },
+    },
+    _count: {
+      postId: true,
+    },
+  });
+
+  const countMap = new Map(
+    commentCounts.map((item) => [item.postId, item._count.postId])
+  );
+
+  const formattedPosts = posts.map((post) => ({
+    id: post.id,
+    userId: post.user.id,
+    partySize: post.partySize,
+    positionsNeeded: post.positionsNeeded,
+    minRank: post.minRank,
+    maxRank: post.maxRank,
+    description: post.description,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    user: {
+      id: post.user.id,
+      username: post.user.username,
+      avatarUrl: post.user.avatarUrl,
+      isPremium: post.user.isPremium,
+    },
+    commentCount: countMap.get(post.id) ?? 0,
+  }));
+
+  return {
+    items: formattedPosts,
+    total,
+  };
+}
+
 async function updatePost(
   event: H3Event,
   postData: {
@@ -318,6 +407,7 @@ async function deletePost(event: H3Event, postId: number) {
 export default {
   createPost,
   getPosts,
+  getUsersPostHistory,
   updatePost,
   deletePost,
 };

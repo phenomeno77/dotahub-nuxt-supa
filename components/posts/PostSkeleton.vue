@@ -1,5 +1,5 @@
 <template>
-  <div class="post-item shadow-sm mb-4">
+  <div class="post-item shadow-sm my-4">
     <!-- Header -->
     <div class="d-flex align-items-center mb-3 px-3 pt-3">
       <Skeleton shape="circle" size="3rem" class="me-2" />

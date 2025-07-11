@@ -7,11 +7,13 @@ import { useHeartbeat } from "~/composables/useHeartbeat";
 const config = useRuntimeConfig();
 const route = useRoute();
 const loading = useLoadingStore();
-const isHomePage = computed(() => route.path === "/");
-const isProfilePage = computed(() => route.path === "/my-posts");
+const mainEl = ref<HTMLElement | null>(null);
+const isHomePage = computed(() => route.name === "index");
+const isProfilePage = computed(() => route.name === "profile-id");
 const showPremiumDialog = usePremiumDialog();
 const createPostDialog = useCreatePostDialog();
 useHeartbeat();
+provide("scrollEl", mainEl);
 
 useHead({
   title: config.public.appName,
@@ -32,18 +34,6 @@ const layoutColumns = computed(() => {
     };
   }
 });
-
-// onMounted(() => {
-//   auth.checkAuth();
-
-//   const updateDarkMode = (matches: boolean) => {
-//     document.body.classList.toggle('dark', matches);
-//   };
-
-//   const match = window.matchMedia('(prefers-color-scheme: dark)');
-//   updateDarkMode(match.matches);
-//   match.addEventListener('change', e => updateDarkMode(e.matches));
-// });
 
 useSeoMeta({
   title: "Dota 2 Party Finder - Connect with Ranked Players",
@@ -110,6 +100,7 @@ useHead({
   <div class="container-fluid d-flex flex-column h-100">
     <NuxtLayout>
       <main
+        ref="mainEl"
         class="position-absolute start-0 end-0"
         style="top: 9%; bottom: 3%; overflow-y: auto"
       >

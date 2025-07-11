@@ -17,7 +17,7 @@ const loadingStore = useLoadingStore();
 const handleLogout = async () => {
   loadingStore.startLoading();
   try {
-    await $fetch("/api/user/logout", { method: "POST" });
+    await $fetch("/api/auth/logout", { method: "POST" });
     await supabase.auth.signOut();
   } catch (e) {
     console.error("Logout error", e);

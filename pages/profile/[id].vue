@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from "vue";
-import { useLoadingStore } from "../stores/loading";
+import { useLoadingStore } from "~/stores/loading";
 import type { Post } from "~/types/Post";
 import { useRoute } from "vue-router";
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
@@ -13,7 +13,8 @@ const loadingStore = useLoadingStore();
 const route = useRoute();
 const postStore = usePostStore();
 const scrollEl = inject<Ref<HTMLElement | null>>("scrollEl");
-const POSTS_PER_PAGE = 5;
+const POSTS_PER_PAGE = 20;
+const userId = route.params.id as string;
 
 const {
   items: posts,
@@ -21,14 +22,13 @@ const {
   isLoading,
   fetchInitial,
   fetchMore,
-} = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
+} = usePaginatedFetch<Post>(`/api/post/${userId}`, POSTS_PER_PAGE);
 
 // Computed for error flags & query info
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
   () => route.query.error === "steam_login_failed"
 );
-
 const banReason = computed(() => route.query.banReason || "");
 const banExpiration = computed(() => route.query.banExpiration || "");
 
@@ -78,7 +78,14 @@ onMounted(async () => {
       <PostItem :post="post" />
     </div>
 
-    <div v-if="posts.length >= total && !isBanned" class="no-more-posts">
+    <div v-if="!posts.length" class="no-more-posts">
+      Looks like it's quiet here. No posts so far...
+    </div>
+
+    <div
+      v-if="posts.length && posts.length >= total && !isBanned"
+      class="no-more-posts"
+    >
       You've reached the end! 🎉
     </div>
   </div>
