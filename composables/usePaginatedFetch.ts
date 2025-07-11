@@ -31,7 +31,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         error.statusMessage ||
         error.message ||
         "Unexpected error";
-      notifications(toast, "warn", "Fetching Failed", message, 3000);
+      notifications(toast, "warn", "Loading Items Failed", message, 3000);
     } finally {
       isLoading.value = false;
     }
@@ -57,7 +57,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         error.statusMessage ||
         error.message ||
         "Unexpected error";
-      notifications(toast, "warn", "Fetching Failed", message, 3000);
+      notifications(toast, "warn", "Loading Items Failed", message, 3000);
     } finally {
       isLoading.value = false;
     }

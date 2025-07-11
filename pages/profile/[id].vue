@@ -9,6 +9,10 @@ import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import PostItem from "~/components/posts/PostItem.vue";
 import { usePostStore } from "~/stores/posts";
 
+definePageMeta({
+  middleware: "auth-logged-in-user",
+});
+
 const loadingStore = useLoadingStore();
 const route = useRoute();
 const postStore = usePostStore();
