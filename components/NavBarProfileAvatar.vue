@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { buttons } from "~/constants/labels";
+import { UserRole } from "~/types/enums";
 
 const emits = defineEmits(["logout"]);
 
-const { loggedIn } = useUserSession();
-const profileMenu = ref();
+const { loggedIn, user } = useUserSession();
 const authStore = useAuthStore();
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 const avatarLabel = computed(() =>
@@ -12,32 +12,57 @@ const avatarLabel = computed(() =>
     ? authStore.username.charAt(0).toUpperCase()
     : ""
 );
+const showDrawer = ref(false);
+const showPremiumDialog = usePremiumDialog();
+const showCreatePostDialog = useCreatePostDialog();
 
-const toggleProfile = (event: any) => {
-  profileMenu.value.toggle(event);
+const toggleMenu = () => {
+  showDrawer.value = true;
 };
 
-const profileMenuItems = computed(() => {
-  const menu = [];
+const drawerMenuItems = computed(() => {
+  const menu: any[] = [];
 
-  if (loggedIn) {
+  if (loggedIn.value) {
+    if (user.value?.role === UserRole.admin) {
+      menu.push({
+        label: buttons.ADMIN_DASHBOARD,
+        icon: "pi pi-users",
+        command: () => {
+          showDrawer.value = false;
+          navigateTo("/admin-dashboard");
+        },
+      });
+
+      menu.push({ separator: true });
+    }
+
     menu.push({
-      separator: true,
+      label: buttons.CREATE_POST,
+      icon: "pi pi-pen-to-square",
+      command: () => {
+        showDrawer.value = false;
+        showCreatePostDialog.value = true;
+      },
     });
+
+    // Profile-related actions
     menu.push({
       label: buttons.POST_HISTORY,
       icon: "pi pi-history",
-      command: () => navigateTo(`/profile/${authStore.userId}`),
+      command: () => {
+        showDrawer.value = false;
+        navigateTo(`/profile/${authStore.userId}`);
+      },
     });
-
+    menu.push({ separator: true });
     menu.push({
-      separator: true,
-    });
-
-    menu.push({
-      label: buttons.LOGOUT,
-      icon: "pi pi-sign-out",
-      command: () => emits("logout"),
+      label: buttons.GO_PREMIUM,
+      icon: "pi pi-crown",
+      command: () => {
+        showDrawer.value = false;
+        showPremiumDialog.value = true;
+      },
     });
   }
 
@@ -55,21 +80,6 @@ const formattedPremiumDate = computed(() => {
     second: "2-digit",
   });
 });
-
-const menuPt = computed(() => ({
-  root: {
-    style: {
-      border: "none",
-      top: "9%",
-    },
-  },
-  item: {
-    style: {
-      paddingTop: "4px",
-      paddingBottom: "4px",
-    },
-  },
-}));
 </script>
 
 <template>
@@ -82,7 +92,7 @@ const menuPt = computed(() => ({
       shape="circle"
       aria-haspopup="true"
       aria-controls="overlay_menu"
-      @click="toggleProfile"
+      @click="toggleMenu"
     />
 
     <div
@@ -99,29 +109,62 @@ const menuPt = computed(() => ({
     </div>
   </div>
 
-  <Menu
-    ref="profileMenu"
-    id="overlay_menu"
-    :model="profileMenuItems"
-    :popup="true"
-    :pt="menuPt"
+  <Drawer
+    v-model:visible="showDrawer"
+    position="right"
+    :pt="{
+      root: {
+        style: {
+          background: 'var(--background-color)',
+          color: 'var( --text-color)',
+          border: 'none',
+        },
+      },
+    }"
   >
-    <template #start>
-      <div class="d-flex align-items-center justify-content-start gap-2 p-1">
+    <template #header>
+      <div class="d-flex align-items-center gap-2 p-2">
         <Avatar
           :image="avatarImage"
           :label="avatarLabel"
           shape="circle"
           class="avatar-fixed"
         />
-        <div class="d-flex flex-column justify-content-center">
-          <span class="name-truncate">
-            {{ authStore.username }}
-          </span>
+        <div class="d-flex flex-column">
+          <span class="fw-bold">{{ authStore.username }}</span>
         </div>
       </div>
     </template>
-  </Menu>
+
+    <div class="p-3">
+      <div v-for="(item, index) in drawerMenuItems" :key="index" class="mb-2">
+        <hr v-if="item.separator" class="my-2" />
+        <Button
+          v-else
+          class="w-100 d-flex justify-content-start gap-2"
+          variant="text"
+          @click="item.command"
+        >
+          <i :class="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </Button>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="d-flex justify-content-end p-2">
+        <Button
+          class="d-flex justify-content-start gap-2"
+          severity="danger"
+          variant="text"
+          @click="() => emits('logout')"
+        >
+          <i class="pi pi-sign-out"></i>
+          Logout
+        </Button>
+      </div>
+    </template>
+  </Drawer>
 </template>
 
 <style scoped>

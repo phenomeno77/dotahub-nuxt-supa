@@ -17,7 +17,7 @@ const props = defineProps<{
 const loadingStore = useLoadingStore();
 const postStore = usePostStore();
 const scrollEl = inject<Ref<HTMLElement | null>>("scrollEl") ?? ref(null);
-const POSTS_PER_PAGE = 5;
+const POSTS_PER_PAGE = 20;
 
 const {
   items: posts,
