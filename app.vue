@@ -1,38 +1,15 @@
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useRoute } from "vue-router";
 import CreatePost from "~/components/posts/CreatePost.vue";
 import { useHeartbeat } from "~/composables/useHeartbeat";
 
 const config = useRuntimeConfig();
-const route = useRoute();
 const loading = useLoadingStore();
-const mainEl = ref<HTMLElement | null>(null);
-const isHomePage = computed(() => route.name === "index");
-const isProfilePage = computed(() => route.name === "profile-id");
 const showPremiumDialog = usePremiumDialog();
 const createPostDialog = useCreatePostDialog();
 useHeartbeat();
-provide("scrollEl", mainEl);
 
 useHead({
   title: config.public.appName,
-});
-
-const layoutColumns = computed(() => {
-  if (isHomePage.value || isProfilePage.value) {
-    return {
-      left: "col-md-3 d-none d-md-block",
-      center: "col-md-6 col-10  p-0",
-      right: "col-md-3 d-none d-md-block",
-    };
-  } else {
-    return {
-      left: false,
-      center: "col-12 p-0",
-      right: false,
-    };
-  }
 });
 
 useSeoMeta({
@@ -99,26 +76,7 @@ useHead({
   <CreatePost v-if="createPostDialog" />
   <div class="container-fluid d-flex flex-column h-100">
     <NuxtLayout>
-      <main
-        ref="mainEl"
-        class="position-absolute start-0 end-0"
-        style="
-          top: 9%;
-          bottom: 3%;
-          overflow-y: auto;
-          height: calc(100dvh - 12%);
-        "
-      >
-        <div class="container-fluid h-100">
-          <div class="row justify-content-center h-100">
-            <div v-if="layoutColumns.left" :class="layoutColumns.left"></div>
-            <div :class="layoutColumns.center" class="center-layout">
-              <NuxtPage />
-            </div>
-            <div v-if="layoutColumns.right" :class="layoutColumns.right"></div>
-          </div>
-        </div>
-      </main>
+      <NuxtPage />
     </NuxtLayout>
   </div>
 </template>

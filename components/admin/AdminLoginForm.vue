@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { labels, errorMessage, buttons } from "@/constants/labels";
-import notifications from "@/utils/notifications";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import validator from "validator";
+import notifications from "@/utils/notifications";
+import { errorMessage, labels, buttons } from "@/constants/labels";
+import { useAuthStore } from "~/stores/auth";
+import { useLoadingStore } from "~/stores/loading";
+import { UserRole } from "~/types/enums";
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(["success"]);
 const toast = useToast();
 const email = ref("");
 const password = ref("");
 const errors = ref<Record<string, string>>({});
+const authStore = useAuthStore();
+const loading = useLoadingStore();
+
+function isValidUserRole(value: any): value is UserRole {
+  return Object.values(UserRole).includes(value);
+}
 
 const validateForm = () => {
   errors.value = {};
@@ -25,7 +34,7 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0;
 };
 
-const submitForm = () => {
+const submitForm = async () => {
   if (!validateForm()) {
     notifications(
       toast,
@@ -37,12 +46,48 @@ const submitForm = () => {
     return;
   }
 
-  const lowercasedEmail = email.value.toLowerCase();
+  try {
+    loading.startLoading();
+    const lowercasedEmail = email.value.toLowerCase();
 
-  emit("submit", {
-    email: lowercasedEmail,
-    password: password.value,
-  });
+    const { success, user } = await $fetch("/api/auth/admin/login", {
+      method: "POST",
+      body: {
+        email: lowercasedEmail,
+        password: password.value,
+      },
+    });
+
+    const { fetch } = useUserSession();
+    await fetch();
+
+    if (!isValidUserRole(user.role)) {
+      throw new Error("Invalid user role");
+    }
+
+    authStore.login(
+      user.role,
+      user.username,
+      user.avatarUrl,
+      user.isPremium,
+      user.id,
+      user.premiumExpiresAt
+    );
+
+    emit("success");
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Login failed", message, 10000);
+  } finally {
+    setTimeout(() => {
+      loading.stopLoading();
+    }, 700);
+  }
 };
 </script>
 
@@ -63,6 +108,7 @@ const submitForm = () => {
             type="text"
             class="w-100 d-flex flex-column"
             v-model="email"
+            @keyup.enter="submitForm"
           />
         </FloatLabel>
       </div>
@@ -75,6 +121,7 @@ const submitForm = () => {
             v-model="password"
             toggleMask
             :feedback="false"
+            @keyup.enter="submitForm"
           />
           <label for="password">{{ labels.PASSWORD }}</label>
         </FloatLabel>
@@ -91,4 +138,3 @@ const submitForm = () => {
     </div>
   </div>
 </template>
-<style scoped></style>
