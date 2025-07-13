@@ -21,7 +21,7 @@ const POSTS_PER_PAGE = 20;
 
 const {
   items: posts,
-  totalPosts,
+  total,
   isLoading,
   fetchInitial,
   fetchMore,
@@ -59,7 +59,7 @@ onMounted(async () => {
   if (scrollEl) {
     useInfiniteScroll(scrollEl, fetchMore, {
       distance: 10,
-      canLoadMore: () => posts.value.length < totalPosts.value,
+      canLoadMore: () => posts.value.length < total.value,
     });
   }
 });
@@ -87,7 +87,7 @@ onMounted(async () => {
     </div>
 
     <div
-      v-if="posts.length && posts.length >= totalPosts && !isBanned"
+      v-if="posts.length && posts.length >= total && !isBanned"
       class="no-more-posts"
     >
       You've reached the end! 🎉

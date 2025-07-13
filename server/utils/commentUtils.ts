@@ -58,7 +58,56 @@ async function addComment(event: H3Event, comment: string, postId: number) {
 
   return newComment;
 }
+export async function getCommentsForPost(
+  event: H3Event,
+  postId: number,
+  limit: number,
+  skip: number
+) {
+  // Get total number of comments for this post
+  const total = await prisma.postComments.count({
+    where: {
+      postId: Number(postId),
+    },
+  });
+
+  // Fetch paginated comments, ordered by newest first
+  const comments = await prisma.postComments.findMany({
+    where: {
+      postId: Number(postId),
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip,
+    take: limit,
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+          isPremium: true,
+        },
+      },
+    },
+  });
+
+  // Format result if needed (optional: here it's already clean)
+  const formatted = comments.map((comment) => ({
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.createdAt,
+    user: comment.user,
+  }));
+
+  return {
+    items: formatted,
+    total,
+  };
+}
 
 export default {
   addComment,
+  getCommentsForPost,
 };
