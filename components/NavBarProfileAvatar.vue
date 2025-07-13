@@ -80,6 +80,15 @@ const formattedPremiumDate = computed(() => {
     second: "2-digit",
   });
 });
+
+const actionButtons = computed(() => ({
+  root: {
+    style: {
+      color: "var(--text-color)",
+    },
+    class: "custom-action-button",
+  },
+}));
 </script>
 
 <template>
@@ -140,6 +149,7 @@ const formattedPremiumDate = computed(() => {
       <div v-for="(item, index) in drawerMenuItems" :key="index" class="mb-2">
         <hr v-if="item.separator" class="my-2" />
         <Button
+          :pt="actionButtons"
           v-else
           class="w-100 d-flex justify-content-start gap-2"
           variant="text"
@@ -168,6 +178,10 @@ const formattedPremiumDate = computed(() => {
 </template>
 
 <style scoped>
+.custom-action-button:hover {
+  color: black !important;
+}
+
 .premium-badge {
   display: inline-flex;
   align-items: center;

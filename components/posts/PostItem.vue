@@ -279,24 +279,23 @@ onMounted(() => {
 
     <div
       v-if="postCommentCount && loggedIn"
-      class="d-flex justify-content-end px-3 py-2 show-comments"
+      class="position-relative px-3 py-2 show-comments"
     >
       <Button
+        class="position-absolute end-0 top-50 translate-middle-y me-3"
         v-if="!showPostCommentDialog"
         :label="`${labels.SHOW_COMMENTS} (${postCommentCount})`"
         size="small"
         variant="text"
         @click="toggleShowPostCommentsDialog"
       />
-    </div>
 
-    <div class="d-flex justify-content-end gap-2 pb-3 pe-3" v-if="loggedIn">
       <Button
         icon="pi pi-comments"
         :label="labels.COMMENT"
         variant="outlined"
         iconPos="left"
-        class="border-0"
+        class="d-block mx-auto border-0"
         @click="toggleShowPostCommentsDialog"
       />
     </div>

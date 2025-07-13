@@ -67,18 +67,19 @@ onMounted(async () => {
   />
   <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
 
-  <div v-if="isLoading">
-    <PostSkeleton v-for="n in 3" :key="'skeleton-' + n" />
+  <div v-for="post in posts" :key="post.id" style="padding: 1rem 0">
+    <PostItem :post="post" />
   </div>
 
-  <div v-else>
-    <div v-for="post in posts" :key="post.id" style="padding: 1rem 0">
-      <PostItem :post="post" />
-    </div>
+  <PostSkeleton
+    v-if="isLoading"
+    v-for="n in POSTS_PER_PAGE"
+    :key="'skeleton-' + n"
+    class="mb-3"
+  />
 
-    <div v-if="posts.length >= totalPosts && !isBanned" class="no-more-posts">
-      You've reached the end! 🎉
-    </div>
+  <div v-if="posts.length >= totalPosts && !isBanned" class="no-more-posts">
+    You've reached the end! 🎉
   </div>
 </template>
 
