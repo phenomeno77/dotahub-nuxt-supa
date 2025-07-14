@@ -29,8 +29,8 @@ const showPremiumDialog = usePremiumDialog();
           Placement
         </li>
         <li>
-          <i class="pi pi-check-circle text-success me-2"></i> Profile Crown &
-          Badge
+          <i class="pi pi-check-circle text-success me-2"></i> Profile Badge &
+          Crown
         </li>
         <li>
           <i class="pi pi-check-circle text-success me-2"></i> Advanced Post

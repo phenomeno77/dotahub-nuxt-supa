@@ -24,6 +24,15 @@ const drawerMenuItems = computed(() => {
   const menu: any[] = [];
 
   if (loggedIn.value) {
+    menu.push({
+      label: buttons.HOME,
+      icon: "pi pi-home",
+      command: () => {
+        showDrawer.value = false;
+        navigateTo("/");
+      },
+    });
+
     if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
@@ -56,11 +65,11 @@ const drawerMenuItems = computed(() => {
       },
     });
     menu.push({ separator: true });
+
     menu.push({
       label: buttons.GO_PREMIUM,
       icon: "pi pi-crown",
       command: () => {
-        showDrawer.value = false;
         showPremiumDialog.value = true;
       },
     });
@@ -137,10 +146,27 @@ const actionButtons = computed(() => ({
           :image="avatarImage"
           :label="avatarLabel"
           shape="circle"
+          size="large"
           class="avatar-fixed"
         />
-        <div class="d-flex flex-column">
-          <span class="fw-bold">{{ authStore.username }}</span>
+        <div class="d-flex flex-column overflow-hidden">
+          <p
+            class="mb-0 fw-bold username d-flex align-items-center"
+            :title="authStore.username"
+          >
+            <span
+              class="text-truncate fw-bold"
+              style="
+                display: inline-block;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
+            >
+              {{ authStore.username }}
+            </span>
+          </p>
         </div>
       </div>
     </template>
@@ -162,16 +188,18 @@ const actionButtons = computed(() => ({
     </div>
 
     <template #footer>
+      <span v-if="authStore.isPremium" class="premium-avatar-label-drawer">
+        Premium until {{ formattedPremiumDate }}</span
+      >
+
       <div class="d-flex justify-content-end p-2">
         <Button
-          class="d-flex justify-content-start gap-2"
           severity="danger"
+          :label="buttons.LOGOUT"
+          icon="pi pi-sign-out"
           variant="text"
           @click="() => emits('logout')"
-        >
-          <i class="pi pi-sign-out"></i>
-          Logout
-        </Button>
+        />
       </div>
     </template>
   </Drawer>
@@ -222,6 +250,10 @@ const actionButtons = computed(() => ({
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
+.premium-avatar-label-drawer {
+  color: #fbb034;
+}
+
 a {
   all: unset;
 }
@@ -235,9 +267,6 @@ a:hover {
 }
 
 .avatar-fixed {
-  width: 40px;
-  height: 40px;
-  font-size: 1rem;
   flex-shrink: 0;
 }
 

@@ -29,6 +29,10 @@ const toast = useToast();
 const confirm = useConfirm();
 const isEditPost = ref(false);
 
+const testName = ref(
+  "A ver VERYY long long nameeee äasdqwäeöqwäö qwäöewqäö eqw ewqö"
+);
+
 const postCommentCount = ref<number>(0);
 
 const positionLabels: Record<string, string> = {
@@ -168,29 +172,46 @@ onMounted(() => {
     <div
       class="d-flex justify-content-between align-items-center mb-3 px-3 pt-3 w-100"
     >
-      <div class="d-flex align-items-center">
+      <!-- Left: Avatar + Username -->
+      <div class="d-flex align-items-center overflow-hidden">
         <Avatar
           :image="avatarImage"
           :label="avatarLabel"
-          class="me-2"
+          class="me-2 flex-shrink-0"
           size="xlarge"
           shape="circle"
         />
-        <div>
-          <p class="mb-0 fw-bold username">
-            {{ props.post.user?.username }}
+        <div
+          style="max-width: 400px"
+          class="d-flex flex-column overflow-hidden"
+        >
+          <p
+            class="mb-0 fw-bold username d-flex align-items-center"
+            :title="props.post.user?.username"
+          >
+            <span
+              class="text-truncate"
+              style="
+                display: inline-block;
+                max-width: 400px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
+            >
+              {{ props.post.user?.username }}
+            </span>
             <i
-              v-if="post.user?.isPremium"
-              class="pi pi-crown me-1 premium-badge mb-0"
+              v-if="props.post.user?.isPremium"
+              class="pi pi-crown ms-1 premium-badge"
               title="Premium member"
             ></i>
           </p>
-
           <small class="postedAgo">Posted {{ postedAgo }}</small>
         </div>
       </div>
 
-      <!-- Right side: Ellipsis Button -->
+      <!-- Right side: Ellipsis Menu -->
       <div
         v-if="
           authStore.userId === props.post.user?.id ||

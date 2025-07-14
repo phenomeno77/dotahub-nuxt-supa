@@ -40,6 +40,7 @@ export const labels = {
 };
 
 export const buttons = {
+  HOME: "Home",
   ADD_USER: "Add User",
   SIGN_IN: "Sign In",
   LOGOUT: "Logout",
@@ -54,7 +55,7 @@ export const buttons = {
   DELETE_POST: "Delete",
   EDIT_COMMENT: "Edit comment",
   DELETE_COMMENT: "Delete",
-  GO_PREMIUM: "Go Premium",
+  GO_PREMIUM: "Upgrade to Premium",
   SUBMIT_BAN: "Submit Ban",
 };
 
