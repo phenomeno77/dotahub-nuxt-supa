@@ -33,6 +33,10 @@ const drawerMenuItems = computed(() => {
       },
     });
 
+    if (!user.value?.role === UserRole.admin) {
+      menu.push({ separator: true });
+    }
+
     if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
