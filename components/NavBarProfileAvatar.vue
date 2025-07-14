@@ -33,10 +33,6 @@ const drawerMenuItems = computed(() => {
       },
     });
 
-    if (!user.value?.role === UserRole.admin) {
-      menu.push({ separator: true });
-    }
-
     if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
@@ -46,9 +42,9 @@ const drawerMenuItems = computed(() => {
           navigateTo("/admin-dashboard");
         },
       });
-
-      menu.push({ separator: true });
     }
+
+    menu.push({ separator: true });
 
     menu.push({
       label: buttons.CREATE_POST,
@@ -156,7 +152,7 @@ const actionButtons = computed(() => ({
         <div class="d-flex flex-column overflow-hidden">
           <p
             class="mb-0 fw-bold username d-flex align-items-center"
-            :title="authStore.username"
+            :title="authStore.username || ''"
           >
             <span
               class="text-truncate fw-bold"
