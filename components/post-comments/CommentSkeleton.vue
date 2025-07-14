@@ -1,10 +1,6 @@
 <template>
-  <div class="px-3 pb-2">
-    <div
-      v-for="n in skeletonCount"
-      :key="n"
-      class="d-flex mb-3 p-3 rounded shadow-sm comment-skeleton"
-    >
+  <div class="pb-2">
+    <div class="d-flex mb-3 p-3 rounded shadow-sm comment-skeleton">
       <!-- Avatar Skeleton -->
       <Skeleton shape="circle" size="2.5rem" class="me-3" />
 
@@ -24,15 +20,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-defineProps({
-  skeletonCount: {
-    type: Number,
-    default: 3,
-  },
-});
-</script>
 
 <style scoped>
 .comment-skeleton {

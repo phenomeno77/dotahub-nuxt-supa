@@ -6,6 +6,7 @@ import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import type { Comment } from "~/types/Post";
+import { buttons } from "~/constants/labels";
 
 dayjs.extend(relativeTime);
 
@@ -48,6 +49,9 @@ const confirmDelete = () => {
     message: "Are you sure you want to delete this comment?",
     header: "Confirm Delete",
     icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "No",
+    },
     accept: async () => {
       const { data, error } = await useFetch(
         `/api/post/comments/${props.comment.id}`,
@@ -69,7 +73,11 @@ const confirmDelete = () => {
 <template>
   <div class="d-flex mb-3 p-3 rounded shadow-sm comment-item">
     <!-- Avatar -->
-    <Avatar class="me-3" shape="circle">
+    <Avatar
+      class="me-3"
+      shape="circle"
+      style="min-width: 40px; min-height: 40px; background-color: #e2e8f0"
+    >
       <template #default>
         <img
           v-if="comment.user.avatarUrl"
@@ -97,6 +105,7 @@ const confirmDelete = () => {
 
         <div class="d-flex align-items-center gap-1">
           <small>{{ dayjs(comment.createdAt).fromNow() }}</small>
+
           <Button
             v-if="
               authStore.userId === comment.user.id ||
@@ -104,56 +113,67 @@ const confirmDelete = () => {
             "
             icon="pi pi-ellipsis-v"
             variant="text"
-            @click="confirmDelete"
             size="small"
+            aria-haspopup="true"
+            :aria-controls="`overlay_menu${comment.id}`"
+            @click="(e) => $refs[`menu${comment.id}`]?.toggle(e)"
+          />
+          <Menu
+            :ref="`menu${comment.id}`"
+            :id="`overlay_menu${comment.id}`"
+            :model="[
+              {
+                label: 'Edit',
+                icon: 'pi pi-pencil',
+                command: () => {
+                  editContent = comment.content;
+                  editing = true;
+                },
+              },
+              {
+                label: 'Delete',
+                icon: 'pi pi-trash',
+                command: confirmDelete,
+              },
+            ]"
+            :popup="true"
           />
         </div>
       </div>
 
+      <!-- Normal View -->
       <div v-if="!editing">
         <p
           class="comment-content mb-1"
-          :class="{ 'text-truncate': !isExpanded }"
+          :class="{ expanded: isExpanded, collapsed: !isExpanded }"
         >
           {{ comment.content }}
         </p>
         <Button
           v-if="comment.content.length > 100"
           variant="link"
-          @click="toggleExpand"
           size="small"
+          @click="toggleExpand"
         >
           {{ isExpanded ? "Show Less" : "Show More" }}
         </Button>
-        <Button
-          v-if="authStore.userId === comment.user.id"
-          icon="pi pi-pencil"
-          label="Edit"
-          size="small"
-          text
-          @click="
-            () => {
-              editContent = comment.content;
-              editing = true;
-            }
-          "
-        />
       </div>
 
+      <!-- Edit Mode -->
       <div v-else class="d-flex flex-column gap-2">
         <Textarea v-model="editContent" autoResize rows="2" />
         <div class="d-flex justify-content-end gap-2">
           <Button
             icon="pi pi-check"
-            label="Save"
+            :label="buttons.SAVE"
             size="small"
             @click="saveEdit"
           />
           <Button
             icon="pi pi-times"
-            label="Cancel"
-            size="small"
+            :label="buttons.CANCEL"
             severity="secondary"
+            size="small"
             @click="editing = false"
           />
         </div>
@@ -165,11 +185,31 @@ const confirmDelete = () => {
 <style scoped>
 .comment-item {
   background-color: var(--bg-comments);
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .avatar-img {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.comment-content {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.comment-content.collapsed {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 40px;
+  white-space: nowrap;
+}
+
+.comment-content.expanded {
+  max-height: none;
 }
 </style>

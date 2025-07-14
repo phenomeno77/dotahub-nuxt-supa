@@ -80,6 +80,10 @@ const abortPost = () => {
 };
 
 const addComment = async () => {
+  if (!comment.value || !comment.value.trim()) {
+    return;
+  }
+
   try {
     const response = await $fetch("/api/comment", {
       method: "POST",
@@ -154,12 +158,7 @@ onMounted(async () => {
     <!-- Scroll container wrapping entire dialog content -->
     <div
       ref="dialogContentRef"
-      style="
-        height: 100%;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-      "
+      class="d-flex flex-column h-100 overflow-auto px-3"
     >
       <div class="post-item mb-4 px-3 pt-3">
         <!-- Header -->
@@ -262,7 +261,7 @@ onMounted(async () => {
     </div>
 
     <template #footer>
-      <div v-if="loggedIn" class="w-100 px-3">
+      <div v-if="loggedIn" class="w-100 px-1">
         <div
           class="d-flex align-items-center w-100 gap-2"
           style="padding: 0.5rem 0"

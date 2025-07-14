@@ -41,6 +41,8 @@ export const labels = {
 
 export const buttons = {
   HOME: "Home",
+  SAVE: "Save",
+  CANCEL: "Cancel",
   ADD_USER: "Add User",
   SIGN_IN: "Sign In",
   LOGOUT: "Logout",
