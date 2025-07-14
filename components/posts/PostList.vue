@@ -24,6 +24,10 @@ const {
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
 
+const { list, containerProps, wrapperProps } = useVirtualList(posts, {
+  itemHeight: 150,
+});
+
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
   () => route.query.error === "steam_login_failed"

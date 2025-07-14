@@ -17,11 +17,27 @@ const authStore = useAuthStore();
 const toast = useToast();
 const confirm = useConfirm();
 
-const isExpanded = ref(false);
+const expandedComments = ref<number[]>([]);
+
 const editing = ref(false);
 const editContent = ref(props.comment.content);
+const commentMenu = ref();
 
-const toggleExpand = () => (isExpanded.value = !isExpanded.value);
+function isExpanded(id: number) {
+  return expandedComments.value.includes(id);
+}
+
+function toggleExpand(id: number) {
+  if (isExpanded(id)) {
+    expandedComments.value = expandedComments.value.filter((i) => i !== id);
+  } else {
+    expandedComments.value.push(id);
+  }
+}
+
+const toggleCommentMenu = (event: Event) => {
+  commentMenu.value.toggle(event);
+};
 
 const saveEdit = async () => {
   try {
@@ -93,7 +109,7 @@ const confirmDelete = () => {
 
     <!-- Content -->
     <div class="flex-grow-1">
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between align-items-center">
         <p class="fw-bold mb-0">
           {{ comment.user.username }}
           <i
@@ -115,12 +131,13 @@ const confirmDelete = () => {
             variant="text"
             size="small"
             aria-haspopup="true"
-            :aria-controls="`overlay_menu${comment.id}`"
-            @click="(e) => $refs[`menu${comment.id}`]?.toggle(e)"
+            aria-controls="overlay_menu"
+            @click="toggleCommentMenu"
           />
+
           <Menu
-            :ref="`menu${comment.id}`"
-            :id="`overlay_menu${comment.id}`"
+            ref="commentMenu"
+            id="overlay_menu"
             :model="[
               {
                 label: 'Edit',
@@ -142,26 +159,18 @@ const confirmDelete = () => {
       </div>
 
       <!-- Normal View -->
-      <div v-if="!editing">
-        <p
-          class="comment-content mb-1"
-          :class="{ expanded: isExpanded, collapsed: !isExpanded }"
-        >
-          {{ comment.content }}
-        </p>
-        <Button
-          v-if="comment.content.length > 100"
-          variant="link"
-          size="small"
-          @click="toggleExpand"
-        >
-          {{ isExpanded ? "Show Less" : "Show More" }}
-        </Button>
+      <div v-if="!editing" class="comment-content mb-1">
+        {{
+          isExpanded(comment.id)
+            ? comment.content
+            : comment.content.slice(0, 100) +
+              (comment.content.length > 100 ? "..." : "")
+        }}
       </div>
 
       <!-- Edit Mode -->
       <div v-else class="d-flex flex-column gap-2">
-        <Textarea v-model="editContent" autoResize rows="2" />
+        <Textarea v-model="editContent" autoResize rows="1" />
         <div class="d-flex justify-content-end gap-2">
           <Button
             icon="pi pi-check"
@@ -177,6 +186,17 @@ const confirmDelete = () => {
             @click="editing = false"
           />
         </div>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <Button
+          v-if="comment.content.length > 100 && !editing"
+          variant="link"
+          size="small"
+          @click="toggleExpand(comment.id)"
+        >
+          {{ isExpanded(comment.id) ? "Show Less" : "Show More" }}
+        </Button>
       </div>
     </div>
   </div>
@@ -200,6 +220,8 @@ const confirmDelete = () => {
   font-size: 1rem;
   line-height: 1.4;
   color: var(--text-color);
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .comment-content.collapsed {
