@@ -305,9 +305,9 @@ onMounted(() => {
       <Button
         icon="pi pi-comments"
         :label="labels.COMMENT"
-        variant="outlined"
+        variant="text"
         iconPos="left"
-        class="border-0 w-100 w-md-auto"
+        class="border-0 w-md-auto"
         @click="toggleShowPostCommentsDialog"
       />
 

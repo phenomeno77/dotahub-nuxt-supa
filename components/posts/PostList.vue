@@ -13,7 +13,6 @@ const scrollEl = inject<Ref<HTMLElement | null>>("scrollEl") ?? ref(null);
 const route = useRoute();
 const postStore = usePostStore();
 const loadingStore = useLoadingStore();
-
 const POSTS_PER_PAGE = 5;
 
 const {
@@ -24,9 +23,10 @@ const {
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
 
+
 const { list, containerProps, wrapperProps } = useVirtualList(posts, {
-  itemHeight: 150,
-});
+  itemHeight: 300, // Estimate average post height
+})
 
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
@@ -71,9 +71,36 @@ onMounted(async () => {
   />
   <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
 
-  <div v-for="post in posts" :key="post.id" style="padding: 1rem 0">
-    <PostItem :post="post" />
-  </div>
+ <main   class="position-absolute start-0 end-0"
+    style="top: 100px; bottom: 3%; ">
+    <div class="container-fluid py-4">
+      <div class="row justify-content-center">
+        <!-- Left Sidebar (hidden on mobile) -->
+        <div class="col-md-3 d-none d-md-block">
+          <!-- Left Sidebar content -->
+        </div>
+
+        <!-- Center Column -->
+        <div class="col-md-6 col-12 p-0">
+          <div v-bind="containerProps">
+            <div v-bind="wrapperProps">
+              <div
+                v-for="{ index, data: post } in list"
+                :key="post.id"
+              >
+                <PostItem :post="post" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar (hidden on mobile) -->
+        <div class="col-md-3 d-none d-md-block">
+          <!-- Right Sidebar content -->
+        </div>
+      </div>
+    </div>
+  </main>
 
   <PostSkeleton
     v-if="isLoading"
@@ -95,5 +122,16 @@ onMounted(async () => {
   font-style: italic;
   font-size: 0.95rem;
   opacity: 0.8;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+main {
+  height: 100%;
 }
 </style>
