@@ -132,6 +132,8 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
 </script>
 
 <template>
+  <div class="position-absolute start-0 end-0"
+    style="top: 9%; bottom: 3%; overflow-y: auto; height: calc(100dvh - 12%)">
   <DataTable
     v-model:filters="filters"
     :value="filteredUsersNoCurrentUser"
@@ -341,7 +343,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
     >
     </Column>
   </DataTable>
-
+</div>
   <AddUserForm
     v-model:showAddUserDialog="showAddUserDialog"
     @update-table="$emit('update-table')"
