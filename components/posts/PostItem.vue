@@ -28,11 +28,6 @@ const postStore = usePostStore();
 const toast = useToast();
 const confirm = useConfirm();
 const isEditPost = ref(false);
-
-const testName = ref(
-  "A ver VERYY long long nameeee äasdqwäeöqwäö qwäöewqäö eqw ewqö"
-);
-
 const postCommentCount = ref<number>(0);
 
 const positionLabels: Record<string, string> = {

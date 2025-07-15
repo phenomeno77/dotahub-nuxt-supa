@@ -9,11 +9,12 @@ import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 
-const scrollEl = inject<Ref<HTMLElement | null>>("scrollEl") ?? ref(null);
+
 const route = useRoute();
 const postStore = usePostStore();
 const loadingStore = useLoadingStore();
 const POSTS_PER_PAGE = 5;
+const scrollerContainerRef = ref<HTMLElement | null>(null);
 
 const {
   items: posts,
@@ -24,9 +25,7 @@ const {
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
 
 
-const { list, containerProps, wrapperProps } = useVirtualList(posts, {
-  itemHeight: 300, // Estimate average post height
-})
+
 
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
@@ -54,65 +53,78 @@ onMounted(async () => {
     loadingStore.stopLoading();
   }
 
-  if (scrollEl.value) {
-    useInfiniteScroll(scrollEl, fetchMore, {
+  if (scrollerContainerRef.value) {
+    useInfiniteScroll(scrollerContainerRef, fetchMore, {
       distance: 10,
       canLoadMore: () => posts.value.length < total.value,
     });
   }
 });
+
 </script>
 
 <template>
-  <BannedAlert
-    v-if="isBanned"
-    :ban-reason="banReason"
-    :ban-expiration="banExpiration"
-  />
-  <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
+  <!-- Alerts on top -->
+  <div class="position-absolute top-0 start-0 end-0 z-3">
+    <BannedAlert
+      v-if="isBanned"
+      :ban-reason="banReason"
+      :ban-expiration="banExpiration"
+    />
+    <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
+  </div>
 
- <main   class="position-absolute start-0 end-0"
-    style="top: 100px; bottom: 3%; ">
+  <!-- Scrollable area -->
+  <div
+    ref="scrollerContainerRef"
+    class="position-absolute start-0 end-0"
+    style="top: 100px; bottom: 40px; overflow-y: auto;"
+  >
     <div class="container-fluid py-4">
       <div class="row justify-content-center">
-        <!-- Left Sidebar (hidden on mobile) -->
-        <div class="col-md-3 d-none d-md-block">
-          <!-- Left Sidebar content -->
-        </div>
+        <!-- Center Column only -->
+        <div class="col-md-6 col-11 p-0">
+          <!-- Virtual Scroller -->
+          <DynamicScroller
+            :items="posts"
+            :min-item-size="300"
+            key-field="id"          >
+            <template #default="{ item, index }">
+              <DynamicScrollerItem :item="item" :index="index" :active="true">
+                <div class="d-flex flex-column gap-5">
+                  <PostItem :post="item" />
+                </div>
+              </DynamicScrollerItem>
+            </template>
+          </DynamicScroller>
 
-        <!-- Center Column -->
-        <div class="col-md-6 col-12 p-0">
-          <div v-bind="containerProps">
-            <div v-bind="wrapperProps">
-              <div
-                v-for="{ index, data: post } in list"
-                :key="post.id"
-              >
-                <PostItem :post="post" />
-              </div>
+          <!-- Inline Skeletons directly below posts -->
+          <div v-if="isLoading">
+            <div
+              class="mb-3"
+              v-for="n in POSTS_PER_PAGE"
+              :key="'skeleton-' + n"
+            >
+              <PostSkeleton />
             </div>
           </div>
-        </div>
 
-        <!-- Right Sidebar (hidden on mobile) -->
-        <div class="col-md-3 d-none d-md-block">
-          <!-- Right Sidebar content -->
+          <!-- End-of-list message -->
+          <div
+            v-if="posts.length >= total && !isBanned"
+            class="no-more-posts text-center mt-4 text-muted"
+          >
+            You've reached the end! 🎉
+          </div>
         </div>
       </div>
     </div>
-  </main>
-
-  <PostSkeleton
-    v-if="isLoading"
-    v-for="n in POSTS_PER_PAGE"
-    :key="'skeleton-' + n"
-    class="mb-3"
-  />
-
-  <div v-if="posts.length >= total && !isBanned" class="no-more-posts">
-    You've reached the end! 🎉
   </div>
 </template>
+
+
+
+
 
 <style scoped>
 .no-more-posts {
@@ -124,14 +136,4 @@ onMounted(async () => {
   opacity: 0.8;
 }
 
-html,
-body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-main {
-  height: 100%;
-}
 </style>
