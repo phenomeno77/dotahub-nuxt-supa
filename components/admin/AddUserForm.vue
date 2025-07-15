@@ -127,8 +127,10 @@ const submitForm = async () => {
     :pt="{
       root: {
         style: {
-          background: 'var(--background-color)',
+          background: 'var(--bg-post)',
           color: 'var( --text-color)',
+                    border: 'none',
+
         },
       },
     }"
