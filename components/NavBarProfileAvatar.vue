@@ -79,16 +79,16 @@ const actionButtons = computed(() => ({
 </script>
 
 <template>
+  <Button icon="pi pi-bars" severity="secondary" @click="toggleMenu" />
+
   <div class="position-relative d-inline-block me-2">
     <Avatar
       :image="avatarImage"
       :label="avatarLabel"
-      class="avatar-clickable"
       size="large"
       shape="circle"
       aria-haspopup="true"
       aria-controls="overlay_menu"
-      @click="toggleMenu"
     />
   </div>
 
@@ -176,10 +176,6 @@ a {
 }
 
 a:hover {
-  cursor: pointer;
-}
-
-.avatar-clickable {
   cursor: pointer;
 }
 

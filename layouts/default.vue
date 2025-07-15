@@ -1,6 +1,6 @@
 <template>
   <header class="row">
-    <div class="col-12 px-0 fixed-top" style="height: 90px">
+    <div class="col-12 px-0 fixed-top" style="height: 80px">
       <NavBar />
     </div>
   </header>

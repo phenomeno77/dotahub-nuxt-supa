@@ -16,8 +16,8 @@ const props = defineProps<{
 
 const loadingStore = useLoadingStore();
 const postStore = usePostStore();
-const scrollEl = inject<Ref<HTMLElement | null>>("scrollEl") ?? ref(null);
 const POSTS_PER_PAGE = 20;
+const scrollerContainerRef = ref<HTMLElement | null>(null);
 
 const {
   items: posts,
@@ -56,8 +56,8 @@ onMounted(async () => {
     loadingStore.stopLoading();
   }
 
-  if (scrollEl) {
-    useInfiniteScroll(scrollEl, fetchMore, {
+  if (scrollerContainerRef.value) {
+    useInfiniteScroll(scrollerContainerRef, fetchMore, {
       distance: 10,
       canLoadMore: () => posts.value.length < total.value,
     });
@@ -66,31 +66,57 @@ onMounted(async () => {
 </script>
 
 <template>
-  <BannedAlert
-    v-if="isBanned"
-    :ban-reason="banReason"
-    :ban-expiration="banExpiration"
-  />
-  <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
-
-  <div v-if="isLoading">
-    <PostSkeleton v-for="n in 3" :key="'skeleton-' + n" />
+  <!-- Alerts on top -->
+  <div class="position-absolute top-0 start-0 end-0 z-3">
+    <BannedAlert
+      v-if="isBanned"
+      :ban-reason="banReason"
+      :ban-expiration="banExpiration"
+    />
+    <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
   </div>
 
-  <div v-else>
-    <div v-for="post in posts" :key="post.id" style="padding: 1rem 0">
-      <PostItem :post="post" />
-    </div>
+  <!-- Scrollable area -->
+  <div
+    ref="scrollerContainerRef"
+    class="position-absolute start-0 end-0"
+    style="top: 80px; bottom: 40px; overflow-y: auto"
+  >
+    <div class="container-fluid py-4">
+      <div class="row justify-content-center">
+        <!-- Center Column only -->
+        <div class="col-md-6 col-11 p-0">
+          <!-- Virtual Scroller -->
+          <DynamicScroller :items="posts" :min-item-size="330" key-field="id">
+            <template #default="{ item, index }">
+              <DynamicScrollerItem :item="item" :index="index" :active="true">
+                <div class="d-flex flex-column gap-5">
+                  <PostItem :post="item" />
+                </div>
+              </DynamicScrollerItem>
+            </template>
+          </DynamicScroller>
 
-    <div v-if="!posts.length" class="no-more-posts">
-      Looks like it's quiet here. No posts so far...
-    </div>
+          <!-- Inline Skeletons directly below posts -->
+          <div v-if="isLoading">
+            <div
+              class="mb-3"
+              v-for="n in POSTS_PER_PAGE"
+              :key="'skeleton-' + n"
+            >
+              <PostSkeleton />
+            </div>
+          </div>
 
-    <div
-      v-if="posts.length && posts.length >= total && !isBanned"
-      class="no-more-posts"
-    >
-      You've reached the end! 🎉
+          <!-- End-of-list message -->
+          <div
+            v-if="posts.length >= total && !isBanned"
+            class="no-more-posts text-center mt-4"
+          >
+            You've reached the end! 🎉
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

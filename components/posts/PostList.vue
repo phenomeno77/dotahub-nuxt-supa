@@ -73,7 +73,7 @@ onMounted(async () => {
   <div
     ref="scrollerContainerRef"
     class="position-absolute start-0 end-0"
-    style="top: 100px; bottom: 40px; overflow-y: auto"
+    style="top: 80px; bottom: 40px; overflow-y: auto"
   >
     <div class="container-fluid py-4">
       <div class="row justify-content-center">
