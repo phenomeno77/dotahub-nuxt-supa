@@ -2,6 +2,7 @@
 import type { UpdateUser } from "~/types/UpdateUser";
 import { UserRole, UserStatus } from "~/types/enums";
 import notifications from "~/utils/notifications";
+import AdminUserManagementList from "~/components/admin/AdminUserManagementList.vue"
 
 definePageMeta({
   middleware: "auth-admin-dashboard",

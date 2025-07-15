@@ -152,7 +152,7 @@ const actionButtons = computed(() => ({
         <div class="d-flex flex-column overflow-hidden">
           <p
             class="mb-0 fw-bold username d-flex align-items-center"
-            :title="authStore.username || ''"
+            :title="authStore.username ?? ''"
           >
             <span
               class="text-truncate fw-bold"
