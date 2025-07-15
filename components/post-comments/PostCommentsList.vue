@@ -9,12 +9,17 @@ const props = defineProps<{
   skeletonCount?: number;
 }>();
 
+const emits = defineEmits(["comment-deleted"]);
+
 const skeletonCount = props.skeletonCount ?? 5;
 </script>
 
 <template>
   <div class="pb-2" v-for="comment in comments" :key="comment.id">
-    <PostCommentItem :comment="comment" />
+    <PostCommentItem
+      :comment="comment"
+      @comment-deleted="emits('comment-deleted', comment)"
+    />
   </div>
 
   <CommentSkeleton

@@ -5,7 +5,6 @@ import type { Post } from "~/types/Post";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { buttons, labels } from "~/constants/labels";
-import type { Comment } from "~/types/Post";
 import { usePostStore } from "~/stores/posts";
 import notifications from "~/utils/notifications";
 import { useToast } from "primevue/usetoast";
@@ -21,7 +20,6 @@ const { loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
 const showPostCommentDialog = ref(false);
-const comments = ref<Comment[]>([]);
 const expandedPosts = ref<number[]>([]);
 const menu = ref();
 const postStore = usePostStore();
@@ -151,9 +149,12 @@ const updatePost = async () => {
   postStore.triggerRefresh();
 };
 
-function handleCommentDelete(commentId: number) {
-  comments.value = comments.value.filter((c) => c.id !== commentId);
+function commentDeleted(commentId: number) {
   postCommentCount.value--;
+}
+
+function commentAdded() {
+  postCommentCount.value++;
 }
 
 onMounted(() => {
@@ -290,30 +291,40 @@ onMounted(() => {
 
     <div
       v-if="loggedIn"
-      class="d-flex flex-column flex-md-row align-items-center justify-content-md-between px-3 py-2 gap-2 show-comments"
+      class="d-flex flex-column flex-md-row align-items-center justify-content-between px-3 py-2 gap-2 show-comments"
     >
-      <Button
-        icon="pi pi-comments"
-        :label="labels.COMMENT"
-        variant="text"
-        iconPos="left"
-        class="border-0 w-md-auto"
-        @click="toggleShowPostCommentsDialog"
-      />
-
-      <Button
+      <div
         v-if="postCommentCount"
-        :label="`${labels.SHOW_COMMENTS} (${postCommentCount})`"
-        size="small"
-        variant="text"
-        class="w-100 w-md-auto text-md-end"
-        @click="toggleShowPostCommentsDialog"
-      />
+        class="d-flex justify-content-center justify-content-md-end flex-grow-1 order-1 order-md-3 w-100 w-md-auto"
+      >
+        <Button
+          :label="`${labels.SHOW_COMMENTS} (${postCommentCount})`"
+          size="small"
+          variant="text"
+          class="w-100 w-md-auto"
+          @click="toggleShowPostCommentsDialog"
+        />
+      </div>
+
+      <div
+        class="d-flex justify-content-center flex-grow-1 order-2 order-md-2 w-100 w-md-auto"
+      >
+        <Button
+          icon="pi pi-comments"
+          :label="labels.COMMENT"
+          variant="text"
+          iconPos="left"
+          class="border-0 w-100 w-md-auto"
+          @click="toggleShowPostCommentsDialog"
+        />
+      </div>
     </div>
 
     <PostCommentDialog
       v-if="showPostCommentDialog"
       v-model:showPostCommentDialog="showPostCommentDialog"
+      @comment-added="commentAdded"
+      @comment-deleted="commentDeleted"
       :post="props.post"
     />
   </div>

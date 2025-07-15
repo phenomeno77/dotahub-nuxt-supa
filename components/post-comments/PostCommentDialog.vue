@@ -3,17 +3,20 @@ import type { Post, Comment } from "~/types/Post";
 import { labels } from "~/constants/labels";
 import PostCommentsList from "./PostCommentsList.vue";
 import PostItemCommentDialog from "./PostItemCommentDialog.vue";
+import { useToast } from "primevue/usetoast";
+import notifications from "~/utils/notifications";
 
 const props = defineProps<{ post: Post }>();
+const emits = defineEmits(["comment-added", "comment-deleted"]);
 
 const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
 const showPostCommentDialog = defineModel("showPostCommentDialog", {
   type: Boolean,
   default: false,
 });
+const toast = useToast();
 const { loggedIn } = useUserSession();
 const comment = ref("");
-// const comments = ref<Comment[]>([]);
 const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
 
@@ -38,6 +41,32 @@ const abortPost = () => {
   comment.value = "";
 };
 
+const commentDeleted = async (comment: Comment) => {
+  try {
+    const response = await $fetch<{ success: boolean }>(
+      `/api/comment/${comment.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (response.success) {
+      notifications(toast, "success", "Comment deleted successfully");
+      comments.value = comments.value.filter((c) => c.id !== comment.id);
+      emits("comment-deleted");
+    } else {
+      throw new Error("Failed to remove comment...");
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Delete Comment Failed", message, 3000);
+  }
+};
+
 const addComment = async () => {
   if (!comment.value || !comment.value.trim()) {
     return;
@@ -53,6 +82,7 @@ const addComment = async () => {
     });
 
     if (response.success) {
+      emits("comment-added");
       const newComment = {
         ...response.data,
         createdAt: new Date(response.data.createdAt),
@@ -101,6 +131,7 @@ onMounted(async () => {
   <Dialog
     v-model:visible="showPostCommentDialog"
     modal
+    dismissableMask
     :header="`Post from ${props.post.user?.username}`"
     :style="dialogStyle"
     :contentStyle="{ height: '100%', padding: '0' }"
@@ -125,7 +156,8 @@ onMounted(async () => {
         v-if="props.post.id !== undefined"
         :comments="comments"
         :isLoading="isLoading"
-        :skeletonCount="COMMENTS_PER_PAGE"
+        :skeletonCount="props.post.commentCount || COMMENTS_PER_PAGE"
+        @comment-deleted="commentDeleted"
       />
     </div>
 

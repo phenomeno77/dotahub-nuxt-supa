@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
-import { UserStatus } from "@prisma/client";
+import { UserRole, UserStatus } from "@prisma/client";
 import { ErrorMessages } from "../constants/errors";
 
 async function addComment(event: H3Event, comment: string, postId: number) {
@@ -105,7 +105,55 @@ export async function getCommentsForPost(
   };
 }
 
+async function deleteComment(event: H3Event, commentId: number) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: currentUser.id },
+  });
+
+  if (!user || user.userStatus !== UserStatus.active) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const comment = await prisma.postComments.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Comment not found",
+    });
+  }
+
+  // Only the comment's author or an admin can delete
+  if (comment.userId !== user.id && user.role !== UserRole.admin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  await prisma.postComments.delete({
+    where: { id: commentId },
+  });
+
+  return comment;
+}
+
 export default {
   addComment,
   getCommentsForPost,
+  deleteComment,
 };

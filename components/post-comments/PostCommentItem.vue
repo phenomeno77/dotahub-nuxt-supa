@@ -11,7 +11,7 @@ import { buttons } from "~/constants/labels";
 dayjs.extend(relativeTime);
 
 const props = defineProps<{ comment: Comment }>();
-const emit = defineEmits<{ (e: "deleted", id: number): void }>();
+const emits = defineEmits(["comment-deleted"]);
 
 const authStore = useAuthStore();
 const toast = useToast();
@@ -68,20 +68,7 @@ const confirmDelete = () => {
     rejectProps: {
       label: "No",
     },
-    accept: async () => {
-      const { data, error } = await useFetch(
-        `/api/post/comments/${props.comment.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!error.value) {
-        emit("deleted", props.comment.id);
-        toast.add({ severity: "success", summary: "Comment deleted" });
-      } else {
-        toast.add({ severity: "error", summary: "Failed to delete comment" });
-      }
-    },
+    accept: () => emits("comment-deleted"),
   });
 };
 </script>
