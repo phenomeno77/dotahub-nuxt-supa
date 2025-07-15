@@ -2,7 +2,6 @@ import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { UserStatus, Rank, UserRole, Position } from "@prisma/client";
 import { ErrorMessages } from "../constants/errors";
-import { checkAndUpdatePremiumStatus } from "./premiumCheck";
 
 async function createPost(
   event: H3Event,
@@ -34,9 +33,6 @@ async function createPost(
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
-
-  // Check premium status
-  await checkAndUpdatePremiumStatus(user);
 
   // Input validation
   const {
@@ -93,37 +89,27 @@ async function createPost(
 }
 
 async function getPosts(event: H3Event, limit: number, skip: number) {
-  // Fetch posts from premium and free users
-  const [premiumPosts, freePosts] = await Promise.all([
-    prisma.posts.findMany({
-      where: { user: { isPremium: true } },
-      orderBy: { createdAt: "desc" },
-      include: { user: true },
-    }),
-    prisma.posts.findMany({
-      where: { user: { isPremium: false } },
-      orderBy: { createdAt: "desc" },
-      include: { user: true },
-    }),
-  ]);
+  // Fetch posts ordered by createdAt desc (with pagination)
+  const posts = await prisma.posts.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+    },
+    skip,
+    take: limit,
+  });
 
-  // Merge: 2 premium : 1 free
-  const merged: typeof premiumPosts = [];
-  let p = 0,
-    f = 0;
-  while (p < premiumPosts.length || f < freePosts.length) {
-    for (let i = 0; i < 2 && p < premiumPosts.length; i++) {
-      merged.push(premiumPosts[p++]);
-    }
-    if (f < freePosts.length) {
-      merged.push(freePosts[f++]);
-    }
-  }
+  // Total count for pagination
+  const total = await prisma.posts.count();
 
-  const paginated = merged.slice(skip, skip + limit);
-
-  // Get comment counts with groupBy
-  const postIds = paginated.map((post) => post.id);
+  // Get comment counts
+  const postIds = posts.map((post) => post.id);
 
   const commentCounts = await prisma.postComments.groupBy({
     by: ["postId"],
@@ -135,12 +121,12 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
     },
   });
 
-  // Convert counts to a map for quick lookup
   const countMap = new Map(
     commentCounts.map((item) => [item.postId, item._count.postId])
   );
 
-  const formattedPosts = paginated.map((post) => ({
+  // Format posts for response
+  const formattedPosts = posts.map((post) => ({
     id: post.id,
     userId: post.user.id,
     partySize: post.partySize,
@@ -150,18 +136,13 @@ async function getPosts(event: H3Event, limit: number, skip: number) {
     description: post.description,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
-    user: {
-      id: post.user.id,
-      username: post.user.username,
-      avatarUrl: post.user.avatarUrl,
-      isPremium: post.user.isPremium,
-    },
+    user: post.user,
     commentCount: countMap.get(post.id) ?? 0,
   }));
 
   return {
     items: formattedPosts,
-    total: premiumPosts.length + freePosts.length,
+    total,
   };
 }
 
@@ -243,7 +224,6 @@ async function getUsersPostHistory(
       id: post.user.id,
       username: post.user.username,
       avatarUrl: post.user.avatarUrl,
-      isPremium: post.user.isPremium,
     },
     commentCount: countMap.get(post.id) ?? 0,
   }));

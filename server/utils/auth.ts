@@ -136,7 +136,6 @@ async function updateUser(
     id: string;
     username: string;
     userStatus: UserStatus;
-    isPremium: boolean;
     banReason: string;
     banDuration: any;
   }
@@ -160,8 +159,7 @@ async function updateUser(
     });
   }
 
-  const { id, username, userStatus, isPremium, banReason, banDuration } =
-    userData;
+  const { id, username, userStatus, banReason, banDuration } = userData;
 
   const userToUpdate = await prisma.userProfile.findUnique({
     where: { id },
@@ -180,7 +178,6 @@ async function updateUser(
     data: {
       username,
       userStatus,
-      isPremium,
       updatedAt: new Date(),
     },
   });
@@ -274,7 +271,6 @@ async function getUsers(event: H3Event<Request>) {
       steamId: true,
       role: true,
       userStatus: true,
-      isPremium: true,
       lastSeenAt: true,
     },
   });

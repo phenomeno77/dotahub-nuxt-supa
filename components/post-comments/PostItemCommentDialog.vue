@@ -69,11 +69,6 @@ function togglePostExpand(id: number) {
         <div>
           <p class="mb-0 fw-bold username">
             {{ props.post.user?.username }}
-            <i
-              v-if="props.post.user?.isPremium"
-              class="pi pi-crown me-1 premium-badge mb-0"
-              title="Premium member"
-            ></i>
           </p>
 
           <small class="postedAgo">Posted {{ postedAgo }}</small>

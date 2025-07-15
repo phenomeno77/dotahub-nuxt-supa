@@ -27,14 +27,6 @@ export const labels = {
   CONFIRM_REMOVE_COMMENT_HEADER: "Delete comment",
   CONFIRM_REMOVE_COMMENT_TEXT: "Are you sure you want delete this comment?",
   LOOKING_FOR: "Looking For",
-  UPGRADE_TO_PREMIUM: "Upgrade to Premium",
-  PREMIUM_PLAN: "Premium Plan",
-  CONFIRM_HEADER_POST_LIMIT_HEADER: "Daily Post Limit",
-  CONFIRM_HEADER_POST_LIMIT_MESSAGE:
-    "You’ve hit your daily post limit. It will reset in 24 hours. Want unlimited posts? Go Premium!",
-  CONFIRM_HEADER_COMMENT_LIMIT_HEADER: "Daily Comment Limit",
-  CONFIRM_HEADER_COMMENT_LIMIT_MESSAGE:
-    "You’ve hit your daily comment limit. It will reset in 24 hours. Want unlimited comments? Go Premium!",
   BAN_FORM: "Ban Form",
   BAN_REASON: "Ban Reason",
 };
@@ -57,7 +49,6 @@ export const buttons = {
   DELETE_POST: "Delete",
   EDIT_COMMENT: "Edit comment",
   DELETE_COMMENT: "Delete",
-  GO_PREMIUM: "Upgrade to Premium",
   SUBMIT_BAN: "Submit Ban",
 };
 

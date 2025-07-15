@@ -7,8 +7,6 @@ interface AuthState {
   userRole: UserRole | null;
   username: string | null;
   avatarUrl: string | null;
-  isPremium: boolean;
-  premiumExpiresAt: string | null;
 }
 
 export const useAuthStore = defineStore("auth", {
@@ -17,8 +15,6 @@ export const useAuthStore = defineStore("auth", {
     userRole: null,
     username: null,
     avatarUrl: null,
-    isPremium: false,
-    premiumExpiresAt: null,
   }),
 
   actions: {
@@ -26,16 +22,12 @@ export const useAuthStore = defineStore("auth", {
       userRole: UserRole,
       username: string,
       avatarUrl: string | null = null,
-      isPremium: boolean,
-      userId: string,
-      premiumExpiresAt: string | null = null
+      userId: string
     ) {
       this.username = username;
       this.avatarUrl = avatarUrl || null;
-      this.isPremium = isPremium;
       this.userRole = userRole;
       this.userId = userId;
-      this.premiumExpiresAt = premiumExpiresAt || null;
     },
 
     logout() {
@@ -43,7 +35,6 @@ export const useAuthStore = defineStore("auth", {
       this.userRole = null;
       this.username = "";
       this.avatarUrl = null;
-      this.isPremium = false;
       this.userId = null;
     },
   },

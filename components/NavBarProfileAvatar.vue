@@ -13,7 +13,6 @@ const avatarLabel = computed(() =>
     : ""
 );
 const showDrawer = ref(false);
-const showPremiumDialog = usePremiumDialog();
 const showCreatePostDialog = useCreatePostDialog();
 
 const toggleMenu = () => {
@@ -64,30 +63,9 @@ const drawerMenuItems = computed(() => {
         navigateTo(`/profile/${authStore.userId}`);
       },
     });
-    menu.push({ separator: true });
-
-    menu.push({
-      label: buttons.GO_PREMIUM,
-      icon: "pi pi-crown",
-      command: () => {
-        showPremiumDialog.value = true;
-      },
-    });
   }
 
   return menu;
-});
-
-const formattedPremiumDate = computed(() => {
-  if (!authStore.premiumExpiresAt) return "N/A";
-  return new Date(authStore.premiumExpiresAt).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  });
 });
 
 const actionButtons = computed(() => ({
@@ -101,30 +79,17 @@ const actionButtons = computed(() => ({
 </script>
 
 <template>
-  <div class="position-relative d-inline-block me-2 premium-avatar-container">
+  <div class="position-relative d-inline-block me-2">
     <Avatar
       :image="avatarImage"
       :label="avatarLabel"
-      :class="['avatar-clickable', { 'premium-avatar': authStore.isPremium }]"
+      class="avatar-clickable"
       size="large"
       shape="circle"
       aria-haspopup="true"
       aria-controls="overlay_menu"
       @click="toggleMenu"
     />
-
-    <div
-      v-if="authStore.isPremium"
-      class="premium-avatar-label"
-      v-tooltip.bottom="{
-        value: `Premium until ${formattedPremiumDate}`,
-        autoHide: false,
-      }"
-      type="text"
-      placeholder="autoHide: false"
-    >
-      Premium
-    </div>
   </div>
 
   <Drawer
@@ -188,10 +153,6 @@ const actionButtons = computed(() => ({
     </div>
 
     <template #footer>
-      <span v-if="authStore.isPremium" class="premium-avatar-label-drawer">
-        Premium until {{ formattedPremiumDate }}</span
-      >
-
       <div class="d-flex justify-content-end p-2">
         <Button
           severity="danger"
@@ -208,50 +169,6 @@ const actionButtons = computed(() => ({
 <style scoped>
 .custom-action-button:hover {
   color: black !important;
-}
-
-.premium-badge {
-  display: inline-flex;
-  align-items: center;
-  background: linear-gradient(to Right, #f7d977, #fbb034);
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  box-shadow: 0 0 5px rgba(251, 176, 52, 0.6);
-}
-
-.premium-badge i {
-  color: #fff;
-}
-
-.premium-avatar {
-  border: 2px solid #fbb034;
-  box-shadow: 0 0 6px rgba(251, 176, 52, 0.6);
-  transition: box-shadow 0.3s ease;
-}
-
-.premium-avatar:hover {
-  box-shadow: 0 0 10px rgba(251, 176, 52, 0.8);
-}
-
-.premium-avatar-label {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fbb034;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
-.premium-avatar-label-drawer {
-  color: #fbb034;
 }
 
 a {

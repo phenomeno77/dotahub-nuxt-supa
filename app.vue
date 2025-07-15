@@ -4,7 +4,6 @@ import { useHeartbeat } from "~/composables/useHeartbeat";
 
 const config = useRuntimeConfig();
 const loading = useLoadingStore();
-const showPremiumDialog = usePremiumDialog();
 const createPostDialog = useCreatePostDialog();
 useHeartbeat();
 
@@ -72,7 +71,6 @@ useHead({
     <ProgressSpinner />
   </div>
 
-  <PremiumPlan v-if="showPremiumDialog" />
   <CreatePost v-if="createPostDialog" />
   <div class="container-fluid d-flex flex-column h-100">
     <NuxtLayout>

@@ -2,7 +2,6 @@ export interface User {
   id: string;
   username: string;
   avatarUrl?: string | null;
-  isPremium: boolean;
 }
 
 export interface Comment {
@@ -13,7 +12,6 @@ export interface Comment {
     username: string | null;
     avatarUrl: string | null;
     id: string;
-    isPremium: boolean;
   };
 }
 

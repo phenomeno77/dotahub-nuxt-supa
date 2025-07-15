@@ -31,14 +31,7 @@ onMounted(async () => {
         });
       }
 
-      authStore.login(
-        user.role,
-        user.username,
-        user.avatarUrl,
-        user.isPremium,
-        user.id,
-        user.premiumExpiresAt
-      );
+      authStore.login(user.role, user.username, user.avatarUrl, user.id);
       navigateTo("/");
     } else {
       navigateTo("/login?error=session_not_found");

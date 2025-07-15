@@ -65,14 +65,7 @@ const submitForm = async () => {
       throw new Error("Invalid user role");
     }
 
-    authStore.login(
-      user.role,
-      user.username,
-      user.avatarUrl,
-      user.isPremium,
-      user.id,
-      user.premiumExpiresAt
-    );
+    authStore.login(user.role, user.username, user.avatarUrl, user.id);
 
     emit("success");
   } catch (error: any) {

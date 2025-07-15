@@ -40,7 +40,6 @@ const filters = ref({
   role: { value: null, matchMode: FilterMatchMode.EQUALS },
   userStatus: { value: null, matchMode: FilterMatchMode.EQUALS },
   lastSeenAt: { value: null, matchMode: FilterMatchMode.EQUALS },
-  isPremium: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
 const globalFilterFields = ref(
@@ -56,11 +55,6 @@ const showAddUserDialog = ref(false);
 const showBanUserDialog = ref(false);
 const banData = ref<{ banReason: string; banDuration: string } | null>(null);
 const userStatus = ref("");
-
-const premium = ref([
-  { label: "Premium", value: true },
-  { label: "Free", value: false },
-]);
 
 const filteredUsersNoCurrentUser = computed(() => {
   return props.users.filter((user) => user.id !== String(authStore.userId));
@@ -132,218 +126,189 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
 </script>
 
 <template>
-  <div class="position-absolute start-0 end-0"
-    style="top: 9%; bottom: 3%; overflow-y: auto; height: calc(100dvh - 12%)">
-  <DataTable
-    v-model:filters="filters"
-    :value="filteredUsersNoCurrentUser"
-    paginator
-    :rows="10"
-    dataKey="id"
-    filterDisplay="row"
-    :loading="props.loading"
-    :globalFilterFields="globalFilterFields"
-    :virtualScrollerOptions="{ itemSize: 30 }"
-    responsiveLayout="scroll"
-    v-model:editingRows="editingRows"
-    editMode="row"
-    removableSort
-    scrollable
-    scrollHeight="flex"
-    @row-edit-save="onRowEditSave"
-    :pt="{
-      bodyRow: {
-        style: {
-          background: 'var(--background-color)',
-          color: 'var(--text-color)',
-        },
-      },
-      header: {
-        style: {
-          background: 'var(--background-color)',
-        },
-      },
-      column: {
-        headerCell: {
-          style: {
-            background: 'var(--background-color)',
-            color: 'var(--text-color)',
-          },
-        },
-      },
-      pcPaginator: {
-        root: {
-          style: {
-            background: 'var(--background-color)',
-            color: 'var(--text-color)',
-            border: 'none',
-          },
-        },
-      },
-    }"
+  <div
+    class="position-absolute start-0 end-0"
+    style="top: 9%; bottom: 3%; overflow-y: auto; height: calc(100dvh - 12%)"
   >
-    <template #header>
-      <div class="action-bar mt-3">
-        <Button
-          :label="labels.ADD_NEW_USER"
-          @click="showAddUserDialog = true"
-          icon="pi pi-plus"
-          class="button-wrapper"
-        />
-
-        <div class="search-wrapper">
-          <IconField class="w-100">
-            <InputIcon>
-              <i class="pi pi-search" />
-            </InputIcon>
-            <InputText
-              v-model="filters['global'].value"
-              :placeholder="labels.FILTER_KEYWORD_SEARCH"
-              class="w-100"
-            />
-          </IconField>
-
-          <Button
-            icon="pi pi-refresh"
-            variant="text"
-            severity="secondary"
-            @click="$emit('update-table')"
-          />
-        </div>
-      </div>
-    </template>
-
-    <template #empty> No users found. </template>
-    <template #loading> Loading users... </template>
-
-    <!-- USERNAME COLUMN -->
-    <Column field="username" header="Username" sortable>
-      <template #filter="{ filterModel, filterCallback }">
-        <InputText
-          v-model="filterModel.value"
-          @input="filterCallback()"
-          placeholder="Search by username"
-        />
-      </template>
-      <template #editor="{ data, field }">
-        <InputText
-          v-if="!isEditableUsername(data.role)"
-          v-model="data[field]"
-        />
-        <td v-else>{{ data.username }}</td>
-      </template>
-    </Column>
-
-    <!-- STEAMID COLUMN -->
-    <Column field="steamId" header="Steam ID" sortable>
-      <template #filter="{ filterModel, filterCallback }">
-        <InputText
-          v-model="filterModel.value"
-          @input="filterCallback()"
-          placeholder="Search by Steam ID"
-        />
-      </template>
-    </Column>
-
-    <!-- ROLE COLUMN -->
-    <Column field="role" header="Role" sortable>
-      <template #filter="{ filterModel, filterCallback }">
-        <Select
-          v-model="filterModel.value"
-          @change="filterCallback()"
-          :options="props.roles"
-          placeholder="Select Role"
-        />
-      </template>
-    </Column>
-
-    <!-- PREMIUM USER COLUMN -->
-    <Column field="isPremium" header="Premium" sortable>
-      <template #body="{ data }">
-        <Tag
-          :value="data.isPremium ? 'Premium' : 'Free'"
-          :severity="data.isPremium ? 'success' : 'warn'"
-        />
-      </template>
-      <template #filter="{ filterModel, filterCallback }">
-        <Select
-          v-model="filterModel.value"
-          @change="filterCallback()"
-          :options="premium"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select"
-        />
-      </template>
-      <template #editor="{ data, field }">
-        <Select
-          v-model="data[field]"
-          :options="premium"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select"
-          fluid
-        >
-        </Select>
-      </template>
-    </Column>
-
-    <!-- USER STATUS COLUMN -->
-    <Column field="userStatus" header="Status" sortable>
-      <template #body="{ data }">
-        <Tag
-          :value="data.userStatus"
-          :severity="getSeverityStatus(data.userStatus)"
-        />
-      </template>
-      <template #filter="{ filterModel, filterCallback }">
-        <Select
-          v-model="filterModel.value"
-          @change="filterCallback()"
-          :options="statuses"
-          placeholder="Select"
-        />
-      </template>
-      <template #editor="{ data, field }">
-        <Select
-          v-model="data[field]"
-          @value-change="onStatusChange"
-          :options="statuses"
-          placeholder="Select status"
-          fluid
-        >
-        </Select>
-      </template>
-    </Column>
-
-    <!-- IS ONLINE COLUMN -->
-    <Column field="lastSeenAt" header="Online" sortable>
-      <template #body="{ data }">
-        <Tag
-          :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
-          :severity="isUserOnline(data.lastSeenAt) ? 'success' : 'warn'"
-        />
-      </template>
-
-      <template #filter="{ filterModel, filterCallback }">
-        <Select
-          v-model="filterModel.value"
-          @change="filterCallback()"
-          :options="loggedOrNot"
-          placeholder="Select"
-        />
-      </template>
-    </Column>
-
-    <!-- EDITOR BUTTON COLUMN -->
-    <Column
-      :rowEditor="true"
-      style="width: 10%; min-width: 8rem"
-      bodyStyle="text-align:center"
+    <DataTable
+      v-model:filters="filters"
+      :value="filteredUsersNoCurrentUser"
+      paginator
+      :rows="10"
+      dataKey="id"
+      filterDisplay="row"
+      :loading="props.loading"
+      :globalFilterFields="globalFilterFields"
+      :virtualScrollerOptions="{ itemSize: 30 }"
+      responsiveLayout="scroll"
+      v-model:editingRows="editingRows"
+      editMode="row"
+      removableSort
+      scrollable
+      scrollHeight="flex"
+      @row-edit-save="onRowEditSave"
+      :pt="{
+        bodyRow: {
+          style: {
+            background: 'var(--background-color)',
+            color: 'var(--text-color)',
+          },
+        },
+        header: {
+          style: {
+            background: 'var(--background-color)',
+          },
+        },
+        column: {
+          headerCell: {
+            style: {
+              background: 'var(--background-color)',
+              color: 'var(--text-color)',
+            },
+          },
+        },
+        pcPaginator: {
+          root: {
+            style: {
+              background: 'var(--background-color)',
+              color: 'var(--text-color)',
+              border: 'none',
+            },
+          },
+        },
+      }"
     >
-    </Column>
-  </DataTable>
-</div>
+      <template #header>
+        <div class="action-bar mt-3">
+          <Button
+            :label="labels.ADD_NEW_USER"
+            @click="showAddUserDialog = true"
+            icon="pi pi-plus"
+            class="button-wrapper"
+          />
+
+          <div class="search-wrapper">
+            <IconField class="w-100">
+              <InputIcon>
+                <i class="pi pi-search" />
+              </InputIcon>
+              <InputText
+                v-model="filters['global'].value"
+                :placeholder="labels.FILTER_KEYWORD_SEARCH"
+                class="w-100"
+              />
+            </IconField>
+
+            <Button
+              icon="pi pi-refresh"
+              variant="text"
+              severity="secondary"
+              @click="$emit('update-table')"
+            />
+          </div>
+        </div>
+      </template>
+
+      <template #empty> No users found. </template>
+      <template #loading> Loading users... </template>
+
+      <!-- USERNAME COLUMN -->
+      <Column field="username" header="Username" sortable>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            @input="filterCallback()"
+            placeholder="Search by username"
+          />
+        </template>
+        <template #editor="{ data, field }">
+          <InputText
+            v-if="!isEditableUsername(data.role)"
+            v-model="data[field]"
+          />
+          <td v-else>{{ data.username }}</td>
+        </template>
+      </Column>
+
+      <!-- STEAMID COLUMN -->
+      <Column field="steamId" header="Steam ID" sortable>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText
+            v-model="filterModel.value"
+            @input="filterCallback()"
+            placeholder="Search by Steam ID"
+          />
+        </template>
+      </Column>
+
+      <!-- ROLE COLUMN -->
+      <Column field="role" header="Role" sortable>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            @change="filterCallback()"
+            :options="props.roles"
+            placeholder="Select Role"
+          />
+        </template>
+      </Column>
+
+      <!-- USER STATUS COLUMN -->
+      <Column field="userStatus" header="Status" sortable>
+        <template #body="{ data }">
+          <Tag
+            :value="data.userStatus"
+            :severity="getSeverityStatus(data.userStatus)"
+          />
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            @change="filterCallback()"
+            :options="statuses"
+            placeholder="Select"
+          />
+        </template>
+        <template #editor="{ data, field }">
+          <Select
+            v-model="data[field]"
+            @value-change="onStatusChange"
+            :options="statuses"
+            placeholder="Select status"
+            fluid
+          >
+          </Select>
+        </template>
+      </Column>
+
+      <!-- IS ONLINE COLUMN -->
+      <Column field="lastSeenAt" header="Online" sortable>
+        <template #body="{ data }">
+          <Tag
+            :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
+            :severity="isUserOnline(data.lastSeenAt) ? 'success' : 'warn'"
+          />
+        </template>
+
+        <template #filter="{ filterModel, filterCallback }">
+          <Select
+            v-model="filterModel.value"
+            @change="filterCallback()"
+            :options="loggedOrNot"
+            placeholder="Select"
+          />
+        </template>
+      </Column>
+
+      <!-- EDITOR BUTTON COLUMN -->
+      <Column
+        :rowEditor="true"
+        style="width: 10%; min-width: 8rem"
+        bodyStyle="text-align:center"
+      >
+      </Column>
+    </DataTable>
+  </div>
   <AddUserForm
     v-model:showAddUserDialog="showAddUserDialog"
     @update-table="$emit('update-table')"

@@ -112,11 +112,6 @@ const confirmDelete = () => {
       <div class="d-flex justify-content-between align-items-center">
         <p class="fw-bold mb-0">
           {{ comment.user.username }}
-          <i
-            v-if="comment.user.isPremium"
-            class="pi pi-crown premium-badge"
-            title="Premium member"
-          />
         </p>
 
         <div class="d-flex align-items-center gap-1">

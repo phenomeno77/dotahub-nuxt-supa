@@ -196,11 +196,6 @@ onMounted(() => {
             >
               {{ props.post.user?.username }}
             </span>
-            <i
-              v-if="props.post.user?.isPremium"
-              class="pi pi-crown ms-1 premium-badge"
-              title="Premium member"
-            ></i>
           </p>
           <small class="postedAgo">Posted {{ postedAgo }}</small>
         </div>
