@@ -9,7 +9,6 @@ import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 
-
 const route = useRoute();
 const postStore = usePostStore();
 const loadingStore = useLoadingStore();
@@ -23,9 +22,6 @@ const {
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
-
-
-
 
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
@@ -60,7 +56,6 @@ onMounted(async () => {
     });
   }
 });
-
 </script>
 
 <template>
@@ -78,17 +73,14 @@ onMounted(async () => {
   <div
     ref="scrollerContainerRef"
     class="position-absolute start-0 end-0"
-    style="top: 100px; bottom: 40px; overflow-y: auto;"
+    style="top: 100px; bottom: 40px; overflow-y: auto"
   >
     <div class="container-fluid py-4">
       <div class="row justify-content-center">
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
           <!-- Virtual Scroller -->
-          <DynamicScroller
-            :items="posts"
-            :min-item-size="300"
-            key-field="id"          >
+          <DynamicScroller :items="posts" :min-item-size="330" key-field="id">
             <template #default="{ item, index }">
               <DynamicScrollerItem :item="item" :index="index" :active="true">
                 <div class="d-flex flex-column gap-5">
@@ -112,7 +104,7 @@ onMounted(async () => {
           <!-- End-of-list message -->
           <div
             v-if="posts.length >= total && !isBanned"
-            class="no-more-posts text-center mt-4 text-muted"
+            class="no-more-posts text-center mt-4"
           >
             You've reached the end! 🎉
           </div>
@@ -121,10 +113,6 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-
-
-
-
 
 <style scoped>
 .no-more-posts {
@@ -135,5 +123,4 @@ onMounted(async () => {
   font-size: 0.95rem;
   opacity: 0.8;
 }
-
 </style>
