@@ -1,22 +1,38 @@
+<!-- components/UserDrawer.vue -->
 <script lang="ts" setup>
+import { computed } from "vue";
 import { buttons } from "~/constants/labels";
+import { useAuthStore } from "~/stores/auth";
 import { UserRole } from "~/types/enums";
-
-const emits = defineEmits(["logout"]);
 
 const { loggedIn, user } = useUserSession();
 const authStore = useAuthStore();
+const supabase = useSupabaseClient();
+const loadingStore = useLoadingStore();
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 const avatarLabel = computed(() =>
   !authStore?.avatarUrl && authStore?.username
     ? authStore.username.charAt(0).toUpperCase()
     : ""
 );
-const showDrawer = ref(false);
+const showBarsDrawer = ref(false);
 const showCreatePostDialog = useCreatePostDialog();
 
-const toggleMenu = () => {
-  showDrawer.value = true;
+const handleLogout = async () => {
+  loadingStore.startLoading();
+  try {
+    await $fetch("/api/auth/logout", { method: "POST" });
+    await supabase.auth.signOut();
+  } catch (e) {
+    console.error("Logout error", e);
+  } finally {
+    const { clear } = useUserSession();
+    clear();
+    authStore.logout();
+
+    loadingStore.stopLoading();
+    await navigateTo("/", { replace: true });
+  }
 };
 
 const drawerMenuItems = computed(() => {
@@ -27,7 +43,7 @@ const drawerMenuItems = computed(() => {
       label: buttons.HOME,
       icon: "pi pi-home",
       command: () => {
-        showDrawer.value = false;
+        showBarsDrawer.value = false;
         navigateTo("/");
       },
     });
@@ -37,7 +53,7 @@ const drawerMenuItems = computed(() => {
         label: buttons.ADMIN_DASHBOARD,
         icon: "pi pi-users",
         command: () => {
-          showDrawer.value = false;
+          showBarsDrawer.value = false;
           navigateTo("/admin-dashboard");
         },
       });
@@ -49,17 +65,16 @@ const drawerMenuItems = computed(() => {
       label: buttons.CREATE_POST,
       icon: "pi pi-pen-to-square",
       command: () => {
-        showDrawer.value = false;
+        showBarsDrawer.value = false;
         showCreatePostDialog.value = true;
       },
     });
 
-    // Profile-related actions
     menu.push({
       label: buttons.POST_HISTORY,
       icon: "pi pi-history",
       command: () => {
-        showDrawer.value = false;
+        showBarsDrawer.value = false;
         navigateTo(`/profile/${authStore.userId}`);
       },
     });
@@ -79,31 +94,22 @@ const actionButtons = computed(() => ({
 </script>
 
 <template>
-  <Avatar
-    :image="avatarImage"
-    :label="avatarLabel"
-    size="large"
-    shape="circle"
-    aria-haspopup="true"
-    aria-controls="overlay_menu"
-  />
-
   <Button
     size="large"
     severity="secondary"
     icon="pi pi-bars"
     rounded
-    @click="toggleMenu"
+    @click="showBarsDrawer = true"
   />
 
   <Drawer
-    v-model:visible="showDrawer"
+    v-model:visible="showBarsDrawer"
     position="right"
     :pt="{
       root: {
         style: {
           background: 'var(--background-color)',
-          color: 'var( --text-color)',
+          color: 'var(--text-color)',
           border: 'none',
         },
       },
@@ -123,16 +129,7 @@ const actionButtons = computed(() => ({
             class="mb-0 fw-bold username d-flex align-items-center"
             :title="authStore.username ?? ''"
           >
-            <span
-              class="text-truncate fw-bold"
-              style="
-                display: inline-block;
-                max-width: 150px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
+            <span class="text-truncate fw-bold name-truncate">
               {{ authStore.username }}
             </span>
           </p>
@@ -163,7 +160,7 @@ const actionButtons = computed(() => ({
           :label="buttons.LOGOUT"
           icon="pi pi-sign-out"
           variant="text"
-          @click="() => emits('logout')"
+          @click="handleLogout"
         />
       </div>
     </template>
@@ -173,14 +170,6 @@ const actionButtons = computed(() => ({
 <style scoped>
 .custom-action-button:hover {
   color: black !important;
-}
-
-a {
-  all: unset;
-}
-
-a:hover {
-  cursor: pointer;
 }
 
 .avatar-fixed {
