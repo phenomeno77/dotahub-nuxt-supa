@@ -182,6 +182,8 @@ onMounted(async () => {
               autoResize
               class="flex-grow-1 w-100"
               :placeholder="labels.COMMENT_PLACEHOLDER"
+                          :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
+
             />
 
             <span class="char-counter">

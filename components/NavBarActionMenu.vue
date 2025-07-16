@@ -79,8 +79,6 @@ const actionButtons = computed(() => ({
 </script>
 
 <template>
-  
-
     <Avatar
       :image="avatarImage"
       :label="avatarLabel"

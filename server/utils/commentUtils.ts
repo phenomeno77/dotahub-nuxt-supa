@@ -159,8 +159,69 @@ async function deleteComment(event: H3Event, commentId: number) {
   return comment;
 }
 
+async function updateComment(
+  event: H3Event,
+  newContent: string,
+  commentId: number
+) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: currentUser.id },
+  });
+
+  if (!user || user.userStatus !== UserStatus.active) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const comment = await prisma.postComments.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.POST_NOT_FOUND,
+    });
+  }
+
+  if (comment.userId !== user.id && user.role !== UserRole.admin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  if (newContent.length > fixed_values.COMMENT_MAX_TEXT_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.COMMENT_CONTENT_LONG,
+    });
+  }
+
+  const updatedComment = await prisma.postComments.update({
+    where: { id: commentId },
+    data: {
+      content: newContent,
+    },
+  });
+
+  return updatedComment;
+}
+
 export default {
   addComment,
   getCommentsForPost,
   deleteComment,
+  updateComment,
 };

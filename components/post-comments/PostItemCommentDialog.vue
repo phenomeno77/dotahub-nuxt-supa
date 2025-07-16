@@ -19,7 +19,7 @@ const positionLabels: Record<string, string> = {
   soft_support: "Soft Support",
   hard_support: "Hard Support",
 };
-
+ 
 const postedAgo = computed(() => {
   return dayjs(props.post.createdAt).fromNow(); // e.g. "2 hours ago"
 });

@@ -6,7 +6,7 @@ import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import type { Comment } from "~/types/Post";
-import { buttons } from "~/constants/labels";
+import { buttons,fixed_values,labels } from "~/constants/labels";
 
 dayjs.extend(relativeTime);
 
@@ -35,29 +35,44 @@ function toggleExpand(id: number) {
   }
 }
 
-const toggleCommentMenu = (event: Event) => {
-  commentMenu.value.toggle(event);
-};
+const commentUpdated = async () => {  
 
-const saveEdit = async () => {
+   if (!editContent.value || !editContent.value.trim()) {
+    return;
+  }
+
   try {
-    const { data, error } = await useFetch(
-      `/api/post/comments/${props.comment.id}`,
+    const response = await $fetch<{ success: boolean }>(
+      `/api/comment/${props.comment.id}`,
       {
         method: "PUT",
-        body: { content: editContent.value },
+         body: {
+          content: editContent.value,
+          id: props.comment.id,
+        },
       }
     );
 
-    if (!error.value) {
+    if (response.success) {
+      notifications(toast, "success", "Comment updated");
       props.comment.content = editContent.value;
       editing.value = false;
     } else {
-      toast.add({ severity: "warn", summary: "Failed to update comment" });
+      throw new Error("Failed to update comment...");
     }
-  } catch (e: any) {
-    toast.add({ severity: "error", summary: "Error updating comment" });
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Update Comment Failed", message, 3000);
   }
+};
+
+const toggleCommentMenu = (event: Event) => {
+  commentMenu.value.toggle(event);
 };
 
 const confirmDelete = () => {
@@ -129,6 +144,7 @@ const confirmDelete = () => {
                   editing = true;
                 },
               },
+              {separator: true},
               {
                 label: 'Delete',
                 icon: 'pi pi-trash',
@@ -152,13 +168,30 @@ const confirmDelete = () => {
 
       <!-- Edit Mode -->
       <div v-else class="d-flex flex-column gap-2">
-        <Textarea v-model="editContent" autoResize rows="1" />
+        <div class="position-relative d-flex w-100">
+            <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
+            <Textarea
+              v-model="editContent"
+              rows="1"
+              autoResize
+              class="flex-grow-1 w-100"
+              :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
+              :placeholder="labels.COMMENT_PLACEHOLDER"
+            />
+
+            <span class="char-counter">
+            {{ editContent?.length ?? 0 }}/{{
+              fixed_values.COMMENT_MAX_TEXT_LENGTH
+            }}
+          </span>
+          </div>
+        
         <div class="d-flex justify-content-end gap-2">
           <Button
             icon="pi pi-check"
             :label="buttons.SAVE"
             size="small"
-            @click="saveEdit"
+            @click="commentUpdated"
           />
           <Button
             icon="pi pi-times"
