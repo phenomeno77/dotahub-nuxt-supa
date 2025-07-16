@@ -79,7 +79,18 @@ const actionButtons = computed(() => ({
 </script>
 
 <template>
-  <Button size="large" icon="pi pi-bars" @click="toggleMenu" />
+  
+
+    <Avatar
+      :image="avatarImage"
+      :label="avatarLabel"
+      size="large"
+      shape="circle"
+      aria-haspopup="true"
+      aria-controls="overlay_menu"
+    />
+
+    <Button size="large" icon="pi pi-bars" @click="toggleMenu" />
 
   <Drawer
     v-model:visible="showDrawer"
