@@ -33,6 +33,8 @@ const banExpiration = computed(() => route.query.banExpiration || "");
 watch(
   () => postStore.shouldRefreshPosts,
   async (shouldRefresh) => {
+    console.log(shouldRefresh);
+
     if (shouldRefresh) {
       loadingStore.startLoading();
       await fetchInitial();

@@ -6,7 +6,8 @@ import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import type { Comment } from "~/types/Post";
-import { buttons,fixed_values,labels } from "~/constants/labels";
+import { buttons, fixed_values, labels } from "~/constants/labels";
+import { autoLinkText } from "~/composables/useAutoLink";
 
 dayjs.extend(relativeTime);
 
@@ -35,9 +36,8 @@ function toggleExpand(id: number) {
   }
 }
 
-const commentUpdated = async () => {  
-
-   if (!editContent.value || !editContent.value.trim()) {
+const commentUpdated = async () => {
+  if (!editContent.value || !editContent.value.trim()) {
     return;
   }
 
@@ -46,7 +46,7 @@ const commentUpdated = async () => {
       `/api/comment/${props.comment.id}`,
       {
         method: "PUT",
-         body: {
+        body: {
           content: editContent.value,
           id: props.comment.id,
         },
@@ -70,6 +70,16 @@ const commentUpdated = async () => {
     notifications(toast, "warn", "Update Comment Failed", message, 3000);
   }
 };
+
+const safeContent = computed(() => {
+  const desc = props.comment.content ?? "";
+  const truncated =
+    isExpanded(props.comment.id as number) || desc.length <= 100
+      ? desc
+      : desc.slice(0, 100) + "...";
+
+  return autoLinkText(truncated);
+});
 
 const toggleCommentMenu = (event: Event) => {
   commentMenu.value.toggle(event);
@@ -144,7 +154,7 @@ const confirmDelete = () => {
                   editing = true;
                 },
               },
-              {separator: true},
+              { separator: true },
               {
                 label: 'Delete',
                 icon: 'pi pi-trash',
@@ -158,34 +168,29 @@ const confirmDelete = () => {
 
       <!-- Normal View -->
       <div v-if="!editing" class="comment-content mb-1">
-        {{
-          isExpanded(comment.id)
-            ? comment.content
-            : comment.content.slice(0, 100) +
-              (comment.content.length > 100 ? "..." : "")
-        }}
+        <div v-html="safeContent" />
       </div>
 
       <!-- Edit Mode -->
       <div v-else class="d-flex flex-column gap-2">
         <div class="position-relative d-flex w-100">
-            <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
-            <Textarea
-              v-model="editContent"
-              rows="1"
-              autoResize
-              class="flex-grow-1 w-100"
-              :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
-              :placeholder="labels.COMMENT_PLACEHOLDER"
-            />
+          <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
+          <Textarea
+            v-model="editContent"
+            rows="1"
+            autoResize
+            class="flex-grow-1 w-100"
+            :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
+            :placeholder="labels.COMMENT_PLACEHOLDER"
+          />
 
-            <span class="char-counter">
+          <span class="char-counter">
             {{ editContent?.length ?? 0 }}/{{
               fixed_values.COMMENT_MAX_TEXT_LENGTH
             }}
           </span>
-          </div>
-        
+        </div>
+
         <div class="d-flex justify-content-end gap-2">
           <Button
             icon="pi pi-check"

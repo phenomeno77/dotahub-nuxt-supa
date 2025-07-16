@@ -11,6 +11,8 @@ import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import UpdatePost from "./UpdatePost.vue";
 import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
+import { autoLinkText } from "~/composables/useAutoLink";
+import { useLoadingStore } from "~/stores/loading";
 
 dayjs.extend(relativeTime);
 
@@ -18,15 +20,27 @@ const props = defineProps<{ post: Post }>();
 
 const { loggedIn } = useUserSession();
 const authStore = useAuthStore();
-const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
+const toast = useToast();
+const confirm = useConfirm();
+const postStore = usePostStore();
+
+const avatarImage = computed(
+  () => localPost.value.user?.avatarUrl || undefined
+);
+const avatarLabel = computed(() =>
+  !localPost.value.user?.avatarUrl && localPost.value.user?.username
+    ? localPost.value.user.username.charAt(0).toUpperCase()
+    : undefined
+);
+
+const postedAgo = computed(() => dayjs(localPost.value.createdAt).fromNow());
+const loadingStore = useLoadingStore();
 const showPostCommentDialog = ref(false);
 const expandedPosts = ref<number[]>([]);
 const menu = ref();
-const postStore = usePostStore();
-const toast = useToast();
-const confirm = useConfirm();
 const isEditPost = ref(false);
 const postCommentCount = ref<number>(0);
+const localPost = ref<Post>({ ...props.post });
 
 const positionLabels: Record<string, string> = {
   carry: "Carry",
@@ -35,32 +49,6 @@ const positionLabels: Record<string, string> = {
   soft_support: "Soft Support",
   hard_support: "Hard Support",
 };
-
-function isPostExpanded(id: number) {
-  return expandedPosts.value.includes(id);
-}
-
-function togglePostExpand(id: number) {
-  if (isPostExpanded(id)) {
-    expandedPosts.value = expandedPosts.value.filter((i) => i !== id);
-  } else {
-    expandedPosts.value.push(id);
-  }
-}
-
-const toggleShowPostCommentsDialog = async () => {
-  showPostCommentDialog.value = !showPostCommentDialog.value;
-};
-
-const avatarLabel = computed(() =>
-  !props.post.user?.avatarUrl && props.post.user?.username
-    ? props.post.user.username.charAt(0).toUpperCase()
-    : undefined
-);
-
-const postedAgo = computed(() => {
-  return dayjs(props.post.createdAt).fromNow(); // e.g. "2 hours ago"
-});
 
 const getPositionIcon = (position: string) => {
   switch (position.toLowerCase()) {
@@ -79,10 +67,26 @@ const getPositionIcon = (position: string) => {
   }
 };
 
+function isPostExpanded(id: number) {
+  return expandedPosts.value.includes(id);
+}
+
+function togglePostExpand(id: number) {
+  if (isPostExpanded(id)) {
+    expandedPosts.value = expandedPosts.value.filter((i) => i !== id);
+  } else {
+    expandedPosts.value.push(id);
+  }
+}
+
+const toggleShowPostCommentsDialog = () => {
+  showPostCommentDialog.value = !showPostCommentDialog.value;
+};
+
 const deletePost = async () => {
   try {
     const response = await $fetch<{ success: boolean }>(
-      `/api/post/${props.post.id!}`,
+      `/api/post/${localPost.value.id!}`,
       {
         method: "DELETE",
       }
@@ -144,12 +148,14 @@ const toggleEditPost = (event: any) => {
   menu.value.toggle(event);
 };
 
-const updatePost = async () => {
+const updatePost = (updated: Post) => {
+  loadingStore.startLoading();
   isEditPost.value = false;
-  postStore.triggerRefresh();
+  localPost.value = { ...localPost.value, ...updated };
+  loadingStore.stopLoading();
 };
 
-function commentDeleted(commentId: number) {
+function commentDeleted() {
   postCommentCount.value--;
 }
 
@@ -157,8 +163,18 @@ function commentAdded() {
   postCommentCount.value++;
 }
 
+const safeDescription = computed(() => {
+  const desc = localPost.value.description ?? "";
+  const truncated =
+    isPostExpanded(localPost.value.id as number) || desc.length <= 300
+      ? desc
+      : desc.slice(0, 300) + "...";
+
+  return autoLinkText(truncated);
+});
+
 onMounted(() => {
-  postCommentCount.value = props.post.commentCount || 0;
+  postCommentCount.value = localPost.value.commentCount || 0;
 });
 </script>
 
@@ -168,7 +184,6 @@ onMounted(() => {
     <div
       class="d-flex justify-content-between align-items-center mb-3 px-3 pt-3 w-100"
     >
-      <!-- Left: Avatar + Username -->
       <div class="d-flex align-items-center overflow-hidden">
         <Avatar
           :image="avatarImage"
@@ -183,29 +198,28 @@ onMounted(() => {
         >
           <p
             class="mb-0 fw-bold username d-flex align-items-center"
-            :title="props.post.user?.username"
+            :title="localPost.user?.username"
           >
             <span
               class="text-truncate"
               style="
-                display: inline-block;
                 max-width: 400px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
               "
             >
-              {{ props.post.user?.username }}
+              {{ localPost.user?.username }}
             </span>
           </p>
           <small class="postedAgo">Posted {{ postedAgo }}</small>
         </div>
       </div>
 
-      <!-- Right side: Ellipsis Menu -->
+      <!-- Menu -->
       <div
         v-if="
-          authStore.userId === props.post.user?.id ||
+          authStore.userId === localPost.user?.id ||
           authStore.userRole === 'admin'
         "
       >
@@ -229,32 +243,22 @@ onMounted(() => {
     <!-- Description -->
     <div class="px-3">
       <div
-        :class="[
-      'post-description-wrapper',
-      { 'expandable-description': isPostExpanded(props.post.id as number) }
-    ]"
+        :class="['post-description-wrapper', { 'expandable-description': isPostExpanded(localPost.id as number) }]"
       >
-        <p class="post-description">
-          {{
-            isPostExpanded(props.post.id as number)
-              ? props.post.description ?? ""
-              : (props.post.description ?? "").slice(0, 300) +
-                ((props.post.description?.length ?? 0) > 300 ? "..." : "")
-          }}
-        </p>
+        <div v-html="safeDescription" class="post-description" />
       </div>
 
       <div class="d-flex justify-content-end">
         <Button
           v-if="
-            (props.post.description?.length ?? 0) > 255 &&
-            props.post.id !== undefined
+            (localPost.description?.length ?? 0) > 255 &&
+            localPost.id !== undefined
           "
           variant="link"
-          @click="togglePostExpand(props.post.id as number)"
+          @click="togglePostExpand(localPost.id as number)"
         >
           {{
-            isPostExpanded(props.post.id as number) ? "Show Less" : "Show More"
+            isPostExpanded(localPost.id as number) ? "Show Less" : "Show More"
           }}
         </Button>
       </div>
@@ -266,9 +270,9 @@ onMounted(() => {
         class="rank-box d-flex align-items-start align-items-center p-2 gap-1"
       >
         <i class="pi pi-star-fill" style="color: silver" />
-        <span class="rank-text">{{ props.post.minRank }}</span>
+        <span class="rank-text">{{ localPost.minRank }}</span>
         <span class="mx-1">to</span>
-        <span class="rank-text">{{ props.post.maxRank }}</span>
+        <span class="rank-text">{{ localPost.maxRank }}</span>
       </div>
     </div>
 
@@ -278,7 +282,7 @@ onMounted(() => {
         <p class="mb-2 fw-bold text-white">{{ labels.LOOKING_FOR }}</p>
         <div class="d-flex flex-wrap gap-2">
           <div
-            v-for="position in props.post.positionsNeeded"
+            v-for="position in localPost.positionsNeeded"
             :key="position"
             class="position-pill"
           >
@@ -289,6 +293,7 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- Comments -->
     <div
       v-if="loggedIn"
       class="d-flex flex-column flex-md-row align-items-center justify-content-between px-3 py-2 gap-2 show-comments"
@@ -325,15 +330,17 @@ onMounted(() => {
       v-model:showPostCommentDialog="showPostCommentDialog"
       @comment-added="commentAdded"
       @comment-deleted="commentDeleted"
-      :post="props.post"
+      :post="localPost"
     />
   </div>
 
   <UpdatePost
     @update-post="updatePost"
-    :post="props.post"
+    :post="localPost"
     v-model:isEditPost="isEditPost"
   />
 </template>
 
-<style scoped></style>
+<style scoped>
+/* Optional: add scoped styles if needed */
+</style>

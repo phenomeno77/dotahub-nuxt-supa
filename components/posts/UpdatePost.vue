@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { buttons, errorMessage, labels, fixed_values } from "~/constants/labels";
+import {
+  buttons,
+  errorMessage,
+  labels,
+  fixed_values,
+} from "~/constants/labels";
 import Select from "primevue/select";
 import type { Post } from "~/types/Post";
 import { useToast } from "primevue/usetoast";
@@ -67,7 +72,7 @@ const submitPost = async () => {
     );
 
     if (response.success) {
-      emit("update-post");
+      emit("update-post", post);
     } else {
       throw new Error("Failed to fetch roles");
     }
@@ -140,7 +145,7 @@ const maxOptions = computed(() => {
     }"
   >
     <div class="mb-3 w-100 d-flex flex-column p-2 gap-3">
-      <div class="position-relative" >
+      <div class="position-relative">
         <FloatLabel variant="on">
           <label for="description">{{ labels.POST_DESCRIPTION }}</label>
           <Textarea
@@ -155,9 +160,7 @@ const maxOptions = computed(() => {
         </FloatLabel>
 
         <span class="char-counter">
-          {{ description?.length ?? 0 }}/{{
-            fixed_values.POST_MAX_TEXT_LENGTH
-          }}
+          {{ description?.length ?? 0 }}/{{ fixed_values.POST_MAX_TEXT_LENGTH }}
         </span>
         <Message
           v-if="errors.description"
