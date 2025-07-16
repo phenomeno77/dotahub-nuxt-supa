@@ -5,6 +5,7 @@ import {
   labels,
   fixed_values,
 } from "~/constants/labels";
+
 import Select from "primevue/select";
 import type { Post } from "~/types/Post";
 import { useToast } from "primevue/usetoast";
@@ -72,6 +73,8 @@ const submitPost = async () => {
     );
 
     if (response.success) {
+      notifications(toast, "success", "Post updated");
+
       emit("update-post", post);
     } else {
       throw new Error("Failed to fetch roles");
