@@ -1,3 +1,8 @@
+export const fixed_values = {
+  POST_MAX_TEXT_LENGTH: 600,
+  COMMENT_MAX_TEXT_LENGTH: 250,
+};
+
 export const labels = {
   USERNAME: "Username",
   FIRST_NAME: "First Name",

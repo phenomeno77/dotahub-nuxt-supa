@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Post, Comment } from "~/types/Post";
-import { labels } from "~/constants/labels";
+import { labels, fixed_values } from "~/constants/labels";
 import PostCommentsList from "./PostCommentsList.vue";
 import PostItemCommentDialog from "./PostItemCommentDialog.vue";
 import { useToast } from "primevue/usetoast";
@@ -36,10 +36,6 @@ const avatarLabel = computed(() =>
     ? props.post.user.username.charAt(0).toUpperCase()
     : undefined
 );
-
-const abortPost = () => {
-  comment.value = "";
-};
 
 const commentDeleted = async (comment: Comment) => {
   try {
@@ -164,7 +160,7 @@ onMounted(async () => {
     <template #footer>
       <div v-if="loggedIn" class="w-100">
         <div
-          class="d-flex align-items-start w-100 flex-wrap gap-2"
+          class="d-flex align-items-center justify-content-start w-100  gap-2"
           style="padding: 0.5rem 0"
         >
           <!-- Avatar: only visible on sm+ (desktop), inline with textarea -->
@@ -178,28 +174,26 @@ onMounted(async () => {
             />
           </div>
 
-          <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
-          <Textarea
-            v-model="comment"
-            rows="1"
-            autoResize
-            class="flex-grow-1"
-            :placeholder="labels.COMMENT_PLACEHOLDER"
-          />
-
-          <!-- Buttons: always on new row, right-aligned -->
-          <div class="d-flex justify-content-end gap-2 w-100">
-            <Button
-              icon="pi pi-times"
-              variant="text"
-              severity="danger"
-              v-tooltip.bottom="{
-                value: labels.POST_ABORT,
-                showDelay: 500,
-                hideDelay: 300,
-              }"
-              @click="abortPost"
+          <div class="position-relative d-flex w-100">
+            <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
+            <Textarea
+              v-model="comment"
+              rows="1"
+              autoResize
+              class="flex-grow-1 w-100"
+              :placeholder="labels.COMMENT_PLACEHOLDER"
             />
+
+            <span class="char-counter">
+            {{ comment?.length ?? 0 }}/{{
+              fixed_values.COMMENT_MAX_TEXT_LENGTH
+            }}
+          </span>
+          </div>
+          <!-- Buttons: always on new row, right-aligned -->
+          
+        </div>
+        <div class="d-flex justify-content-end gap-2">
             <Button
               icon="pi pi-send"
               variant="text"
@@ -211,7 +205,6 @@ onMounted(async () => {
               @click="addComment"
             />
           </div>
-        </div>
       </div>
     </template>
   </Dialog>

@@ -2,7 +2,7 @@
 import { buttons } from "~/constants/labels";
 import { useAuthStore } from "~/stores/auth";
 import steamLogo from "~/assets/steam.svg";
-import NavBarProfileAvatar from "./NavBarProfileAvatar.vue";
+import NavBarActionMenu from "./NavBarActionMenu.vue";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
@@ -69,7 +69,7 @@ const menuPt = computed(() => ({
         </Button>
 
         <div v-else class="d-flex align-items-center gap-3">
-          <NavBarProfileAvatar @logout="handleLogout" />
+          <NavBarActionMenu @logout="handleLogout" />
         </div>
       </div>
     </template>

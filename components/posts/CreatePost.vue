@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { errorMessage, labels, buttons } from "~/constants/labels";
+import { errorMessage, labels, buttons, fixed_values } from "~/constants/labels";
 import { Position, Rank } from "~/types/enums";
 import type { Post } from "~/types/Post";
 
@@ -123,7 +123,7 @@ const maxOptions = computed(() => {
   >
     <!-- Description -->
     <div class="mb-3 w-100 d-flex flex-column p-2 gap-3">
-      <div>
+      <div class="position-relative">
         <FloatLabel variant="on">
           <label for="description">{{ labels.POST_DESCRIPTION }}</label>
           <Textarea
@@ -134,8 +134,14 @@ const maxOptions = computed(() => {
             class="w-100"
             v-model="description"
             required
+            :maxlength="fixed_values.POST_MAX_TEXT_LENGTH"
           />
         </FloatLabel>
+        <span class="char-counter">
+          {{ description?.length ?? 0 }}/{{
+            fixed_values.POST_MAX_TEXT_LENGTH
+          }}
+        </span>
         <Message
           v-if="errors.description"
           severity="error"

@@ -1,7 +1,7 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { UserStatus, Rank, UserRole, Position } from "@prisma/client";
-import { ErrorMessages } from "../constants/errors";
+import { ErrorMessages, fixed_values } from "../constants/errors";
 
 async function createPost(
   event: H3Event,
@@ -42,6 +42,13 @@ async function createPost(
     maxRank,
     description = "",
   } = postData;
+
+  if (description.length > fixed_values.POST_MAX_TEXT_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.POST_DESCRIPTION_LONG,
+    });
+  }
 
   if (!minRank || !maxRank) {
     throw createError({
@@ -288,6 +295,13 @@ async function updatePost(
     positionsNeeded,
     description = "",
   } = postData;
+
+  if (description.length > fixed_values.POST_MAX_TEXT_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.POST_DESCRIPTION_LONG,
+    });
+  }
 
   if (!minRank || !maxRank) {
     throw createError({

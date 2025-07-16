@@ -20,7 +20,12 @@ export const ErrorMessages = {
   PARTY_SIZE_ERROR: "Party size must be between 1 and 5",
   POST_NOT_FOUND: "Post not found",
   BANNED_USER: "This account has been banned. Time left: ",
-  DAILY_POST_LIMIT_REACHED: "You have reached your daily post limit.",
-  DAILY_COMMENT_LIMIT_REACHED: "You have reached your daily comment limit.",
   LOGIN_REQUIRED: "Login required",
+  POST_DESCRIPTION_LONG: "Too many characters for post!",
+  COMMENT_CONTENT_LONG: "Too many characters for comment!",
+};
+
+export const fixed_values = {
+  POST_MAX_TEXT_LENGTH: 600,
+  COMMENT_MAX_TEXT_LENGTH: 250,
 };

@@ -1,7 +1,7 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { UserRole, UserStatus } from "@prisma/client";
-import { ErrorMessages } from "../constants/errors";
+import { ErrorMessages, fixed_values } from "../constants/errors";
 
 async function addComment(event: H3Event, comment: string, postId: number) {
   const { user: currentUser } = await getUserSession(event);
@@ -34,6 +34,13 @@ async function addComment(event: H3Event, comment: string, postId: number) {
     throw createError({
       statusCode: 404,
       statusMessage: "Post not found",
+    });
+  }
+
+  if (comment.length > fixed_values.COMMENT_MAX_TEXT_LENGTH) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: ErrorMessages.COMMENT_CONTENT_LONG,
     });
   }
 

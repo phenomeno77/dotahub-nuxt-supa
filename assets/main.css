@@ -140,3 +140,11 @@ a:hover {
   display: flex;
   align-items: center;
 }
+
+.char-counter {
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.75rem;
+  color: #6b7280; 
+}
