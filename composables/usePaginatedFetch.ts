@@ -3,7 +3,8 @@ import { useToast } from "primevue/usetoast";
 export function usePaginatedFetch<T>(url: string, limit = 20) {
   const items = ref<T[]>([]) as Ref<T[]>;
   const total = ref(0);
-  const isLoading = ref(false);
+  const isLoadingInit = ref(false);
+  const isLoadingMore = ref(false);
   const toast = useToast();
 
   type PaginatedResponse = {
@@ -13,7 +14,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
   };
 
   const fetchInitial = async () => {
-    isLoading.value = true;
+    isLoadingInit.value = true;
     try {
       const res = await $fetch<PaginatedResponse>(`${url}`, {
         query: {
@@ -33,13 +34,13 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         "Unexpected error";
       notifications(toast, "warn", "Loading Items Failed", message, 3000);
     } finally {
-      isLoading.value = false;
+      isLoadingInit.value = false;
     }
   };
 
   const fetchMore = async () => {
     if (items.value.length >= total.value) return;
-    isLoading.value = true;
+    isLoadingMore.value = true;
 
     try {
       const res = await $fetch<PaginatedResponse>(`${url}`, {
@@ -59,9 +60,16 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         "Unexpected error";
       notifications(toast, "warn", "Loading Items Failed", message, 3000);
     } finally {
-      isLoading.value = false;
+      isLoadingMore.value = false;
     }
   };
 
-  return { items, total, isLoading, fetchInitial, fetchMore };
+  return {
+    items,
+    total,
+    isLoadingInit,
+    isLoadingMore,
+    fetchInitial,
+    fetchMore,
+  };
 }

@@ -18,7 +18,8 @@ const scrollerContainerRef = ref<HTMLElement | null>(null);
 const {
   items: posts,
   total,
-  isLoading,
+  isLoadingInit,
+  isLoadingMore,
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
@@ -33,8 +34,6 @@ const banExpiration = computed(() => route.query.banExpiration || "");
 watch(
   () => postStore.shouldRefreshPosts,
   async (shouldRefresh) => {
-    console.log(shouldRefresh);
-
     if (shouldRefresh) {
       loadingStore.startLoading();
       await fetchInitial();
@@ -82,7 +81,12 @@ onMounted(async () => {
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
           <!-- Virtual Scroller -->
-          <DynamicScroller :items="posts" :min-item-size="330" key-field="id">
+          <DynamicScroller
+            v-if="!isLoadingInit"
+            :items="posts"
+            :min-item-size="330"
+            key-field="id"
+          >
             <template #default="{ item, index }">
               <DynamicScrollerItem :item="item" :index="index" :active="true">
                 <div class="d-flex flex-column gap-5">
@@ -93,7 +97,7 @@ onMounted(async () => {
           </DynamicScroller>
 
           <!-- Inline Skeletons directly below posts -->
-          <div v-if="isLoading">
+          <div v-if="isLoadingInit || isLoadingMore">
             <div
               class="mb-3"
               v-for="n in POSTS_PER_PAGE"
