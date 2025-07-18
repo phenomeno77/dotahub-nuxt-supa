@@ -22,7 +22,8 @@ const scrollerContainerRef = ref<HTMLElement | null>(null);
 const {
   items: posts,
   total,
-  isLoading,
+  isLoadingInit,
+  isLoadingMore,
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Post>(`/api/post/${props.userId}`, POSTS_PER_PAGE);
@@ -79,17 +80,25 @@ onMounted(async () => {
   <!-- Scrollable area -->
   <div
     ref="scrollerContainerRef"
-    class="position-absolute start-0 end-0"
-    style="top: 80px; bottom: 40px; overflow-y: auto"
+    class="position-absolute start-0 end-0 overflow-auto"
+    style="top: 80px; bottom: 40px"
   >
     <div class="container-fluid py-4">
       <div class="row justify-content-center">
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
           <!-- Virtual Scroller -->
-          <DynamicScroller :items="posts" :min-item-size="330" key-field="id">
-            <template #default="{ item, index }">
-              <DynamicScrollerItem :item="item" :index="index" :active="true">
+          <DynamicScroller :items="posts" :min-item-size="300" page-mode>
+            <template #default="{ item, index, active }">
+              <DynamicScrollerItem
+                class="d-flex flex-column gap-5"
+                :item="item"
+                :active="active"
+                :size-dependencies="[item.description]"
+                :data-index="index"
+                :data-active="active"
+                :key="item.id"
+              >
                 <div class="d-flex flex-column gap-5">
                   <PostItem :post="item" />
                 </div>
@@ -98,7 +107,7 @@ onMounted(async () => {
           </DynamicScroller>
 
           <!-- Inline Skeletons directly below posts -->
-          <div v-if="isLoading">
+          <div v-if="isLoadingInit || isLoadingMore">
             <div
               class="mb-3"
               v-for="n in POSTS_PER_PAGE"
