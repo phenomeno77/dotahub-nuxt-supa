@@ -128,7 +128,12 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
 <template>
   <div
     class="position-absolute start-0 end-0"
-    style="top: 9%; bottom: 3%; overflow-y: auto; height: calc(100dvh - 12%)"
+    style="
+      top: 80px;
+      bottom: 40px;
+      overflow-y: auto;
+      height: calc(100dvh - 120px);
+    "
   >
     <DataTable
       v-model:filters="filters"
@@ -159,6 +164,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
             background: 'var(--background-color)',
           },
         },
+
         column: {
           headerCell: {
             style: {

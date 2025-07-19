@@ -37,6 +37,12 @@ body {
   background-color: var(--background-color);
 }
 
+.p-datatable-inline-filter .p-datatable-filter-element-container {
+  width: auto !important;
+  flex: 0 1 auto !important;
+}
+
+
 a {
   all: unset;
 }

@@ -60,16 +60,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- Alerts on top -->
-  <div class="position-absolute top-0 start-0 end-0 z-3">
-    <BannedAlert
-      v-if="isBanned"
-      :ban-reason="banReason"
-      :ban-expiration="banExpiration"
-    />
-    <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
-  </div>
-
   <!-- Scrollable area -->
   <div
     ref="scrollerContainerRef"
@@ -80,6 +70,13 @@ onMounted(async () => {
       <div class="row justify-content-center">
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
+          <!-- Alerts on top -->
+          <BannedAlert
+            v-if="isBanned"
+            :ban-reason="banReason"
+            :ban-expiration="banExpiration"
+          />
+          <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
           <!-- Virtual Scroller -->
           <DynamicScroller :items="posts" :min-item-size="300" page-mode>
             <template #default="{ item, index, active }">
