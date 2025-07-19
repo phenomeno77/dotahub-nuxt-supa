@@ -86,6 +86,35 @@ const toggleCommentMenu = (event: Event) => {
   commentMenu.value.toggle(event);
 };
 
+const editCommentItems = computed(() => {
+  const menu: any[] = [];
+
+  if (
+    authStore.userId === props.comment.user.id ||
+    authStore.userRole === UserRole.admin ||
+    authStore.userId === props.postUserId
+  ) {
+    menu.push({
+      label: "Edit",
+      icon: "pi pi-pencil",
+      command: () => {
+        editContent.value = props.comment.content;
+        editing.value = true;
+      },
+    });
+
+    menu.push({ separator: true });
+  }
+
+  menu.push({
+    label: "Delete",
+    icon: "pi pi-trash",
+    command: confirmDelete,
+  });
+
+  return menu;
+});
+
 const confirmDelete = () => {
   confirm.require({
     message: "Are you sure you want to delete this comment?",
@@ -147,22 +176,7 @@ const confirmDelete = () => {
           <Menu
             ref="commentMenu"
             id="overlay_menu"
-            :model="[
-              {
-                label: 'Edit',
-                icon: 'pi pi-pencil',
-                command: () => {
-                  editContent = comment.content;
-                  editing = true;
-                },
-              },
-              { separator: true },
-              {
-                label: 'Delete',
-                icon: 'pi pi-trash',
-                command: confirmDelete,
-              },
-            ]"
+            :model="editCommentItems"
             :popup="true"
           />
         </div>
