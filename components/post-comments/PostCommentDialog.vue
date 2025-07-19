@@ -159,7 +159,7 @@ onMounted(async () => {
         :postUserId="props.post.user?.id ?? ''"
         :isLoadingInit="isLoadingInit"
         :isLoadingMore="isLoadingMore"
-        :skeletonCount="props.post.commentCount || COMMENTS_PER_PAGE"
+        :skeletonCount="total || COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"
       />
     </div>
