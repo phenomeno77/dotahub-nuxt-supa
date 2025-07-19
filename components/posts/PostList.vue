@@ -70,7 +70,6 @@ onMounted(async () => {
       <div class="row justify-content-center">
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
-          test
           <!-- Alerts on top -->
           <BannedAlert
             v-if="isBanned"
