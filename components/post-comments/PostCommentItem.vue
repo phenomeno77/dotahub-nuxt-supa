@@ -91,8 +91,7 @@ const editCommentItems = computed(() => {
 
   if (
     authStore.userId === props.comment.user.id ||
-    authStore.userRole === UserRole.admin ||
-    authStore.userId === props.postUserId
+    authStore.userRole === UserRole.admin
   ) {
     menu.push({
       label: "Edit",
@@ -106,12 +105,13 @@ const editCommentItems = computed(() => {
     menu.push({ separator: true });
   }
 
-  menu.push({
-    label: "Delete",
-    icon: "pi pi-trash",
-    command: confirmDelete,
-  });
-
+  if (authStore.userId === props.postUserId) {
+    menu.push({
+      label: "Delete",
+      icon: "pi pi-trash",
+      command: confirmDelete,
+    });
+  }
   return menu;
 });
 
