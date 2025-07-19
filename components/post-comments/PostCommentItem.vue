@@ -8,10 +8,11 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import type { Comment } from "~/types/Post";
 import { buttons, fixed_values, labels } from "~/constants/labels";
 import { autoLinkText } from "~/composables/useAutoLink";
+import { UserRole } from "~/types/enums";
 
 dayjs.extend(relativeTime);
 
-const props = defineProps<{ comment: Comment }>();
+const props = defineProps<{ comment: Comment; postUserId: string }>();
 const emits = defineEmits(["comment-deleted"]);
 
 const authStore = useAuthStore();
@@ -132,7 +133,8 @@ const confirmDelete = () => {
           <Button
             v-if="
               authStore.userId === comment.user.id ||
-              authStore.userRole === 'admin'
+              authStore.userRole === UserRole.admin ||
+              authStore.userId === props.postUserId
             "
             icon="pi pi-ellipsis-v"
             variant="text"

@@ -3,27 +3,41 @@ import type { Comment } from "~/types/Post";
 import PostCommentItem from "./PostCommentItem.vue";
 import CommentSkeleton from "./CommentSkeleton.vue";
 
-const props = defineProps<{
-  comments: Comment[];
-  isLoading: boolean;
-  skeletonCount?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    comments: Comment[];
+    isLoadingInit: boolean;
+    isLoadingMore: boolean;
+    skeletonCount?: number;
+    postUserId: string;
+  }>(),
+  {
+    skeletonCount: 5,
+  }
+);
 
 const emits = defineEmits(["comment-deleted"]);
 
-const skeletonCount = props.skeletonCount ?? 5;
+const skeletonCount = computed(() => {
+  if (props.comments.length && props.skeletonCount) {
+    return props.skeletonCount - props.comments.length;
+  }
+
+  return props.skeletonCount;
+});
 </script>
 
 <template>
   <div class="pb-2" v-for="comment in comments" :key="comment.id">
     <PostCommentItem
       :comment="comment"
+      :postUserId="props.postUserId"
       @comment-deleted="emits('comment-deleted', comment)"
     />
   </div>
 
   <CommentSkeleton
-    v-if="isLoading"
+    v-if="props.isLoadingInit || props.isLoadingMore"
     v-for="n in skeletonCount"
     :key="'skeleton-' + n"
     class="mb-3"

@@ -135,6 +135,7 @@ async function deleteComment(event: H3Event, commentId: number) {
 
   const comment = await prisma.postComments.findUnique({
     where: { id: commentId },
+    include: { post: true }, // ✅ include post info
   });
 
   if (!comment) {
@@ -144,8 +145,15 @@ async function deleteComment(event: H3Event, commentId: number) {
     });
   }
 
-  // Only the comment's author or an admin can delete
-  if (comment.userId !== user.id && user.role !== UserRole.admin) {
+  // ✅ Allow deletion if:
+  // - user is comment author
+  // - user is post owner
+  // - user is admin
+  const isCommentAuthor = comment.userId === user.id;
+  const isPostOwner = comment.post.userId === user.id;
+  const isAdmin = user.role === UserRole.admin;
+
+  if (!isCommentAuthor && !isPostOwner && !isAdmin) {
     throw createError({
       statusCode: 403,
       statusMessage: ErrorMessages.UNAUTHORIZED,

@@ -45,7 +45,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     try {
       const res = await $fetch<PaginatedResponse>(`${url}`, {
         query: {
-          limit: limit,
+          limit: total.value - limit,
           skip: items.value.length,
         },
       });
@@ -64,6 +64,10 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     }
   };
 
+  const updateTotal = (newTotal: number) => {
+    total.value = newTotal;
+  };
+
   return {
     items,
     total,
@@ -71,5 +75,6 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     isLoadingMore,
     fetchInitial,
     fetchMore,
+    updateTotal,
   };
 }

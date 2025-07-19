@@ -5,11 +5,11 @@ import PostCommentsList from "./PostCommentsList.vue";
 import PostItemCommentDialog from "./PostItemCommentDialog.vue";
 import { useToast } from "primevue/usetoast";
 import notifications from "~/utils/notifications";
+import { useAuthStore } from "~/stores/auth";
 
 const props = defineProps<{ post: Post }>();
 const emits = defineEmits(["comment-added", "comment-deleted"]);
 
-const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
 const showPostCommentDialog = defineModel("showPostCommentDialog", {
   type: Boolean,
   default: false,
@@ -19,23 +19,28 @@ const { loggedIn } = useUserSession();
 const comment = ref("");
 const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
+const authStore = useAuthStore();
 
 const {
   items: comments,
   total,
-  isLoading,
+  isLoadingInit,
+  isLoadingMore,
   fetchInitial,
   fetchMore,
+  updateTotal,
 } = usePaginatedFetch<Comment>(
   `/api/comment?postId=${props.post.id}`,
   COMMENTS_PER_PAGE
 );
 
 const avatarLabel = computed(() =>
-  !props.post.user?.avatarUrl && props.post.user?.username
-    ? props.post.user.username.charAt(0).toUpperCase()
-    : undefined
+  !authStore?.avatarUrl && authStore?.username
+    ? authStore.username.charAt(0).toUpperCase()
+    : ""
 );
+
+const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
 
 const commentDeleted = async (comment: Comment) => {
   try {
@@ -48,6 +53,7 @@ const commentDeleted = async (comment: Comment) => {
     if (response.success) {
       notifications(toast, "success", "Comment deleted successfully");
       comments.value = comments.value.filter((c) => c.id !== comment.id);
+      total.value--;
       emits("comment-deleted");
     } else {
       throw new Error("Failed to remove comment...");
@@ -83,7 +89,7 @@ const addComment = async () => {
         ...response.data,
         createdAt: new Date(response.data.createdAt),
       };
-
+      total.value++;
       comments.value.unshift(newComment);
       comment.value = "";
     } else {
@@ -115,8 +121,7 @@ onMounted(async () => {
       },
       {
         distance: 20,
-        canLoadMore: () =>
-          comments.value.length < total.value && !isLoading.value,
+        canLoadMore: () => comments.value.length < total.value,
       }
     );
   }
@@ -151,7 +156,9 @@ onMounted(async () => {
       <PostCommentsList
         v-if="props.post.id !== undefined"
         :comments="comments"
-        :isLoading="isLoading"
+        :postUserId="props.post.user?.id ?? ''"
+        :isLoadingInit="isLoadingInit"
+        :isLoadingMore="isLoadingMore"
         :skeletonCount="props.post.commentCount || COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"
       />
@@ -160,7 +167,7 @@ onMounted(async () => {
     <template #footer>
       <div v-if="loggedIn" class="w-100">
         <div
-          class="d-flex align-items-center justify-content-start w-100  gap-2"
+          class="d-flex align-items-center justify-content-start w-100 gap-2"
           style="padding: 0.5rem 0"
         >
           <!-- Avatar: only visible on sm+ (desktop), inline with textarea -->
@@ -182,31 +189,29 @@ onMounted(async () => {
               autoResize
               class="flex-grow-1 w-100"
               :placeholder="labels.COMMENT_PLACEHOLDER"
-                          :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
-
+              :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
             />
 
             <span class="char-counter">
-            {{ comment?.length ?? 0 }}/{{
-              fixed_values.COMMENT_MAX_TEXT_LENGTH
-            }}
-          </span>
+              {{ comment?.length ?? 0 }}/{{
+                fixed_values.COMMENT_MAX_TEXT_LENGTH
+              }}
+            </span>
           </div>
           <!-- Buttons: always on new row, right-aligned -->
-          
         </div>
         <div class="d-flex justify-content-end gap-2">
-            <Button
-              icon="pi pi-send"
-              variant="text"
-              v-tooltip.bottom="{
-                value: labels.COMMENT_SUBMIT,
-                showDelay: 500,
-                hideDelay: 300,
-              }"
-              @click="addComment"
-            />
-          </div>
+          <Button
+            icon="pi pi-send"
+            variant="text"
+            v-tooltip.bottom="{
+              value: labels.COMMENT_SUBMIT,
+              showDelay: 500,
+              hideDelay: 300,
+            }"
+            @click="addComment"
+          />
+        </div>
       </div>
     </template>
   </Dialog>
