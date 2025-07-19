@@ -105,7 +105,11 @@ const editCommentItems = computed(() => {
     menu.push({ separator: true });
   }
 
-  if (authStore.userId === props.postUserId) {
+  if (
+    authStore.userId === props.comment.user.id ||
+    authStore.userRole === UserRole.admin ||
+    authStore.userId === props.postUserId
+  ) {
     menu.push({
       label: "Delete",
       icon: "pi pi-trash",
