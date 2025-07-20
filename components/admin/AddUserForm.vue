@@ -119,6 +119,8 @@ const submitForm = async () => {
   <Dialog
     v-model:visible="showAddUserDialog"
     modal
+    position="center"
+    :draggable="false"
     :header="labels.ADD_NEW_USER"
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
@@ -129,8 +131,7 @@ const submitForm = async () => {
         style: {
           background: 'var(--bg-post)',
           color: 'var( --text-color)',
-                    border: 'none',
-
+          border: 'none',
         },
       },
     }"

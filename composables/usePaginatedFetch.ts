@@ -14,6 +14,8 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
   };
 
   const fetchInitial = async () => {
+    console.log(total.value);
+
     isLoadingInit.value = true;
     try {
       const res = await $fetch<PaginatedResponse>(`${url}`, {

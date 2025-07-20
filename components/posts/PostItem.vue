@@ -163,6 +163,10 @@ function commentAdded() {
   postCommentCount.value++;
 }
 
+function updatePostCount(postCount: number) {
+  postCommentCount.value = postCount;
+}
+
 const safeDescription = computed(() => {
   const desc = localPost.value.description ?? "";
   const truncated =
@@ -299,7 +303,7 @@ onMounted(() => {
       class="d-flex flex-column flex-md-row align-items-center justify-content-between px-3 py-2 gap-2 show-comments"
     >
       <div
-        v-if="postCommentCount"
+        v-if="postCommentCount > 0"
         class="d-flex justify-content-center justify-content-md-end flex-grow-1 order-1 order-md-3 w-100 w-md-auto"
       >
         <Button
@@ -330,6 +334,7 @@ onMounted(() => {
       v-model:showPostCommentDialog="showPostCommentDialog"
       @comment-added="commentAdded"
       @comment-deleted="commentDeleted"
+      @update-post-count="updatePostCount"
       :post="localPost"
     />
   </div>

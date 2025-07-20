@@ -132,6 +132,8 @@ const maxOptions = computed(() => {
   <Dialog
     v-model:visible="isEditPost"
     modal
+    position="center"
+    :draggable="false"
     @hide="onHide"
     :header="buttons.EDIT_POST"
     :style="{ width: '40%' }"
