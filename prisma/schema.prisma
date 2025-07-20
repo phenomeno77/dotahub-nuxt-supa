@@ -9,47 +9,67 @@ datasource db {
 }
 
 model UserProfile {
-  id               String         @id @default(uuid())
+  id               String           @id @default(uuid())
   username         String
-  email            String?        @unique
+  email            String?          @unique
   avatarUrl        String?
-  steamId          String?        @unique
-  updatedAt        DateTime       @updatedAt
-  role             UserRole       @default(user)
-  userStatus       UserStatus     @default(active)
+  steamId          String?          @unique
+  updatedAt        DateTime         @updatedAt
+  role             UserRole         @default(user)
+  userStatus       UserStatus       @default(active)
   lastSeenAt       DateTime?      
-  postsToday       Int            @default(0)
-  commentsToday    Int            @default(0)
-  lastPostReset    DateTime       @default(now())
-  lastCommentReset DateTime       @default(now())
-  bansIssued       BanHistory[]   @relation("UserBannedBy")
-  banHistory       BanHistory[]   @relation("UserBanHistory")
-  comments         PostComments[] @relation("UserComments")
-  posts            Posts[]        @relation("UserPosts")
+  postsToday       Int              @default(0)
+  commentsToday    Int              @default(0)
+  lastPostReset    DateTime         @default(now())
+  lastCommentReset DateTime         @default(now())
+  bansIssued       BanHistory[]     @relation("UserBannedBy")
+  banHistory       BanHistory[]     @relation("UserBanHistory")
+  comments         PostComments[]   @relation("UserComments")
+  posts            Posts[]          @relation("UserPosts")
+  notifications    Notifications[]  @relation("UserNotifications")
 }
 
 model Posts {
-  id              Int            @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   partySize       Int
   positionsNeeded Position[]
   minRank         Rank
   maxRank         Rank
   description     String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   userId          String
-  postComments    PostComments[] @relation("PostComments")
-  user            UserProfile    @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  postComments    PostComments[]  @relation("PostComments")
+  user            UserProfile     @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  notifications   Notifications[]   @relation("PostNotifications")
 }
 
 model PostComments {
-  id        Int         @id @default(autoincrement())
+  id        Int                 @id @default(autoincrement())
   content   String
-  createdAt DateTime    @default(now())
+  createdAt DateTime            @default(now())
   userId    String
   postId    Int
-  post      Posts       @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
-  user      UserProfile @relation("UserComments", fields: [userId], references: [id], onDelete: Cascade)
+  post      Posts               @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
+  user      UserProfile         @relation("UserComments", fields: [userId], references: [id], onDelete: Cascade)
+  notifications Notifications[] @relation("CommentNotifications")
+}
+
+model Notifications {
+  id          String            @id @default(uuid())
+  user        UserProfile       @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  post        Posts?            @relation("PostNotifications", fields: [postId], references: [id])
+  postId      Int?
+
+  comment     PostComments?     @relation("CommentNotifications", fields: [commentId], references: [id])
+  commentId   Int?
+
+  type        NotificationType  
+  message     String
+  isRead      Boolean           @default(false)
+  createdAt   DateTime          @default(now())
 }
 
 model BanHistory {
@@ -92,4 +112,8 @@ enum UserStatus {
   active
   banned
   deleted
+}
+
+enum NotificationType {
+  comment_on_post
 }
