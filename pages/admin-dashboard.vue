@@ -2,13 +2,14 @@
 import type { UpdateUser } from "~/types/UpdateUser";
 import { UserRole, UserStatus } from "~/types/enums";
 import notifications from "~/utils/notifications";
-import AdminUserManagementList from "~/components/admin/AdminUserManagementList.vue"
+import AdminUserManagementList from "~/components/admin/AdminUserManagementList.vue";
+import type { UserProfile } from "~/types/UserProfile";
 
 definePageMeta({
   middleware: "auth-admin-dashboard",
 });
 
-const users = ref();
+const users = ref<UserProfile[]>([]);
 const loadingUsers = ref(true);
 const toast = useToast();
 const roles = Object.values(UserRole);
@@ -18,7 +19,7 @@ const loadingStore = useLoadingStore();
 const fetchUsers = async () => {
   loadingStore.startLoading();
   try {
-    const response = await $fetch("/api/auth/admin", {
+    const response = await $fetch<UserProfile[]>("/api/auth/admin", {
       method: "GET",
     });
     users.value = response;
@@ -54,7 +55,7 @@ const updateUser = async (newData: UpdateUser) => {
         (u: UpdateUser) => u.id === newData.id
       );
       if (userIndex !== -1) {
-        users.value[userIndex] = { ...newData }; // Ensure reactivity
+        Object.assign(users.value[userIndex], newData);
       }
 
       notifications(toast, "success", "User Updated successfully!");

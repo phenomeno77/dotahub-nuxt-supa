@@ -28,7 +28,6 @@ const {
   isLoadingMore,
   fetchInitial,
   fetchMore,
-  updateTotal,
 } = usePaginatedFetch<Comment>(
   `/api/comment?postId=${props.post.id}`,
   COMMENTS_PER_PAGE

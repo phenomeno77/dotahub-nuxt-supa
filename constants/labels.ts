@@ -34,6 +34,7 @@ export const labels = {
   LOOKING_FOR: "Looking For",
   BAN_FORM: "Ban Form",
   BAN_REASON: "Ban Reason",
+  NOTIFICATIONS: "Notifications",
 };
 
 export const buttons = {

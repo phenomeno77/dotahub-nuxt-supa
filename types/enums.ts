@@ -28,3 +28,7 @@ export enum Rank {
   Divine = "Divine",
   Immortal = "Immortal",
 }
+
+export enum NotificationType {
+  comment_on_post = "comment on post",
+}

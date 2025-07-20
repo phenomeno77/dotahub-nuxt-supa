@@ -111,6 +111,7 @@ const actionButtons = computed(() => ({
           background: 'var(--background-color)',
           color: 'var(--text-color)',
           border: 'none',
+          width: '400px',
         },
       },
     }"

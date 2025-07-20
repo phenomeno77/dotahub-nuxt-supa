@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
-import Notifications from "../notifications/Notifications.vue";
+import NotificationsList from "../notifications/NotificationsList.vue";
 import BarsActions from "./BarsActions.vue";
-
-const showBarsDrawer = ref(false);
 
 const authStore = useAuthStore();
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
@@ -16,7 +14,7 @@ const avatarLabel = computed(() =>
 </script>
 
 <template>
-  <Notifications />
+  <NotificationsList />
 
   <Avatar
     :image="avatarImage"

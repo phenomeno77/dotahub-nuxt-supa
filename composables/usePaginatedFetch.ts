@@ -64,10 +64,6 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     }
   };
 
-  const updateTotal = (newTotal: number) => {
-    total.value = newTotal;
-  };
-
   return {
     items,
     total,
@@ -75,6 +71,5 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     isLoadingMore,
     fetchInitial,
     fetchMore,
-    updateTotal,
   };
 }
