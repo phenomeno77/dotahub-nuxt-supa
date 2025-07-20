@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
-import { UserRole, UserStatus } from "@prisma/client";
+import { NotificationType, UserRole, UserStatus } from "@prisma/client";
 import { ErrorMessages, fixed_values } from "../constants/errors";
 
 async function addComment(event: H3Event, comment: string, postId: number) {
@@ -62,8 +62,22 @@ async function addComment(event: H3Event, comment: string, postId: number) {
     },
   });
 
+  //Create notification if the commenter is NOT the post author
+  if (post.userId !== currentUser.id) {
+    await prisma.notifications.create({
+      data: {
+        userId: post.userId,
+        postId: post.id,
+        commentId: newComment.id,
+        type: NotificationType.comment_on_post,
+        message: `${user.username} commented on your post.`,
+      },
+    });
+  }
+
   return newComment;
 }
+
 export async function getCommentsForPost(
   event: H3Event,
   postId: number,
