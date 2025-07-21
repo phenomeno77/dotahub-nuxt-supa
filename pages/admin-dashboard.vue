@@ -52,10 +52,10 @@ const updateUser = async (newData: UpdateUser) => {
 
     if (response.success) {
       const userIndex = users.value.findIndex(
-        (u: UpdateUser) => u.id === newData.id
+        (u: UpdateUser) => u.id === response.user.id
       );
       if (userIndex !== -1) {
-        Object.assign(users.value[userIndex], newData);
+        Object.assign(users.value[userIndex], response.user);
       }
 
       notifications(toast, "success", "User Updated successfully!");

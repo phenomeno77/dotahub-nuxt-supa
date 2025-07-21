@@ -70,7 +70,7 @@ async function addComment(event: H3Event, comment: string, postId: number) {
         postId: post.id,
         commentId: newComment.id,
         type: NotificationType.comment_on_post,
-        message: `${user.username} commented on your post.`,
+        message: "",
       },
     });
   }

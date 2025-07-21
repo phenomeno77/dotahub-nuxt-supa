@@ -71,9 +71,6 @@ a:hover {
   transition: box-shadow 0.2s ease;
 }
 
-.post-item:hover {
-  box-shadow: 0 4px 12px var(--shadow-hover);
-}
 
 .username {
   font-weight: 600;
@@ -153,4 +150,17 @@ a:hover {
   right: 8px;
   font-size: 0.75rem;
   color: #6b7280; 
+}
+
+.drawer-main {
+  background: var(--background-color);
+  color: var(--text-color);
+  border: none;
+  width: 400px !important;
+}
+
+@media (max-width: 768px) {
+  .drawer-main {
+    width: 100vw !important;
+  }
 }

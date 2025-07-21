@@ -19,7 +19,7 @@ const positionLabels: Record<string, string> = {
   soft_support: "Soft Support",
   hard_support: "Hard Support",
 };
- 
+
 const postedAgo = computed(() => {
   return dayjs(props.post.createdAt).fromNow(); // e.g. "2 hours ago"
 });
@@ -58,19 +58,34 @@ function togglePostExpand(id: number) {
   <div class="post-item mb-4 px-3 pt-3">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3 w-100">
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center overflow-hidden">
         <Avatar
           :image="avatarImage"
           :label="avatarLabel"
-          class="me-2"
+          class="me-2 flex-shrink-0"
           size="xlarge"
           shape="circle"
         />
-        <div>
-          <p class="mb-0 fw-bold username">
-            {{ props.post.user?.username }}
+        <div
+          style="max-width: 400px"
+          class="d-flex flex-column overflow-hidden"
+        >
+          <p
+            class="mb-0 fw-bold username d-flex align-items-center"
+            :title="props.post.user?.username"
+          >
+            <span
+              class="text-truncate"
+              style="
+                max-width: 400px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
+            >
+              {{ props.post.user?.username }}
+            </span>
           </p>
-
           <small class="postedAgo">Posted {{ postedAgo }}</small>
         </div>
       </div>
@@ -88,8 +103,7 @@ function togglePostExpand(id: number) {
           {{
             isPostExpanded(props.post.id as number)
               ? props.post.description ?? ""
-              : (props.post.description ?? "").slice(0, 300) +
-                ((props.post.description?.length ?? 0) > 300 ? "..." : "")
+              : props.post.description ?? ""
           }}
         </p>
       </div>

@@ -161,6 +161,7 @@ const maxOptions = computed(() => {
             class="w-100"
             v-model="description"
             required
+            :maxlength="fixed_values.POST_MAX_TEXT_LENGTH"
           />
         </FloatLabel>
 

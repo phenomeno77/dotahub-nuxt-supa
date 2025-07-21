@@ -56,20 +56,21 @@ model PostComments {
 }
 
 model Notifications {
-  id          String            @id @default(uuid())
-  user        UserProfile       @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
+  id        String        @id @default(uuid())
 
-  post        Posts?            @relation("PostNotifications", fields: [postId], references: [id])
-  postId      Int?
+  user      UserProfile   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 
-  comment     PostComments?     @relation("CommentNotifications", fields: [commentId], references: [id])
-  commentId   Int?
+  post      Posts?        @relation("PostNotifications", fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int?
 
-  type        NotificationType  
-  message     String
-  isRead      Boolean           @default(false)
-  createdAt   DateTime          @default(now())
+  comment   PostComments? @relation("CommentNotifications", fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int?
+
+  type      NotificationType
+  message   String
+  isRead    Boolean       @default(false)
+  createdAt DateTime      @default(now())
 }
 
 model BanHistory {

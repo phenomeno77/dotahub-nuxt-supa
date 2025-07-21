@@ -1,6 +1,8 @@
 export const fixed_values = {
   POST_MAX_TEXT_LENGTH: 600,
   COMMENT_MAX_TEXT_LENGTH: 250,
+  MAX_POST_PREVIEW_LENGTH: 300,
+  MAX_NOTIFICATION_PREVIEW_LENGTH: 50,
 };
 
 export const labels = {

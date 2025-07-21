@@ -107,12 +107,7 @@ const actionButtons = computed(() => ({
     position="right"
     :pt="{
       root: {
-        style: {
-          background: 'var(--background-color)',
-          color: 'var(--text-color)',
-          border: 'none',
-          width: '400px',
-        },
+        class: 'drawer-main',
       },
     }"
   >

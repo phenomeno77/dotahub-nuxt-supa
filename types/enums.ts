@@ -30,5 +30,12 @@ export enum Rank {
 }
 
 export enum NotificationType {
-  comment_on_post = "comment on post",
+  comment_on_post = "commented on post",
+}
+
+export function getNotificationLabel(type: string): string {
+  if (type in NotificationType) {
+    return NotificationType[type as keyof typeof NotificationType];
+  }
+  return "did something...";
 }

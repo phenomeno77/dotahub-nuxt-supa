@@ -109,7 +109,7 @@ onMounted(async () => {
 
           <!-- End-of-list message -->
           <div
-            v-if="posts.length >= total && !isBanned"
+            v-if="posts.length > 0 && posts.length >= total && !isBanned"
             class="no-more-posts text-center mt-4"
           >
             You've reached the end! 🎉

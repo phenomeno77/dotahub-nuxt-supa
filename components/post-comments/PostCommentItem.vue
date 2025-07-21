@@ -130,114 +130,128 @@ const confirmDelete = () => {
     accept: () => emits("comment-deleted"),
   });
 };
+const avatarImage = computed(() => props.comment.user?.avatarUrl || undefined);
+const avatarLabel = computed(() =>
+  !props.comment.user?.avatarUrl && props.comment.user?.username
+    ? props.comment.user.username.charAt(0).toUpperCase()
+    : undefined
+);
 </script>
 
 <template>
-  <div class="d-flex mb-3 p-3 rounded shadow-sm comment-item">
-    <!-- Avatar -->
-    <Avatar
-      class="me-3"
-      shape="circle"
-      style="min-width: 40px; min-height: 40px; background-color: #e2e8f0"
-    >
-      <template #default>
-        <img
-          v-if="comment.user.avatarUrl"
-          :src="comment.user.avatarUrl"
-          alt="avatar"
-          class="avatar-img"
+  <div class="d-flex flex-column mb-3 p-3 rounded shadow-sm comment-item">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+      <!-- Avatar + Username + Timestamp -->
+      <div class="d-flex align-items-center overflow-hidden">
+        <Avatar
+          :image="avatarImage"
+          :label="avatarLabel"
+          class="me-2 flex-shrink-0"
+          size="large"
+          shape="circle"
         />
-        <strong v-else>
-          {{ comment.user.username?.charAt(0).toUpperCase() }}
-        </strong>
-      </template>
-    </Avatar>
 
-    <!-- Content -->
-    <div class="flex-grow-1">
-      <div class="d-flex justify-content-between align-items-center">
-        <p class="fw-bold mb-0">
-          {{ comment.user.username }}
-        </p>
-
-        <div class="d-flex align-items-center gap-1">
-          <small>{{ dayjs(comment.createdAt).fromNow() }}</small>
-
-          <Button
-            v-if="
-              authStore.userId === comment.user.id ||
-              authStore.userRole === UserRole.admin ||
-              authStore.userId === props.postUserId
-            "
-            icon="pi pi-ellipsis-v"
-            variant="text"
-            size="small"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            @click="toggleCommentMenu"
-          />
-
-          <Menu
-            ref="commentMenu"
-            id="overlay_menu"
-            :model="editCommentItems"
-            :popup="true"
-          />
-        </div>
-      </div>
-
-      <!-- Normal View -->
-      <div v-if="!editing" class="comment-content mb-1">
-        <div v-html="safeContent" />
-      </div>
-
-      <!-- Edit Mode -->
-      <div v-else class="d-flex flex-column gap-2">
-        <div class="position-relative d-flex w-100">
-          <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
-          <Textarea
-            v-model="editContent"
-            rows="1"
-            autoResize
-            class="flex-grow-1 w-100"
-            :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
-            :placeholder="labels.COMMENT_PLACEHOLDER"
-          />
-
-          <span class="char-counter">
-            {{ editContent?.length ?? 0 }}/{{
-              fixed_values.COMMENT_MAX_TEXT_LENGTH
-            }}
-          </span>
-        </div>
-
-        <div class="d-flex justify-content-end gap-2">
-          <Button
-            icon="pi pi-check"
-            :label="buttons.SAVE"
-            size="small"
-            @click="commentUpdated"
-          />
-          <Button
-            icon="pi pi-times"
-            :label="buttons.CANCEL"
-            severity="secondary"
-            size="small"
-            @click="editing = false"
-          />
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-end">
-        <Button
-          v-if="comment.content.length > 100 && !editing"
-          variant="link"
-          size="small"
-          @click="toggleExpand(comment.id)"
+        <div
+          style="max-width: 400px"
+          class="d-flex flex-column overflow-hidden"
         >
-          {{ isExpanded(comment.id) ? "Show Less" : "Show More" }}
-        </Button>
+          <span
+            class="text-truncate mb-0 fw-bold username"
+            style="
+              max-width: 400px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            "
+            :title="comment.user.username ?? ''"
+          >
+            {{ comment.user.username }}
+          </span>
+          <small class="postedAgo"
+            >Posted {{ dayjs(comment.createdAt).fromNow() }}</small
+          >
+        </div>
       </div>
+
+      <!-- Menu Button -->
+      <div
+        v-if="
+          authStore.userId === comment.user.id ||
+          authStore.userRole === UserRole.admin ||
+          authStore.userId === props.postUserId
+        "
+        class="d-flex align-items-center gap-1 flex-shrink-0"
+      >
+        <Button
+          icon="pi pi-ellipsis-v"
+          variant="text"
+          size="small"
+          aria-haspopup="true"
+          aria-controls="overlay_menu"
+          @click="toggleCommentMenu"
+        />
+        <Menu
+          ref="commentMenu"
+          id="overlay_menu"
+          :model="editCommentItems"
+          :popup="true"
+        />
+      </div>
+    </div>
+
+    <!-- Normal View -->
+    <div v-if="!editing" class="comment-content mb-1">
+      <div v-html="safeContent" />
+    </div>
+
+    <!-- Edit Mode -->
+    <div v-else class="d-flex flex-column gap-2">
+      <div class="position-relative d-flex w-100">
+        <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
+        <Textarea
+          v-model="editContent"
+          rows="1"
+          autoResize
+          class="flex-grow-1 w-100"
+          :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
+          :placeholder="labels.COMMENT_PLACEHOLDER"
+        />
+
+        <span class="char-counter">
+          {{ editContent?.length ?? 0 }}/{{
+            fixed_values.COMMENT_MAX_TEXT_LENGTH
+          }}
+        </span>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <Button
+          icon="pi pi-check"
+          :label="buttons.SAVE"
+          size="small"
+          @click="commentUpdated"
+        />
+        <Button
+          icon="pi pi-times"
+          :label="buttons.CANCEL"
+          severity="secondary"
+          size="small"
+          @click="editing = false"
+        />
+      </div>
+    </div>
+
+    <!-- Expand/Collapse -->
+    <div class="d-flex justify-content-end">
+      <Button
+        v-if="comment.content.length > 100 && !editing"
+        variant="link"
+        size="small"
+        @click="toggleExpand(comment.id)"
+      >
+        {{ isExpanded(comment.id) ? "Show Less" : "Show More" }}
+      </Button>
     </div>
   </div>
 </template>

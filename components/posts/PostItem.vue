@@ -4,7 +4,7 @@ import { useAuthStore } from "~/stores/auth";
 import type { Post } from "~/types/Post";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { buttons, labels } from "~/constants/labels";
+import { buttons, fixed_values, labels } from "~/constants/labels";
 import { usePostStore } from "~/stores/posts";
 import notifications from "~/utils/notifications";
 import { useToast } from "primevue/usetoast";
@@ -17,7 +17,7 @@ import { useLoadingStore } from "~/stores/loading";
 dayjs.extend(relativeTime);
 
 const props = defineProps<{ post: Post }>();
-
+const MAX_POST_LENGTH = 600;
 const { loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const toast = useToast();
@@ -169,10 +169,17 @@ function updatePostCount(postCount: number) {
 
 const safeDescription = computed(() => {
   const desc = localPost.value.description ?? "";
-  const truncated =
-    isPostExpanded(localPost.value.id as number) || desc.length <= 300
-      ? desc
-      : desc.slice(0, 300) + "...";
+  const maxLength = fixed_values.MAX_POST_PREVIEW_LENGTH;
+
+  let truncated = desc;
+  if (
+    !isPostExpanded(localPost.value.id as number) &&
+    desc.length > maxLength
+  ) {
+    const lastSpaceIndex = desc.lastIndexOf(" ", maxLength);
+    truncated =
+      desc.slice(0, lastSpaceIndex > 0 ? lastSpaceIndex : maxLength) + "...";
+  }
 
   return autoLinkText(truncated);
 });
@@ -255,7 +262,7 @@ onMounted(() => {
       <div class="d-flex justify-content-end">
         <Button
           v-if="
-            (localPost.description?.length ?? 0) > 255 &&
+            (localPost.description?.length ?? 0) > 300 &&
             localPost.id !== undefined
           "
           variant="link"

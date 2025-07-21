@@ -14,11 +14,9 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
   };
 
   const fetchInitial = async () => {
-    console.log(total.value);
-
     isLoadingInit.value = true;
     try {
-      const res = await $fetch<PaginatedResponse>(`${url}`, {
+      const res = await $fetch<PaginatedResponse>(url, {
         query: {
           limit: limit,
           skip: 0,
@@ -45,7 +43,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     isLoadingMore.value = true;
 
     try {
-      const res = await $fetch<PaginatedResponse>(`${url}`, {
+      const res = await $fetch<PaginatedResponse>(url, {
         query: {
           limit: total.value - limit,
           skip: items.value.length,
