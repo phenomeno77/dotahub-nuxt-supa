@@ -5,7 +5,7 @@ import { useToast } from "primevue/usetoast";
 import NotificationItem from "./NotificationItem.vue";
 import NotificationItemSkeleton from "./NotificationItemSkeleton.vue";
 
-const showNotificationsDrawer = ref(true);
+const showNotificationsDrawer = ref(false);
 const notificationList = ref<Notification[]>([]);
 const toast = useToast();
 const isLoading = ref(false);
