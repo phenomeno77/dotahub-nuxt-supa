@@ -11,7 +11,8 @@
   --bg-rank-box: #374151;
   --bg-position-pill: #4b5563;
   --text-pill: #f3f4f6;
-  --shadow-hover: rgba(0, 0, 0, 0.2);
+  --shadow-hover: rgba(0, 0, 0, 1);
+  --background-hover:  #444343
 }
 
 .ul {

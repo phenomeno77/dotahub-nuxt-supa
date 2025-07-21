@@ -76,8 +76,6 @@ const submitPost = async () => {
       notifications(toast, "success", "Post updated");
 
       emit("update-post", post);
-    } else {
-      throw new Error("Failed to fetch roles");
     }
   } catch (error: any) {
     const message =

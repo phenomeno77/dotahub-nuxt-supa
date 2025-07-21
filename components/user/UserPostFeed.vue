@@ -26,7 +26,7 @@ const {
   isLoadingMore,
   fetchInitial,
   fetchMore,
-} = usePaginatedFetch<Post>(`/api/post/${props.userId}`, POSTS_PER_PAGE);
+} = usePaginatedFetch<Post>(`/api/post/user/${props.userId}`, POSTS_PER_PAGE);
 
 // Computed for error flags & query info
 const route = useRoute();

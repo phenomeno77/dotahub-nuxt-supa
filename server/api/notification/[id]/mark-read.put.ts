@@ -1,3 +1,4 @@
+// /api/notifications/[id]/mark-read.ts
 export default defineEventHandler(async (event) => {
   try {
     await requireUserLoggedIn(event);
@@ -7,25 +8,25 @@ export default defineEventHandler(async (event) => {
     if (!id) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Missing Post ID in URL.",
+        statusMessage: "Missing notification ID",
       });
     }
 
-    const post = await postUtils.getPostById(event, Number(id));
+    await notificationUtils.markAsRead(event, Number(id));
 
     return {
       success: true,
-      post,
     };
   } catch (err: any) {
-    console.error("Post fetch failed:", err); // Optional server-side logging
+    console.error("Mark Notification as read failed:", err);
 
     return sendError(
       event,
       createError({
         statusCode: err.statusCode || 500,
         statusMessage:
-          err.statusMessage || "Something went wrong while fetching post.",
+          err.statusMessage ||
+          "Something went wrong while marking notification as read...",
       })
     );
   }

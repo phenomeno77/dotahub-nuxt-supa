@@ -37,6 +37,8 @@ export const labels = {
   BAN_FORM: "Ban Form",
   BAN_REASON: "Ban Reason",
   NOTIFICATIONS: "Notifications",
+  MARK_AS_READ: "Mark as read",
+  MARK_ALL_AS_READ: "Mark all as read",
 };
 
 export const buttons = {

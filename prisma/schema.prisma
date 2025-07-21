@@ -56,7 +56,7 @@ model PostComments {
 }
 
 model Notifications {
-  id        String        @id @default(uuid())
+  id        Int           @id @default(autoincrement())
 
   user      UserProfile   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
   userId    String

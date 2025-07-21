@@ -398,10 +398,49 @@ async function deletePost(event: H3Event, postId: number) {
   return post;
 }
 
+async function getPostById(event: H3Event, postId: number) {
+  const { user: currentUser } = await getUserSession(event);
+
+  if (!currentUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const user = await prisma.userProfile.findUnique({
+    where: { id: currentUser.id },
+  });
+
+  if (!user || user.userStatus !== UserStatus.active) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const post = await prisma.posts.findUnique({
+    where: { id: postId },
+    include: {
+      user: true,
+    },
+  });
+
+  if (!post) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.POST_NOT_FOUND,
+    });
+  }
+
+  return post;
+}
+
 export default {
   createPost,
   getPosts,
   getUsersPostHistory,
   updatePost,
   deletePost,
+  getPostById,
 };
