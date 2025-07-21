@@ -154,9 +154,9 @@ a:hover {
 }
 
 .drawer-main {
-  background: var(--background-color);
-  color: var(--text-color);
-  border: none;
+  background: var(--background-color) !important;
+  color: var(--text-color) !important;
+  border: none !important;
   width: 400px !important;
 }
 
