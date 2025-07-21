@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { errorMessage, labels, buttons, fixed_values } from "~/constants/labels";
+import {
+  errorMessage,
+  labels,
+  buttons,
+  fixed_values,
+} from "~/constants/labels";
 import { Position, Rank } from "~/types/enums";
 import type { Post } from "~/types/Post";
 
@@ -107,6 +112,8 @@ const maxOptions = computed(() => {
   <Dialog
     v-model:visible="createPostDialog"
     modal
+    position="center"
+    :draggable="false"
     :header="buttons.CREATE_POST"
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
@@ -138,9 +145,7 @@ const maxOptions = computed(() => {
           />
         </FloatLabel>
         <span class="char-counter">
-          {{ description?.length ?? 0 }}/{{
-            fixed_values.POST_MAX_TEXT_LENGTH
-          }}
+          {{ description?.length ?? 0 }}/{{ fixed_values.POST_MAX_TEXT_LENGTH }}
         </span>
         <Message
           v-if="errors.description"

@@ -49,6 +49,8 @@ const submitForm = () => {
   <Dialog
     v-model:visible="showBanUserDialog"
     modal
+    position="center"
+    :draggable="false"
     :header="labels.BAN_FORM"
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"

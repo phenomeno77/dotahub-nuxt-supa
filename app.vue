@@ -71,8 +71,9 @@ useHead({
     <ProgressSpinner />
   </div>
 
-  <CreatePost v-if="createPostDialog" />
   <div class="container-fluid d-flex flex-column h-100">
+    <CreatePost v-if="createPostDialog" />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

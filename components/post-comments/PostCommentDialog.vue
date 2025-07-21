@@ -8,7 +8,11 @@ import notifications from "~/utils/notifications";
 import { useAuthStore } from "~/stores/auth";
 
 const props = defineProps<{ post: Post }>();
-const emits = defineEmits(["comment-added", "comment-deleted"]);
+const emits = defineEmits([
+  "comment-added",
+  "comment-deleted",
+  "update-post-count",
+]);
 
 const showPostCommentDialog = defineModel("showPostCommentDialog", {
   type: Boolean,
@@ -103,12 +107,17 @@ const addComment = async () => {
 
 const dialogStyle = computed(() => ({
   width: "90vw",
-  maxWidth: "860px",
-  height: "100%",
+  maxWidth: "960px",
+  height: "calc(100dvh - 120px)",
+  top: "80px",
+  bottom: "40px",
+  position: "absolute",
+  margin: "0px",
 }));
 
 onMounted(async () => {
   await fetchInitial();
+  emits("update-post-count", total.value);
 
   if (dialogContentRef.value) {
     useInfiniteScroll(
@@ -131,6 +140,8 @@ onMounted(async () => {
   <Dialog
     v-model:visible="showPostCommentDialog"
     modal
+    position="bottom"
+    :draggable="false"
     dismissableMask
     :header="`Post from ${props.post.user?.username}`"
     :style="dialogStyle"
