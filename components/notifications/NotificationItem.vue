@@ -26,6 +26,7 @@ const showPostCommentDialog = ref(false);
 const avatarImage = computed(
   () => props.notification.comment?.user.avatarUrl ?? undefined
 );
+
 const avatarLabel = computed(() =>
   !props.notification.comment?.user.avatarUrl &&
   props.notification.comment?.user.username
@@ -36,7 +37,7 @@ const avatarLabel = computed(() =>
 const onOpenNotification = async () => {
   try {
     const response = await $fetch<{ success: boolean; post: Post }>(
-      `/api/post/${props.notification.post?.id}`
+      `/api/post/${props.notification.postId}`
     );
 
     if (response.success) {
@@ -100,14 +101,14 @@ const onOpenNotification = async () => {
     <!-- CONTENT -->
     <div class="notification-description">
       {{
-        notification.comment?.content?.length &&
-        notification.comment?.content?.length >
+        notification.message.length &&
+        notification.message.length >
           fixed_values.MAX_NOTIFICATION_PREVIEW_LENGTH
-          ? notification.comment.content.slice(
+          ? notification.message.slice(
               0,
               fixed_values.MAX_NOTIFICATION_PREVIEW_LENGTH
             ) + "..."
-          : notification.comment?.content || "No comment content."
+          : notification.message || "No comment content."
       }}
     </div>
 
@@ -129,6 +130,12 @@ const onOpenNotification = async () => {
       />
     </div>
   </div>
+
+  <PostCommentDialog
+    v-if="showPostCommentDialog"
+    v-model:showPostCommentDialog="showPostCommentDialog"
+    :post="postNotification"
+  />
 </template>
 
 <style scoped>

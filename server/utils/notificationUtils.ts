@@ -18,21 +18,10 @@ async function getNotifications(event: H3Event) {
       isRead: false,
     },
     include: {
-      post: {
-        select: {
-          id: true,
-          description: true,
-          createdAt: true,
-        },
-      },
       comment: {
         select: {
-          id: true,
-          content: true,
-          createdAt: true,
           user: {
             select: {
-              id: true,
               username: true,
               avatarUrl: true,
             },
