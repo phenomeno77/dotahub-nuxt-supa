@@ -60,6 +60,7 @@ export const buttons = {
   EDIT_COMMENT: "Edit comment",
   DELETE_COMMENT: "Delete",
   SUBMIT_BAN: "Submit Ban",
+  LOAD_NEW_POSTS: "New posts are available – click to load",
 };
 
 export const errorMessage = {

@@ -17,18 +17,6 @@ async function getNotifications(event: H3Event) {
       userId: currentUser.id,
       isRead: false,
     },
-    include: {
-      comment: {
-        select: {
-          user: {
-            select: {
-              username: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
-    },
     orderBy: {
       createdAt: "desc",
     },

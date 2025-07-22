@@ -71,7 +71,11 @@ model Notifications {
   message   String
   isRead    Boolean       @default(false)
   createdAt DateTime      @default(now())
+
+  username  String?
+  avatarUrl String?
 }
+
 
 model BanHistory {
   id            Int          @id @default(autoincrement())

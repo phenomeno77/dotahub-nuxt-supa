@@ -19,6 +19,7 @@ const selectedPositions = ref<Position[]>([]);
 const createPostDialog = useCreatePostDialog();
 const toast = useToast();
 const postStore = usePostStore();
+const loading = useLoadingStore();
 
 const validateForm = () => {
   errors.value = {};
@@ -48,6 +49,8 @@ const submitPost = async () => {
     createdAt: new Date(),
   };
 
+  loading.startLoading();
+
   try {
     const response = await $fetch("/api/post", {
       method: "POST",
@@ -67,6 +70,8 @@ const submitPost = async () => {
 
     console.error(message);
     notifications(toast, "error", message);
+  } finally {
+    loading.stopLoading();
   }
 };
 

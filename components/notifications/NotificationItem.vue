@@ -22,19 +22,18 @@ const postedAgo = computed(() => dayjs(props.notification.createdAt).fromNow());
 const toast = useToast();
 const postNotification = ref<Post>({});
 const showPostCommentDialog = ref(false);
+const loading = useLoadingStore();
 
-const avatarImage = computed(
-  () => props.notification.comment?.user.avatarUrl ?? undefined
-);
+const avatarImage = computed(() => props.notification.avatarUrl ?? undefined);
 
 const avatarLabel = computed(() =>
-  !props.notification.comment?.user.avatarUrl &&
-  props.notification.comment?.user.username
-    ? props.notification.comment?.user.username.charAt(0).toUpperCase()
+  !props.notification.avatarUrl && props.notification.username
+    ? props.notification.username.charAt(0).toUpperCase()
     : ""
 );
 
 const onOpenNotification = async () => {
+  loading.startLoading();
   try {
     const response = await $fetch<{ success: boolean; post: Post }>(
       `/api/post/${props.notification.postId}`
@@ -53,6 +52,8 @@ const onOpenNotification = async () => {
       "Unexpected error";
 
     notifications(toast, "warn", "Fetch Notifications Failed", message, 3000);
+  } finally {
+    loading.stopLoading();
   }
 };
 </script>
@@ -87,9 +88,9 @@ const onOpenNotification = async () => {
               'fw-bold': !notification.isRead,
               'fw-normal': notification.isRead,
             }"
-            :title="notification.comment?.user.username ?? ''"
+            :title="notification.username ?? ''"
           >
-            {{ notification.comment?.user.username || "Unknown user" }}
+            {{ notification.username || "Unknown user" }}
           </span>
           <span class="notification-type">
             {{ getNotificationLabel(notification.type) }}

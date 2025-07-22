@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, inject } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { usePostStore } from "~/stores/posts";
 import { useLoadingStore } from "~/stores/loading";
@@ -8,12 +8,16 @@ import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
+import { useRealtimePosts } from "~/composables/useRealtimePosts";
+import { buttons } from "~/constants/labels";
 
 const route = useRoute();
 const postStore = usePostStore();
 const loadingStore = useLoadingStore();
 const POSTS_PER_PAGE = 5;
 const scrollerContainerRef = ref<HTMLElement | null>(null);
+const loadNewestPosts = ref(false);
+const { user: currentUser } = useUserSession();
 
 const {
   items: posts,
@@ -43,11 +47,26 @@ watch(
   }
 );
 
+const reloadNewPosts = async () => {
+  loadingStore.startLoading();
+  await fetchInitial();
+  loadingStore.stopLoading();
+  loadNewestPosts.value = false;
+};
+
+let unsubscribe: () => Promise<void>;
+
 onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
     loadingStore.startLoading();
     await fetchInitial();
     loadingStore.stopLoading();
+  }
+
+  if (currentUser.value) {
+    unsubscribe = useRealtimePosts(currentUser.value.id, () => {
+      loadNewestPosts.value = true;
+    });
   }
 
   if (scrollerContainerRef.value) {
@@ -56,6 +75,10 @@ onMounted(async () => {
       canLoadMore: () => posts.value.length < total.value,
     });
   }
+});
+
+onBeforeUnmount(() => {
+  if (unsubscribe) unsubscribe();
 });
 </script>
 
@@ -77,6 +100,20 @@ onMounted(async () => {
             :ban-expiration="banExpiration"
           />
           <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
+
+          <div
+            v-if="loadNewestPosts"
+            class="mb-3 d-flex w-100 justify-content-center"
+          >
+            <Button
+              @click="reloadNewPosts"
+              severity="info"
+              icon="pi pi-refresh"
+              variant="text"
+              :label="buttons.LOAD_NEW_POSTS"
+            />
+          </div>
+
           <!-- Virtual Scroller -->
           <DynamicScroller :items="posts" :min-item-size="300" page-mode>
             <template #default="{ item, index, active }">

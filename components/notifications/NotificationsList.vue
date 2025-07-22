@@ -4,11 +4,13 @@ import type { Notification } from "~/types/Notification";
 import { useToast } from "primevue/usetoast";
 import NotificationItem from "./NotificationItem.vue";
 import NotificationItemSkeleton from "./NotificationItemSkeleton.vue";
+import { useRealtimeNotifications } from "~/composables/useRealtimeNotifications";
 
 const showNotificationsDrawer = ref(false);
 const notificationList = ref<Notification[]>([]);
 const toast = useToast();
 const isLoading = ref(false);
+const { user: currentUser } = useUserSession();
 
 const fetchNotifications = async () => {
   isLoading.value = true;
@@ -122,19 +124,34 @@ const markAllAsRead = async () => {
       }));
     }
   } catch (error) {
-    useToast().add({
-      severity: "error",
-      summary: "Failed to mark all as read",
-      detail: "Please try again later.",
-      life: 3000,
-    });
+    notifications(
+      toast,
+      "error",
+      "Failed to mark all as read",
+      "Please try again later.",
+      3000
+    );
   }
 };
 
 const allRead = computed(() => notificationList.value.every((n) => n.isRead));
 
+let unsubscribe: () => Promise<void>;
+
 onMounted(async () => {
   await fetchNotifications();
+
+  if (currentUser.value) {
+    unsubscribe = useRealtimeNotifications(currentUser.value.id, (notif) => {
+      notificationList.value.unshift(notif);
+    });
+  }
+});
+
+onUnmounted(async () => {
+  if (unsubscribe) {
+    await unsubscribe();
+  }
 });
 </script>
 

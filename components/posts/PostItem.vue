@@ -17,7 +17,6 @@ import { useLoadingStore } from "~/stores/loading";
 dayjs.extend(relativeTime);
 
 const props = defineProps<{ post: Post }>();
-const MAX_POST_LENGTH = 600;
 const { loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const toast = useToast();

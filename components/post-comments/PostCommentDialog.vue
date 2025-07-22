@@ -24,6 +24,7 @@ const comment = ref("");
 const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
 const authStore = useAuthStore();
+const addingComment = ref(false);
 
 const {
   items: comments,
@@ -76,6 +77,7 @@ const addComment = async () => {
   if (!comment.value || !comment.value.trim()) {
     return;
   }
+  addingComment.value = true;
 
   try {
     const response = await $fetch("/api/comment", {
@@ -102,6 +104,8 @@ const addComment = async () => {
     console.error(
       error.message || "An error occurred while submitting the comment."
     );
+  } finally {
+    addingComment.value = false;
   }
 };
 
@@ -169,6 +173,7 @@ onMounted(async () => {
         :postUserId="props.post.user?.id ?? ''"
         :isLoadingInit="isLoadingInit"
         :isLoadingMore="isLoadingMore"
+        v-model:addingComment="addingComment"
         :skeletonCount="total || COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"
       />
@@ -219,7 +224,7 @@ onMounted(async () => {
               showDelay: 500,
               hideDelay: 300,
             }"
-            @click="addComment"
+            @click="addComment()"
           />
         </div>
       </div>

@@ -17,4 +17,7 @@ export interface Notification {
   message: string;
   isRead: boolean;
   createdAt: Date;
+
+  username?: string;
+  avatarUrl?: string;
 }

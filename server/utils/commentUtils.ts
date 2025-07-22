@@ -71,6 +71,8 @@ async function addComment(event: H3Event, comment: string, postId: number) {
         commentId: newComment.id,
         type: NotificationType.comment_on_post,
         message: newComment.content,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
       },
     });
   }

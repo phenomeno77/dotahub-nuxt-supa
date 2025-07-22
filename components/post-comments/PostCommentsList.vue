@@ -17,6 +17,10 @@ const props = withDefaults(
 );
 
 const emits = defineEmits(["comment-deleted"]);
+const addingComment = defineModel("addingComment", {
+  type: Boolean,
+  default: false,
+});
 
 const skeletonCount = computed(() => {
   if (props.comments.length && props.skeletonCount) {
@@ -28,7 +32,12 @@ const skeletonCount = computed(() => {
 </script>
 
 <template>
-  <div class="pb-2" v-for="comment in comments" :key="comment.id">
+  <div
+    class="pb-2"
+    v-for="comment in comments"
+    :key="comment.id"
+    v-if="!addingComment"
+  >
     <PostCommentItem
       :comment="comment"
       :postUserId="props.postUserId"
@@ -37,7 +46,7 @@ const skeletonCount = computed(() => {
   </div>
 
   <CommentSkeleton
-    v-if="props.isLoadingInit || props.isLoadingMore"
+    v-if="props.isLoadingInit || props.isLoadingMore || addingComment"
     v-for="n in skeletonCount"
     :key="'skeleton-' + n"
     class="mb-3"

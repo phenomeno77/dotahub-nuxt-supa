@@ -45,7 +45,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     try {
       const res = await $fetch<PaginatedResponse>(url, {
         query: {
-          limit: total.value - limit,
+          limit: limit,
           skip: items.value.length,
         },
       });

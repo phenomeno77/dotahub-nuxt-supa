@@ -91,6 +91,15 @@ const actionButtons = computed(() => ({
     class: "custom-action-button",
   },
 }));
+
+onMounted(async () => {
+  const { user, loggedIn } = useUserSession();
+  if (!user.value && !loggedIn) {
+    if (avatarImage.value || avatarLabel.value) {
+      await handleLogout();
+    }
+  }
+});
 </script>
 
 <template>
