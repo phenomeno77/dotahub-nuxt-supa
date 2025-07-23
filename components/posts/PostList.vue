@@ -3,12 +3,13 @@ import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { usePostStore } from "~/stores/posts";
 import { useLoadingStore } from "~/stores/loading";
-import type { Post } from "~/types/Post";
+import type { Comment, Post } from "~/types/Post";
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import { useRealtimePosts } from "~/composables/useRealtimePosts";
+import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 import { buttons } from "~/constants/labels";
 
 const route = useRoute();
@@ -54,7 +55,7 @@ const reloadNewPosts = async () => {
   loadNewestPosts.value = false;
 };
 
-let unsubscribe: () => Promise<void>;
+let unsubscribePosts: () => Promise<void>;
 
 onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
@@ -64,7 +65,7 @@ onMounted(async () => {
   }
 
   if (currentUser.value) {
-    unsubscribe = useRealtimePosts(currentUser.value.id, () => {
+    unsubscribePosts = useRealtimePosts(currentUser.value.id, () => {
       loadNewestPosts.value = true;
     });
   }
@@ -77,8 +78,10 @@ onMounted(async () => {
   }
 });
 
-onBeforeUnmount(() => {
-  if (unsubscribe) unsubscribe();
+onBeforeUnmount(async () => {
+  if (unsubscribePosts) {
+    await unsubscribePosts();
+  }
 });
 </script>
 

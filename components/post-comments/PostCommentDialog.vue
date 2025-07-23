@@ -6,20 +6,17 @@ import PostItemCommentDialog from "./PostItemCommentDialog.vue";
 import { useToast } from "primevue/usetoast";
 import notifications from "~/utils/notifications";
 import { useAuthStore } from "~/stores/auth";
+import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 
 const props = defineProps<{ post: Post }>();
-const emits = defineEmits([
-  "comment-added",
-  "comment-deleted",
-  "update-post-count",
-]);
+const emits = defineEmits(["comment-deleted"]);
 
 const showPostCommentDialog = defineModel("showPostCommentDialog", {
   type: Boolean,
   default: false,
 });
 const toast = useToast();
-const { loggedIn } = useUserSession();
+const { user: currentUser, loggedIn } = useUserSession();
 const comment = ref("");
 const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
@@ -89,7 +86,6 @@ const addComment = async () => {
     });
 
     if (response.success) {
-      emits("comment-added");
       const newComment = {
         ...response.data,
         createdAt: new Date(response.data.createdAt),
@@ -119,25 +115,51 @@ const dialogStyle = computed(() => ({
   margin: "0px",
 }));
 
-onMounted(async () => {
-  await fetchInitial();
-  emits("update-post-count", total.value);
+let unsubscribeComments: () => Promise<void>;
 
-  if (dialogContentRef.value) {
-    useInfiniteScroll(
-      dialogContentRef,
-      async () => {
-        if (comments.value.length < total.value) {
-          await fetchMore();
+onMounted(async () => {
+  try {
+    await fetchInitial();
+
+    // Ensure DOM is ready before attaching scroll
+    await nextTick();
+
+    if (dialogContentRef.value) {
+      useInfiniteScroll(
+        dialogContentRef,
+        async () => {
+          if (comments.value.length < total.value) {
+            await fetchMore();
+          }
+        },
+        {
+          distance: 20,
+          canLoadMore: () => comments.value.length < total.value,
         }
-      },
-      {
-        distance: 20,
-        canLoadMore: () => comments.value.length < total.value,
-      }
-    );
+      );
+    }
+
+    // if (currentUser.value) {
+    //   unsubscribeComments = useRealtimePostComments((comment) => {
+    //     console.log(comment.userId, currentUser.value.id);
+
+    //     if (
+    //       comment.userId !== currentUser.value?.id &&
+    //       showPostCommentDialog.value
+    //     ) {
+    //       console.log("New comment (from another user):", comment);
+    //       // Optionally: comments.value.push(comment)
+    //     }
+    //   });
+    // }
+  } catch (err) {
+    console.error("Error in onMounted:", err);
   }
 });
+
+// onUnmounted(() => {
+//   if (unsubscribeComments) unsubscribeComments();
+// });
 </script>
 
 <template>

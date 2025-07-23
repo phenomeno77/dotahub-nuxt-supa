@@ -13,11 +13,14 @@ import UpdatePost from "./UpdatePost.vue";
 import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
 import { autoLinkText } from "~/composables/useAutoLink";
 import { useLoadingStore } from "~/stores/loading";
+import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 
 dayjs.extend(relativeTime);
 
 const props = defineProps<{ post: Post }>();
-const { loggedIn } = useUserSession();
+const emits = defineEmits(["comment-added"]);
+
+const { user: currentUser, loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const toast = useToast();
 const confirm = useConfirm();
@@ -158,14 +161,6 @@ function commentDeleted() {
   postCommentCount.value--;
 }
 
-function commentAdded() {
-  postCommentCount.value++;
-}
-
-function updatePostCount(postCount: number) {
-  postCommentCount.value = postCount;
-}
-
 const safeDescription = computed(() => {
   const desc = localPost.value.description ?? "";
   const maxLength = fixed_values.MAX_POST_PREVIEW_LENGTH;
@@ -183,8 +178,22 @@ const safeDescription = computed(() => {
   return autoLinkText(truncated);
 });
 
+let unsubscribeComments: () => Promise<void>;
+
 onMounted(() => {
   postCommentCount.value = localPost.value.commentCount || 0;
+
+  if (currentUser.value && postCommentCount.value) {
+    unsubscribeComments = useRealtimePostComments(() => {
+      postCommentCount.value++;
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  if (unsubscribeComments) {
+    unsubscribeComments();
+  }
 });
 </script>
 
@@ -338,9 +347,7 @@ onMounted(() => {
     <PostCommentDialog
       v-if="showPostCommentDialog"
       v-model:showPostCommentDialog="showPostCommentDialog"
-      @comment-added="commentAdded"
       @comment-deleted="commentDeleted"
-      @update-post-count="updatePostCount"
       :post="localPost"
     />
   </div>
