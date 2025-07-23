@@ -41,7 +41,7 @@ const showPostCommentDialog = ref(false);
 const expandedPosts = ref<number[]>([]);
 const menu = ref();
 const isEditPost = ref(false);
-const postCommentCount = ref<number>(0);
+const postCommentCount = ref<number>(props.post.commentCount ?? 0);
 const localPost = ref<Post>({ ...props.post });
 
 const positionLabels: Record<string, string> = {
@@ -161,6 +161,14 @@ function commentDeleted() {
   postCommentCount.value--;
 }
 
+function incrementCommentCount() {
+  postCommentCount.value++;
+}
+
+function updateCommentCount(newCount: number) {
+  postCommentCount.value = newCount;
+}
+
 const safeDescription = computed(() => {
   const desc = localPost.value.description ?? "";
   const maxLength = fixed_values.MAX_POST_PREVIEW_LENGTH;
@@ -176,24 +184,6 @@ const safeDescription = computed(() => {
   }
 
   return autoLinkText(truncated);
-});
-
-let unsubscribeComments: () => Promise<void>;
-
-onMounted(() => {
-  postCommentCount.value = localPost.value.commentCount || 0;
-
-  if (currentUser.value && postCommentCount.value) {
-    unsubscribeComments = useRealtimePostComments(() => {
-      postCommentCount.value++;
-    });
-  }
-});
-
-onBeforeUnmount(() => {
-  if (unsubscribeComments) {
-    unsubscribeComments();
-  }
 });
 </script>
 
@@ -348,6 +338,8 @@ onBeforeUnmount(() => {
       v-if="showPostCommentDialog"
       v-model:showPostCommentDialog="showPostCommentDialog"
       @comment-deleted="commentDeleted"
+      @increment-comment-count="incrementCommentCount"
+      @update-comment-count="updateCommentCount"
       :post="localPost"
     />
   </div>

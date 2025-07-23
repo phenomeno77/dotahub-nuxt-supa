@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Post, Comment } from "~/types/Post";
-import { labels, fixed_values } from "~/constants/labels";
+import { labels, fixed_values, buttons } from "~/constants/labels";
 import PostCommentsList from "./PostCommentsList.vue";
 import PostItemCommentDialog from "./PostItemCommentDialog.vue";
 import { useToast } from "primevue/usetoast";
@@ -9,7 +9,11 @@ import { useAuthStore } from "~/stores/auth";
 import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 
 const props = defineProps<{ post: Post }>();
-const emits = defineEmits(["comment-deleted"]);
+const emits = defineEmits([
+  "comment-deleted",
+  "increment-comment-count",
+  "update-comment-count",
+]);
 
 const showPostCommentDialog = defineModel("showPostCommentDialog", {
   type: Boolean,
@@ -22,6 +26,7 @@ const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
 const authStore = useAuthStore();
 const addingComment = ref(false);
+const loadNewestComments = ref(false);
 
 const {
   items: comments,
@@ -105,6 +110,11 @@ const addComment = async () => {
   }
 };
 
+const reloadNewComments = async () => {
+  await fetchInitial();
+  loadNewestComments.value = false;
+};
+
 const dialogStyle = computed(() => ({
   width: "90vw",
   maxWidth: "960px",
@@ -120,7 +130,7 @@ let unsubscribeComments: () => Promise<void>;
 onMounted(async () => {
   try {
     await fetchInitial();
-
+    emits("update-comment-count", total.value);
     // Ensure DOM is ready before attaching scroll
     await nextTick();
 
@@ -139,27 +149,28 @@ onMounted(async () => {
       );
     }
 
-    // if (currentUser.value) {
-    //   unsubscribeComments = useRealtimePostComments((comment) => {
-    //     console.log(comment.userId, currentUser.value.id);
-
-    //     if (
-    //       comment.userId !== currentUser.value?.id &&
-    //       showPostCommentDialog.value
-    //     ) {
-    //       console.log("New comment (from another user):", comment);
-    //       // Optionally: comments.value.push(comment)
-    //     }
-    //   });
-    // }
+    if (currentUser.value) {
+      unsubscribeComments = useRealtimePostComments((comment) => {
+        if (showPostCommentDialog.value) {
+          emits("increment-comment-count");
+        }
+        if (
+          comment.userId !== currentUser.value?.id &&
+          showPostCommentDialog.value
+        ) {
+          loadNewestComments.value = true;
+          emits("increment-comment-count");
+        }
+      });
+    }
   } catch (err) {
     console.error("Error in onMounted:", err);
   }
 });
 
-// onUnmounted(() => {
-//   if (unsubscribeComments) unsubscribeComments();
-// });
+onUnmounted(() => {
+  if (unsubscribeComments) unsubscribeComments();
+});
 </script>
 
 <template>
@@ -189,6 +200,19 @@ onMounted(async () => {
     >
       <PostItemCommentDialog :post="props.post" />
 
+      <div
+        v-if="loadNewestComments"
+        class="mb-3 d-flex w-100 justify-content-center"
+      >
+        <Button
+          @click="reloadNewComments"
+          severity="info"
+          icon="pi pi-refresh"
+          variant="text"
+          :label="buttons.LOAD_NEW_COMMENTS"
+        />
+      </div>
+
       <PostCommentsList
         v-if="props.post.id !== undefined"
         :comments="comments"
@@ -196,7 +220,7 @@ onMounted(async () => {
         :isLoadingInit="isLoadingInit"
         :isLoadingMore="isLoadingMore"
         v-model:addingComment="addingComment"
-        :skeletonCount="total || COMMENTS_PER_PAGE"
+        :skeletonCount="COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"
       />
     </div>

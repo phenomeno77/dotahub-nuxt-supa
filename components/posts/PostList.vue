@@ -3,13 +3,12 @@ import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { usePostStore } from "~/stores/posts";
 import { useLoadingStore } from "~/stores/loading";
-import type { Comment, Post } from "~/types/Post";
+import type { Post } from "~/types/Post";
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import { useRealtimePosts } from "~/composables/useRealtimePosts";
-import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 import { buttons } from "~/constants/labels";
 
 const route = useRoute();

@@ -21,14 +21,6 @@ const addingComment = defineModel("addingComment", {
   type: Boolean,
   default: false,
 });
-
-const skeletonCount = computed(() => {
-  if (props.comments.length && props.skeletonCount) {
-    return props.skeletonCount - props.comments.length;
-  }
-
-  return props.skeletonCount;
-});
 </script>
 
 <template>
@@ -47,7 +39,7 @@ const skeletonCount = computed(() => {
 
   <CommentSkeleton
     v-if="props.isLoadingInit || props.isLoadingMore || addingComment"
-    v-for="n in skeletonCount"
+    v-for="n in props.skeletonCount"
     :key="'skeleton-' + n"
     class="mb-3"
   />
