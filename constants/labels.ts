@@ -3,6 +3,8 @@ export const fixed_values = {
   COMMENT_MAX_TEXT_LENGTH: 250,
   MAX_POST_PREVIEW_LENGTH: 300,
   MAX_NOTIFICATION_PREVIEW_LENGTH: 50,
+  POSTS_PER_PAGE: 10,
+  COMMENTS_PER_PAGE: 10,
 };
 
 export const labels = {
@@ -85,4 +87,6 @@ export const errorMessage = {
   RANK_SELECTION: "Min and Max Rank are required.",
   POSITIONS_SELECTION: "At least one position is required.",
   BAN_REASON_REQUIRED: "Ban reason is required.",
+  UNAUTHORIZED: "Unauthorized access",
+  INVALID_ROLE: "Invalid role provided",
 };

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
+import { ErrorMessages } from "~/server/constants/labels";
 import { UserRole } from "~/types/enums";
-import { ErrorMessages } from "~/server/constants/errors";
 
 const authStore = useAuthStore();
 

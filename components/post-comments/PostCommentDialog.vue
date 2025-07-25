@@ -22,7 +22,6 @@ const showPostCommentDialog = defineModel("showPostCommentDialog", {
 const toast = useToast();
 const { user: currentUser, loggedIn } = useUserSession();
 const comment = ref("");
-const COMMENTS_PER_PAGE = 5;
 const dialogContentRef = ref<HTMLElement | null>(null);
 const authStore = useAuthStore();
 const addingComment = ref(false);
@@ -37,7 +36,7 @@ const {
   fetchMore,
 } = usePaginatedFetch<Comment>(
   `/api/comment?postId=${props.post.id}`,
-  COMMENTS_PER_PAGE
+  fixed_values.COMMENTS_PER_PAGE
 );
 
 const avatarLabel = computed(() =>
@@ -220,7 +219,7 @@ onUnmounted(() => {
         :isLoadingInit="isLoadingInit"
         :isLoadingMore="isLoadingMore"
         v-model:addingComment="addingComment"
-        :skeletonCount="COMMENTS_PER_PAGE"
+        :skeletonCount="fixed_values.COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"
       />
     </div>

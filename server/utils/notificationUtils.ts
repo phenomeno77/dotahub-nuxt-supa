@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
-import { ErrorMessages } from "../constants/errors";
+import { ErrorMessages } from "../constants/labels";
 
 async function getNotifications(event: H3Event) {
   const { user: currentUser } = await getUserSession(event);

@@ -78,6 +78,12 @@ a:hover {
   color: var(--text-primary);
 }
 
+a.username:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
 .postedAgo {
   font-weight: 300;
   color: var(--text-primary);

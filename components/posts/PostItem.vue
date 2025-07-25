@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import type { Post } from "~/types/Post";
 import dayjs from "dayjs";
@@ -13,7 +13,6 @@ import UpdatePost from "./UpdatePost.vue";
 import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
 import { autoLinkText } from "~/composables/useAutoLink";
 import { useLoadingStore } from "~/stores/loading";
-import { useRealtimePostComments } from "~/composables/useRealtimePostComments";
 
 dayjs.extend(relativeTime);
 
@@ -198,7 +197,7 @@ const safeDescription = computed(() => {
           :image="avatarImage"
           :label="avatarLabel"
           class="me-2 flex-shrink-0"
-          size="xlarge"
+          size="large"
           shape="circle"
         />
         <div
@@ -206,21 +205,39 @@ const safeDescription = computed(() => {
           class="d-flex flex-column overflow-hidden"
         >
           <p
-            class="mb-0 fw-bold username d-flex align-items-center"
+            class="mb-0 fw-bold d-flex align-items-center"
             :title="localPost.user?.username"
           >
-            <span
-              class="text-truncate"
-              style="
-                max-width: 400px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              {{ localPost.user?.username }}
-            </span>
+            <template v-if="loggedIn">
+              <a
+                :href="`/profile/${localPost.user?.id}`"
+                class="text-truncate username"
+                style="
+                  max-width: 400px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+              >
+                {{ localPost.user?.username }}
+              </a>
+            </template>
+
+            <template v-else>
+              <span
+                class="text-truncate"
+                style="
+                  max-width: 400px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+              >
+                {{ localPost.user?.username }}
+              </span>
+            </template>
           </p>
+
           <small class="postedAgo">Posted {{ postedAgo }}</small>
         </div>
       </div>

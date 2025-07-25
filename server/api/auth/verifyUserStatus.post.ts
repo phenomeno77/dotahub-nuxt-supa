@@ -1,4 +1,4 @@
-import { ErrorMessages } from "~/server/constants/errors";
+import { ErrorMessages } from "~/server/constants/labels";
 
 export default defineEventHandler(async (event) => {
   const verifyStatus = await auth.verifyCurrentUserStatus(event);

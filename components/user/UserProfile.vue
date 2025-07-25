@@ -1,23 +1,30 @@
-<!-- components/user/UserPostFeed.vue -->
-<script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
+<script lang="ts" setup>
+import { type UserProfile } from "~/types/UserProfile";
+import { useToast } from "primevue/usetoast";
+import { onMounted, ref, computed, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useLoadingStore } from "~/stores/loading";
 import { usePostStore } from "~/stores/posts";
+import { fixed_values } from "~/constants/labels";
+import { usePaginatedFetch } from "~/composables/usePaginatedFetch";
 import type { Post } from "~/types/Post";
+
+// Components
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import PostItem from "~/components/posts/PostItem.vue";
+import UserProfileHeader from "./UserProfileHeader.vue";
 
-const props = defineProps<{
-  userId: string;
-}>();
+const props = defineProps<{ userId: string }>();
 
+const toast = useToast();
+const route = useRoute();
 const loadingStore = useLoadingStore();
 const postStore = usePostStore();
-const POSTS_PER_PAGE = 20;
+
 const scrollerContainerRef = ref<HTMLElement | null>(null);
+const user = ref<UserProfile>();
 
 const {
   items: posts,
@@ -26,10 +33,11 @@ const {
   isLoadingMore,
   fetchInitial,
   fetchMore,
-} = usePaginatedFetch<Post>(`/api/post/user/${props.userId}`, POSTS_PER_PAGE);
+} = usePaginatedFetch<Post>(
+  `/api/post/user/${props.userId}`,
+  fixed_values.POSTS_PER_PAGE
+);
 
-// Computed for error flags & query info
-const route = useRoute();
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
   () => route.query.error === "steam_login_failed"
@@ -37,7 +45,26 @@ const steamLoginFailed = computed(
 const banReason = computed(() => route.query.banReason || "");
 const banExpiration = computed(() => route.query.banExpiration || "");
 
-// Refresh on flag change
+const fetchUser = async () => {
+  try {
+    const res = await $fetch<{ success: boolean; user: UserProfile }>(
+      `/api/user/${props.userId}`
+    );
+    if (res.success) {
+      user.value = res.user;
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Loading User Failed", message, 3000);
+  }
+};
+
+// Refresh on external trigger
 watch(
   () => postStore.shouldRefreshPosts,
   async (shouldRefresh) => {
@@ -50,12 +77,16 @@ watch(
   }
 );
 
+// Initial load
 onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
     loadingStore.startLoading();
+    await fetchUser();
     await fetchInitial();
     loadingStore.stopLoading();
   }
+
+  await nextTick();
 
   if (scrollerContainerRef.value) {
     useInfiniteScroll(scrollerContainerRef, fetchMore, {
@@ -67,7 +98,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!-- Alerts on top -->
+  <!-- Alerts -->
   <div class="position-absolute top-0 start-0 end-0 z-3">
     <BannedAlert
       v-if="isBanned"
@@ -77,17 +108,19 @@ onMounted(async () => {
     <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
   </div>
 
-  <!-- Scrollable area -->
+  <!-- Scrollable content: header + posts -->
   <div
     ref="scrollerContainerRef"
     class="position-absolute start-0 end-0 overflow-auto"
     style="top: 80px; bottom: 40px"
   >
     <div class="container-fluid py-4">
+      <!-- Post Feed -->
       <div class="row justify-content-center">
-        <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
-          <!-- Virtual Scroller -->
+          <!-- User Header -->
+          <UserProfileHeader v-if="user" :user="user" />
+
           <DynamicScroller :items="posts" :min-item-size="300" page-mode>
             <template #default="{ item, index, active }">
               <DynamicScrollerItem
@@ -106,18 +139,18 @@ onMounted(async () => {
             </template>
           </DynamicScroller>
 
-          <!-- Inline Skeletons directly below posts -->
+          <!-- Skeletons -->
           <div v-if="isLoadingInit || isLoadingMore">
             <div
               class="mb-3"
-              v-for="n in POSTS_PER_PAGE"
+              v-for="n in fixed_values.POSTS_PER_PAGE"
               :key="'skeleton-' + n"
             >
               <PostSkeleton />
             </div>
           </div>
 
-          <!-- End-of-list message -->
+          <!-- End of list -->
           <div
             v-if="posts.length > 0 && posts.length >= total && !isBanned"
             class="no-more-posts text-center mt-4"
@@ -131,12 +164,8 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.no-more-posts {
-  text-align: center;
-  color: #888;
-  margin: 2rem 0;
-  font-style: italic;
-  font-size: 0.95rem;
-  opacity: 0.8;
+.user-header {
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 </style>

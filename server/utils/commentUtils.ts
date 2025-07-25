@@ -1,7 +1,7 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { NotificationType, UserRole, UserStatus } from "@prisma/client";
-import { ErrorMessages, fixed_values } from "../constants/errors";
+import { ErrorMessages, fixed_values } from "../constants/labels";
 
 async function addComment(event: H3Event, comment: string, postId: number) {
   const { user: currentUser } = await getUserSession(event);

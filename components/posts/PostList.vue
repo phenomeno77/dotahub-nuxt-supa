@@ -9,12 +9,11 @@ import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue
 import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import { useRealtimePosts } from "~/composables/useRealtimePosts";
-import { buttons } from "~/constants/labels";
+import { buttons, fixed_values } from "~/constants/labels";
 
 const route = useRoute();
 const postStore = usePostStore();
 const loadingStore = useLoadingStore();
-const POSTS_PER_PAGE = 5;
 const scrollerContainerRef = ref<HTMLElement | null>(null);
 const loadNewestPosts = ref(false);
 const { user: currentUser } = useUserSession();
@@ -26,7 +25,7 @@ const {
   isLoadingMore,
   fetchInitial,
   fetchMore,
-} = usePaginatedFetch<Post>("/api/post", POSTS_PER_PAGE);
+} = usePaginatedFetch<Post>("/api/post", fixed_values.POSTS_PER_PAGE);
 
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
@@ -139,7 +138,7 @@ onBeforeUnmount(async () => {
           <div v-if="isLoadingInit || isLoadingMore">
             <div
               class="mb-3"
-              v-for="n in POSTS_PER_PAGE"
+              v-for="n in fixed_values.POSTS_PER_PAGE"
               :key="'skeleton-' + n"
             >
               <PostSkeleton />

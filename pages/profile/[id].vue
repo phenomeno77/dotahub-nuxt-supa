@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import UserPostFeed from "~/components/user/UserPostFeed.vue";
+import UserProfile from "~/components/user/UserProfile.vue";
 
 definePageMeta({
   middleware: "auth-logged-in-user",
@@ -11,5 +11,5 @@ const userId = route.params.id as string;
 </script>
 
 <template>
-  <UserPostFeed :user-id="userId" />
+  <UserProfile :userId="userId" />
 </template>

@@ -1,7 +1,7 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { UserStatus, Rank, UserRole, Position } from "@prisma/client";
-import { ErrorMessages, fixed_values } from "../constants/errors";
+import { ErrorMessages, fixed_values } from "../constants/labels";
 
 async function createPost(
   event: H3Event,
