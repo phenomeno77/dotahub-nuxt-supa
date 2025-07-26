@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { labels } from "~/constants/labels";
 
 const props = defineProps<{ post: Post }>();
-
+const { loggedIn } = useUserSession();
 const expandedPosts = ref<number[]>([]);
 const avatarImage = computed(() => props.post.user?.avatarUrl || undefined);
 const avatarLabel = computed(() =>
@@ -55,102 +55,123 @@ function togglePostExpand(id: number) {
 </script>
 
 <template>
-  <div class="post-item mb-4 px-3 pt-3">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3 w-100">
-      <div class="d-flex align-items-center overflow-hidden">
-        <Avatar
-          :image="avatarImage"
-          :label="avatarLabel"
-          class="me-2 flex-shrink-0"
-          size="xlarge"
-          shape="circle"
-        />
-        <div
-          style="max-width: 400px"
-          class="d-flex flex-column overflow-hidden"
-        >
-          <p
-            class="mb-0 fw-bold username d-flex align-items-center"
-            :title="props.post.user?.username"
-          >
-            <span
-              class="text-truncate"
-              style="
-                max-width: 400px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-            >
-              {{ props.post.user?.username }}
-            </span>
-          </p>
-          <small class="postedAgo">Posted {{ postedAgo }}</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- Description -->
-    <div>
-      <div
-        :class="[
-              'post-description-wrapper',
-              { 'expandable-description': isPostExpanded(props.post.id as number) }
-            ]"
+  <Card
+    style="
+      width: 100%;
+      overflow: hidden;
+      background-color: var(--bg-post);
+      margin-bottom: 50px;
+      flex-shrink: 0;
+    "
+    :pt="{
+      body: {
+        style: { padding: '10px' },
+      },
+      title: {
+        style: { fontWeight: '600', fontSize: '18px' },
+      },
+    }"
+  >
+    <template #header v-if="false">
+      <img
+        alt="user header"
+        src="https://primefaces.org/cdn/primevue/images/usercard.png"
+      />
+    </template>
+    <template #title
+      ><div
+        class="d-flex justify-content-between align-items-center mb-3 w-100"
       >
+        <div class="d-flex align-items-center overflow-hidden">
+          <Avatar
+            :image="avatarImage"
+            :label="avatarLabel"
+            class="me-2 flex-shrink-0"
+            size="large"
+            shape="circle"
+          />
+          <div
+            style="max-width: 400px"
+            class="d-flex flex-column overflow-hidden"
+          >
+            <p
+              class="mb-0 fw-bold d-flex align-items-center"
+              :title="props.post.user?.username"
+            >
+              <template v-if="loggedIn">
+                <a
+                  :href="`/profile/${props.post.user?.id}`"
+                  class="text-truncate username"
+                  style="
+                    max-width: 400px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  "
+                >
+                  {{ props.post.user?.username }}
+                </a>
+              </template>
+
+              <template v-else>
+                <span
+                  class="text-truncate"
+                  style="
+                    max-width: 400px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  "
+                >
+                  {{ props.post.user?.username }}
+                </span>
+              </template>
+            </p>
+
+            <small class="postedAgo">Posted {{ postedAgo }}</small>
+          </div>
+        </div>
+      </div></template
+    >
+
+    <template #content>
+      <!-- Description -->
+      <div class="post-description-wrapper pb-2">
         <p class="post-description">
-          {{
-            isPostExpanded(props.post.id as number)
-              ? props.post.description ?? ""
-              : props.post.description ?? ""
-          }}
+          {{ props.post.description }}
         </p>
       </div>
 
-      <div class="d-flex justify-content-end">
-        <Button
-          v-if="
-            (props.post.description?.length ?? 0) > 255 &&
-            props.post.id !== undefined
-          "
-          variant="link"
-          @click="togglePostExpand(props.post.id as number)"
+      <!-- Rank Row -->
+      <div class="pb-2">
+        <div
+          class="rank-box d-flex align-items-start align-items-center p-2 gap-1"
         >
-          {{
-            isPostExpanded(props.post.id as number) ? "Show Less" : "Show More"
-          }}
-        </Button>
+          <i class="pi pi-star-fill" style="color: silver" />
+          <span class="rank-text">{{ props.post.minRank }}</span>
+          <span class="mx-1">to</span>
+          <span class="rank-text">{{ props.post.maxRank }}</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Rank Row -->
-    <div class="pb-2">
-      <div class="rank-box d-flex align-items-center p-2 gap-1">
-        <i class="pi pi-star-fill" style="color: silver" />
-        <span class="rank-text">{{ props.post.minRank }}</span>
-        <span class="mx-1">to</span>
-        <span class="rank-text">{{ props.post.maxRank }}</span>
-      </div>
-    </div>
-
-    <!-- Positions Row -->
-    <div class="pb-2">
-      <div class="position-box">
-        <p class="mb-2 fw-bold text-white">{{ labels.LOOKING_FOR }}</p>
-        <div class="d-flex flex-wrap gap-2">
-          <div
-            v-for="position in props.post.positionsNeeded"
-            :key="position"
-            class="position-pill"
-          >
-            <i :class="getPositionIcon(position)" class="me-1" />
-            {{ positionLabels[position] }}
+      <!-- Positions Row -->
+      <div class="pb-2">
+        <div class="position-box">
+          <p class="mb-2 fw-bold text-white">{{ labels.LOOKING_FOR }}</p>
+          <div class="d-flex flex-wrap gap-2">
+            <div
+              v-for="position in props.post.positionsNeeded"
+              :key="position"
+              class="position-pill"
+            >
+              <i :class="getPositionIcon(position)" class="me-1" />
+              {{ positionLabels[position] }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <style></style>

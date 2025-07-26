@@ -75,7 +75,7 @@ a:hover {
 
 .username {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 a.username:hover {
@@ -85,17 +85,18 @@ a.username:hover {
 
 
 .postedAgo {
-  font-weight: 300;
-  color: var(--text-primary);
+  font-weight: 300 !important;
+  font-size: 14px !important;
+  color: var(--text-color);
 }
 
 .show-comments {
   font-weight: 300;
-  color: var(--text-primary);
+  color: var(--text-color);
 }
 
 .post-description {
-  color: var(--text-primary);
+  color: var(--text-color);
   white-space: pre-line;
   line-height: 1.6;
   margin-bottom: 0;
@@ -124,7 +125,7 @@ a.username:hover {
 
 .rank-box {
   background-color: var(--bg-rank-box);
-  color: var(--text-primary);
+  color: var(--text-color);
   border-radius: 8px;
   font-weight: 500;
 }

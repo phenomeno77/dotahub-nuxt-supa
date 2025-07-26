@@ -19,7 +19,7 @@ dayjs.extend(relativeTime);
 const props = defineProps<{ post: Post }>();
 const emits = defineEmits(["comment-added"]);
 
-const { loggedIn } = useUserSession();
+const { user: currentUser, loggedIn } = useUserSession();
 const authStore = useAuthStore();
 const toast = useToast();
 const confirm = useConfirm();

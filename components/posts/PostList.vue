@@ -116,7 +116,7 @@ onBeforeUnmount(async () => {
           </div>
 
           <!-- Virtual Scroller -->
-          <DynamicScroller :items="posts" :min-item-size="300" page-mode>
+          <DynamicScroller :items="posts" :min-item-size="430" page-mode>
             <template #default="{ item, index, active }">
               <DynamicScrollerItem
                 class="d-flex flex-column gap-5"
