@@ -16,6 +16,11 @@ const durations = [
   { label: "Permanent", value: "perm" },
 ];
 
+const onHide = () => {
+  banReason.value = "";
+  banDuration.value = "";
+};
+
 const validateForm = () => {
   errors.value = {};
 
@@ -55,6 +60,7 @@ const submitForm = () => {
     :style="{ width: '40%' }"
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
     :contentStyle="{ height: '100%' }"
+    @hide="onHide"
   >
     <div class="mb-3 w-100 d-flex flex-column p-2">
       <FloatLabel variant="on">

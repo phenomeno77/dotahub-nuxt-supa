@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      user,
+      user: user.user,
     };
   } catch (err: any) {
     return sendError(

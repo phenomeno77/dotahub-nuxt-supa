@@ -9,29 +9,20 @@ import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
 import type { UserProfile } from "~/types/UserProfile";
 
-const props = defineProps({
-  users: {
-    type: Array as PropType<UserProfile[]>,
-    required: true,
-    default: () => [],
-  },
-  roles: {
-    type: Array<string>,
-    required: true,
-    default: () => [],
-  },
-  statuses: {
-    type: Array<string>,
-    required: true,
-    default: () => [],
-  },
-  loading: {
-    type: Boolean,
-    required: true,
-  },
-});
-
-const emit = defineEmits(["update-user", "update-table"]);
+const users = ref<UserProfile[]>([]);
+const loadingUsers = ref(true);
+const toast = useToast();
+const roles = Object.values(UserRole);
+const statuses = Object.values(UserStatus);
+const loadingStore = useLoadingStore();
+const ONLINE_THRESHOLD_MINUTES = 5;
+const authStore = useAuthStore();
+const loggedOrNot = ref([true, false]);
+const editingRows = ref([]);
+const showAddUserDialog = ref(false);
+const showBanUserDialog = ref(false);
+const banData = ref<{ banReason: string; banDuration: string } | null>(null);
+const userStatus = ref("");
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -46,18 +37,8 @@ const globalFilterFields = ref(
   Object.keys(filters.value).filter((key) => key !== "global")
 );
 
-const ONLINE_THRESHOLD_MINUTES = 5;
-const authStore = useAuthStore();
-const loggedOrNot = ref([true, false]);
-const editingRows = ref([]);
-const toast = useToast();
-const showAddUserDialog = ref(false);
-const showBanUserDialog = ref(false);
-const banData = ref<{ banReason: string; banDuration: string } | null>(null);
-const userStatus = ref("");
-
 const filteredUsersNoCurrentUser = computed(() => {
-  return props.users.filter((user) => user.id !== String(authStore.userId));
+  return users.value.filter((user) => user.id !== String(authStore.userId));
 });
 
 const getSeverityStatus = (status: string) => {
@@ -70,6 +51,66 @@ const getSeverityStatus = (status: string) => {
       return "danger";
     default:
       return "contrast";
+  }
+};
+
+const fetchUsers = async () => {
+  loadingStore.startLoading();
+  try {
+    const response = await $fetch<UserProfile[]>("/api/auth/admin", {
+      method: "GET",
+    });
+    users.value = response;
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Fetching Users Failed", message, 3000);
+
+    loadingUsers.value = false;
+  } finally {
+    loadingStore.stopLoading();
+  }
+};
+
+const updateUser = async (newData: UpdateUser) => {
+  loadingStore.startLoading();
+
+  try {
+    const response = await $fetch<{
+      success: boolean;
+      user: { user: UpdateUser };
+    }>(`/api/auth/admin/${newData.id}`, {
+      method: "PUT",
+      body: { newData },
+    });
+
+    if (response.success) {
+      const updatedUser = response.user;
+
+      const userIndex = users.value.findIndex(
+        (u: UpdateUser) => u.id === updatedUser.id
+      );
+
+      if (userIndex !== -1) {
+        Object.assign(users.value[userIndex], updatedUser);
+      }
+
+      notifications(toast, "success", "User Updated successfully!");
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Update failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
   }
 };
 
@@ -109,7 +150,7 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
   }
 
   banData.value = null;
-  emit("update-user", updatePayload);
+  updateUser(updatePayload);
 };
 
 const isEditableUsername = (userRole: string) => {
@@ -123,6 +164,11 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
   const diffMs = now.getTime() - lastSeenDate.getTime();
   return diffMs < ONLINE_THRESHOLD_MINUTES * 60 * 1000; // less than 5 minutes ago
 }
+
+onMounted(async () => {
+  await fetchUsers();
+  loadingUsers.value = false;
+});
 </script>
 
 <template>
@@ -139,10 +185,10 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
       v-model:filters="filters"
       :value="filteredUsersNoCurrentUser"
       paginator
-      :rows="10"
+      :rows="8"
       dataKey="id"
       filterDisplay="row"
-      :loading="props.loading"
+      :loading="loadingUsers"
       :globalFilterFields="globalFilterFields"
       :virtualScrollerOptions="{ itemSize: 30 }"
       responsiveLayout="scroll"
@@ -209,7 +255,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
               icon="pi pi-refresh"
               variant="text"
               severity="secondary"
-              @click="$emit('update-table')"
+              @click="fetchUsers()"
             />
           </div>
         </div>
@@ -253,7 +299,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
           <Select
             v-model="filterModel.value"
             @change="filterCallback()"
-            :options="props.roles"
+            :options="roles"
             placeholder="Select Role"
           />
         </template>
@@ -317,7 +363,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
   </div>
   <AddUserForm
     v-model:showAddUserDialog="showAddUserDialog"
-    @update-table="$emit('update-table')"
+    @update-table="fetchUsers"
   />
 
   <BanUserForm
