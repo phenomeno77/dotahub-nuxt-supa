@@ -41,6 +41,5 @@ const addingComment = defineModel("addingComment", {
     v-if="props.isLoadingInit || props.isLoadingMore || addingComment"
     v-for="n in props.skeletonCount"
     :key="'skeleton-' + n"
-    class="mb-3"
   />
 </template>

@@ -246,7 +246,7 @@ const safeDescription = computed(() => {
 
               <template v-else>
                 <span
-                  class="text-truncate"
+                  class="text-truncate username"
                   style="
                     max-width: 400px;
                     overflow: hidden;
