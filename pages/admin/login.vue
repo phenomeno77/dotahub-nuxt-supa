@@ -4,7 +4,7 @@ import AdminLoginForm from "~/components/admin/AdminLoginForm.vue";
 definePageMeta({ middleware: "auth-admin-login" });
 
 const handleLoginSuccess = () => {
-  navigateTo("/admin-dashboard");
+  navigateTo("/admin");
 };
 </script>
 

@@ -82,7 +82,7 @@ const updateUser = async (newData: UpdateUser) => {
   try {
     const response = await $fetch<{
       success: boolean;
-      user: { user: UpdateUser };
+      user: UpdateUser;
     }>(`/api/auth/admin/${newData.id}`, {
       method: "PUT",
       body: { newData },
@@ -90,6 +90,8 @@ const updateUser = async (newData: UpdateUser) => {
 
     if (response.success) {
       const updatedUser = response.user;
+
+      console.log(updatedUser);
 
       const userIndex = users.value.findIndex(
         (u: UpdateUser) => u.id === updatedUser.id
