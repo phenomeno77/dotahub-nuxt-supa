@@ -41,6 +41,7 @@ export const labels = {
   NOTIFICATIONS: "Notifications",
   MARK_AS_READ: "Mark as read",
   MARK_ALL_AS_READ: "Mark all as read",
+  INBOX: "Inbox",
 };
 
 export const buttons = {
@@ -53,6 +54,7 @@ export const buttons = {
   POST_HISTORY: "Post History",
   ADMIN_DASHBOARD: "Admin Dashboard",
   USER_MANAGEMENT: "User management",
+  GO_BACK_DASHBOARD: "Back to Dashboard",
   CREATE_POST: "Create a Post",
   POSTS: "Posts",
   SUBMIT_POST: "Post Now",
@@ -64,6 +66,9 @@ export const buttons = {
   SUBMIT_BAN: "Submit Ban",
   LOAD_NEW_POSTS: "New posts are available – click to load",
   LOAD_NEW_COMMENTS: "New comments are available – click to load",
+  MANAGE: "Manage",
+  VIEW: "View",
+  BACK_TO_DASHBOARD: "Back to Dashboard",
 };
 
 export const errorMessage = {

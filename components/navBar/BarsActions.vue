@@ -51,10 +51,10 @@ const drawerMenuItems = computed(() => {
     if (user.value?.role === UserRole.admin) {
       menu.push({
         label: buttons.ADMIN_DASHBOARD,
-        icon: "pi pi-users",
+        icon: "pi pi-cog",
         command: () => {
           showBarsDrawer.value = false;
-          navigateTo("/admin-dashboard");
+          navigateTo("/admin");
         },
       });
     }

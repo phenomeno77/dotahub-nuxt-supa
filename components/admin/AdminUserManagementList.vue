@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { FilterMatchMode } from "@primevue/core/api";
-import { labels } from "~/constants/labels";
+import { labels, buttons } from "~/constants/labels";
 import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import type { UpdateUser } from "~/types/UpdateUser";
@@ -232,12 +232,23 @@ onMounted(async () => {
     >
       <template #header>
         <div class="action-bar mt-3">
-          <Button
-            :label="labels.ADD_NEW_USER"
-            @click="showAddUserDialog = true"
-            icon="pi pi-plus"
-            class="button-wrapper"
-          />
+          <div class="d-flex gap-1 w-100 action-bar-left">
+            <Button
+              :label="buttons.BACK_TO_DASHBOARD"
+              severity="secondary"
+              outlined
+              @click="navigateTo('/admin')"
+              icon="pi pi-arrow-left"
+              class="button-wrapper"
+            />
+
+            <Button
+              :label="labels.ADD_NEW_USER"
+              @click="showAddUserDialog = true"
+              icon="pi pi-plus"
+              class="button-wrapper flex-grow-1"
+            />
+          </div>
 
           <div class="search-wrapper">
             <IconField class="w-100">
@@ -253,7 +264,7 @@ onMounted(async () => {
 
             <Button
               icon="pi pi-refresh"
-              variant="text"
+              outlined
               severity="secondary"
               @click="fetchUsers()"
             />
@@ -394,6 +405,10 @@ onMounted(async () => {
 
 @media (max-width: 768px) {
   .action-bar {
+    flex-direction: column;
+  }
+
+  .action-bar-left {
     flex-direction: column;
   }
 
