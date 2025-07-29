@@ -272,6 +272,24 @@ async function getUsers(event: H3Event<Request>) {
       role: true,
       userStatus: true,
       lastSeenAt: true,
+      banHistory: {
+        select: {
+          id: true,
+          reason: true,
+          bannedAt: true,
+          banExpiration: true,
+          bannedById: true,
+          bannedBy: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          bannedAt: "desc",
+        },
+      },
     },
   });
 

@@ -8,6 +8,7 @@ import BanUserForm from "./BanUserForm.vue";
 import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
 import type { UserProfile } from "~/types/UserProfile";
+import type { empty } from "@prisma/client/runtime/library";
 
 const users = ref<UserProfile[]>([]);
 const loadingUsers = ref(true);
@@ -23,6 +24,7 @@ const showAddUserDialog = ref(false);
 const showBanUserDialog = ref(false);
 const banData = ref<{ banReason: string; banDuration: string } | null>(null);
 const userStatus = ref("");
+const expandedRows = ref({});
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -91,10 +93,8 @@ const updateUser = async (newData: UpdateUser) => {
     if (response.success) {
       const updatedUser = response.user;
 
-      console.log(updatedUser);
-
       const userIndex = users.value.findIndex(
-        (u: UpdateUser) => u.id === updatedUser.id
+        (u: UserProfile) => u.id === updatedUser.id
       );
 
       if (userIndex !== -1) {
@@ -175,205 +175,298 @@ onMounted(async () => {
 
 <template>
   <div
-    class="position-absolute start-0 end-0"
+    class="position-absolute start-0 end-0 d-flex flex-column"
     style="
       top: 80px;
       bottom: 40px;
-      overflow-y: auto;
+      overflow: hidden;
       height: calc(100dvh - 120px);
     "
   >
-    <DataTable
-      v-model:filters="filters"
-      :value="filteredUsersNoCurrentUser"
-      paginator
-      :rows="8"
-      dataKey="id"
-      filterDisplay="row"
-      :loading="loadingUsers"
-      :globalFilterFields="globalFilterFields"
-      :virtualScrollerOptions="{ itemSize: 30 }"
-      responsiveLayout="scroll"
-      v-model:editingRows="editingRows"
-      editMode="row"
-      removableSort
-      scrollable
-      scrollHeight="flex"
-      @row-edit-save="onRowEditSave"
-      :pt="{
-        bodyRow: {
-          style: {
-            background: 'var(--background-color)',
-            color: 'var(--text-color)',
-          },
-        },
-        header: {
-          style: {
-            background: 'var(--background-color)',
-          },
-        },
-
-        column: {
-          headerCell: {
-            style: {
-              background: 'var(--background-color)',
-              color: 'var(--text-color)',
-            },
-          },
-        },
-        pcPaginator: {
-          root: {
-            style: {
-              background: 'var(--background-color)',
-              color: 'var(--text-color)',
-              border: 'none',
-            },
-          },
-        },
-      }"
+    <!-- TOP BAR -->
+    <div
+      class="d-flex flex-wrap gap-2 w-100 border rounded-1 p-3 justify-content-between"
+      style="background-color: var(--background-color); flex-shrink: 0"
     >
-      <template #header>
-        <div class="action-bar mt-3">
-          <div class="d-flex gap-1 w-100 action-bar-left">
-            <Button
-              :label="buttons.BACK_TO_DASHBOARD"
-              severity="secondary"
-              outlined
-              @click="navigateTo('/admin')"
-              icon="pi pi-arrow-left"
-              class="button-wrapper"
-            />
+      <Button
+        :label="labels.ADD_NEW_USER"
+        @click="showAddUserDialog = true"
+        icon="pi pi-plus"
+        style="min-width: 300px"
+        class="add-new-user-btn"
+      />
 
-            <Button
-              :label="labels.ADD_NEW_USER"
-              @click="showAddUserDialog = true"
-              icon="pi pi-plus"
-              class="button-wrapper flex-grow-1"
-            />
-          </div>
-
-          <div class="search-wrapper">
-            <IconField class="w-100">
-              <InputIcon>
-                <i class="pi pi-search" />
-              </InputIcon>
-              <InputText
-                v-model="filters['global'].value"
-                :placeholder="labels.FILTER_KEYWORD_SEARCH"
-                class="w-100"
-              />
-            </IconField>
-
-            <Button
-              icon="pi pi-refresh"
-              outlined
-              severity="secondary"
-              @click="fetchUsers()"
-            />
-          </div>
-        </div>
-      </template>
-
-      <template #empty> No users found. </template>
-      <template #loading> Loading users... </template>
-
-      <!-- USERNAME COLUMN -->
-      <Column field="username" header="Username" sortable>
-        <template #filter="{ filterModel, filterCallback }">
+      <div class="search-wrapper">
+        <IconField class="w-100">
+          <InputIcon>
+            <i class="pi pi-search" />
+          </InputIcon>
           <InputText
-            v-model="filterModel.value"
-            @input="filterCallback()"
-            placeholder="Search by username"
+            v-model="filters['global'].value"
+            :placeholder="labels.FILTER_KEYWORD_SEARCH"
+            class="w-100"
           />
-        </template>
-        <template #editor="{ data, field }">
-          <InputText
-            v-if="!isEditableUsername(data.role)"
-            v-model="data[field]"
-          />
-          <td v-else>{{ data.username }}</td>
-        </template>
-      </Column>
+        </IconField>
+      </div>
 
-      <!-- STEAMID COLUMN -->
-      <Column field="steamId" header="Steam ID" sortable>
-        <template #filter="{ filterModel, filterCallback }">
-          <InputText
-            v-model="filterModel.value"
-            @input="filterCallback()"
-            placeholder="Search by Steam ID"
-          />
-        </template>
-      </Column>
+      <div class="d-flex gap-2 end-btn-wrapper">
+        <Button
+          :label="buttons.BACK_TO_DASHBOARD"
+          outlined
+          @click="navigateTo('/admin')"
+          icon="pi pi-arrow-left"
+          class="back-dashboard-btn"
+        />
 
-      <!-- ROLE COLUMN -->
-      <Column field="role" header="Role" sortable>
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            @change="filterCallback()"
-            :options="roles"
-            placeholder="Select Role"
-          />
-        </template>
-      </Column>
+        <Button
+          icon="pi pi-refresh"
+          outlined
+          @click="fetchUsers()"
+          class="refresh-btn"
+        />
+      </div>
+    </div>
 
-      <!-- USER STATUS COLUMN -->
-      <Column field="userStatus" header="Status" sortable>
-        <template #body="{ data }">
-          <Tag
-            :value="data.userStatus"
-            :severity="getSeverityStatus(data.userStatus)"
-          />
-        </template>
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            @change="filterCallback()"
-            :options="statuses"
-            placeholder="Select"
-          />
-        </template>
-        <template #editor="{ data, field }">
-          <Select
-            v-model="data[field]"
-            @value-change="onStatusChange"
-            :options="statuses"
-            placeholder="Select status"
-            fluid
-          >
-          </Select>
-        </template>
-      </Column>
-
-      <!-- IS ONLINE COLUMN -->
-      <Column field="lastSeenAt" header="Online" sortable>
-        <template #body="{ data }">
-          <Tag
-            :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
-            :severity="isUserOnline(data.lastSeenAt) ? 'success' : 'warn'"
-          />
-        </template>
-
-        <template #filter="{ filterModel, filterCallback }">
-          <Select
-            v-model="filterModel.value"
-            @change="filterCallback()"
-            :options="loggedOrNot"
-            placeholder="Select"
-          />
-        </template>
-      </Column>
-
-      <!-- EDITOR BUTTON COLUMN -->
-      <Column
-        :rowEditor="true"
-        style="width: 10%; min-width: 8rem"
-        bodyStyle="text-align:center"
+    <!-- DATATABLE WRAPPER -->
+    <div style="flex: 1; overflow: hidden">
+      <DataTable
+        v-model:filters="filters"
+        v-model:expandedRows="expandedRows"
+        :value="filteredUsersNoCurrentUser"
+        paginator
+        :rows="15"
+        dataKey="id"
+        filterDisplay="row"
+        :loading="loadingUsers"
+        :globalFilterFields="globalFilterFields"
+        v-model:editingRows="editingRows"
+        editMode="row"
+        removableSort
+        scrollable
+        scrollHeight="flex"
+        @row-edit-save="onRowEditSave"
+        :pt="{
+          bodyRow: {
+            style: {
+              background: 'var(--background-color)',
+              color: 'var(--text-color)',
+            },
+          },
+          header: {
+            style: {
+              background: 'var(--background-color)',
+            },
+          },
+          column: {
+            headerCell: {
+              style: {
+                background: 'var(--background-color)',
+                color: 'var(--text-color)',
+              },
+            },
+          },
+          pcPaginator: {
+            root: {
+              style: {
+                background: 'var(--background-color)',
+                color: 'var(--text-color)',
+                border: 'none',
+              },
+            },
+          },
+          rowExpansion: {
+            style: {
+              background: 'var(--background-color)',
+              color: 'var(--text-color)',
+            },
+          },
+        }"
       >
-      </Column>
-    </DataTable>
+        <template #empty> No users found. </template>
+        <template #loading> Loading users... </template>
+
+        <Column expander style="width: 2rem" />
+        <!-- USERNAME COLUMN -->
+        <Column field="username" header="Username" sortable>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              @input="filterCallback()"
+              placeholder="Search by username"
+            />
+          </template>
+          <template #editor="{ data, field }">
+            <InputText
+              v-if="!isEditableUsername(data.role)"
+              v-model="data[field]"
+            />
+            <td v-else>{{ data.username }}</td>
+          </template>
+        </Column>
+
+        <!-- STEAMID COLUMN -->
+        <Column field="steamId" header="Steam ID" sortable>
+          <template #filter="{ filterModel, filterCallback }">
+            <InputText
+              v-model="filterModel.value"
+              @input="filterCallback()"
+              placeholder="Search by Steam ID"
+            />
+          </template>
+        </Column>
+
+        <!-- ROLE COLUMN -->
+        <Column field="role" header="Role" sortable>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              @change="filterCallback()"
+              :options="roles"
+              placeholder="Select Role"
+            />
+          </template>
+        </Column>
+
+        <!-- USER STATUS COLUMN -->
+        <Column field="userStatus" header="Status" sortable>
+          <template #body="{ data }">
+            <Tag
+              :value="data.userStatus"
+              :severity="getSeverityStatus(data.userStatus)"
+            />
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              @change="filterCallback()"
+              :options="statuses"
+              placeholder="Select"
+            />
+          </template>
+          <template #editor="{ data, field }">
+            <Select
+              v-model="data[field]"
+              @value-change="onStatusChange"
+              :options="statuses"
+              placeholder="Select status"
+              fluid
+            >
+            </Select>
+          </template>
+        </Column>
+
+        <!-- IS ONLINE COLUMN -->
+        <Column field="lastSeenAt" header="Online" sortable>
+          <template #body="{ data }">
+            <Tag
+              :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
+              :severity="isUserOnline(data.lastSeenAt) ? 'success' : 'warn'"
+            />
+          </template>
+
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              @change="filterCallback()"
+              :options="loggedOrNot"
+              placeholder="Select"
+            />
+          </template>
+        </Column>
+
+        <!-- EDITOR BUTTON COLUMN -->
+        <Column
+          :rowEditor="true"
+          style="width: 10%; min-width: 8rem"
+          bodyStyle="text-align:center"
+        >
+        </Column>
+
+        <template #expansion="slotProps">
+          <div class="p-3">
+            <h5 class="mb-3">Ban History for {{ slotProps.data.username }}</h5>
+
+            <DataTable
+              :value="slotProps.data.banHistory"
+              :responsiveLayout="'scroll'"
+              class="p-datatable-sm"
+              :pt="{
+                bodyRow: {
+                  style: {
+                    background: 'var(--background-color)',
+                    color: 'var(--text-color)',
+                  },
+                },
+                header: {
+                  style: {
+                    background: 'var(--background-color)',
+                  },
+                },
+                column: {
+                  headerCell: {
+                    style: {
+                      background: 'var(--background-color)',
+                      color: 'var(--text-color)',
+                    },
+                  },
+                },
+                emptyMessageCell: {
+                  style: {
+                    background: 'var(--background-color)',
+                    color: 'var(--text-color)',
+                    borderBottom: 'none',
+                  },
+                },
+              }"
+            >
+              <!-- Empty slot for no ban history -->
+              <template #empty>
+                <div>No ban history found.</div>
+              </template>
+
+              <Column
+                v-if="slotProps.data.banHistory.length"
+                field="reason"
+                header="Reason"
+              />
+              <Column
+                v-if="slotProps.data.banHistory.length"
+                field="bannedAt"
+                header="Banned At"
+              >
+                <template #body="slotProps">
+                  {{ new Date(slotProps.data.bannedAt).toLocaleString() }}
+                </template>
+              </Column>
+              <Column
+                v-if="slotProps.data.banHistory.length"
+                field="banExpiration"
+                header="Expires At"
+              >
+                <template #body="slotProps">
+                  {{
+                    slotProps.data.banExpiration
+                      ? new Date(slotProps.data.banExpiration).toLocaleString()
+                      : "Permanent"
+                  }}
+                </template>
+              </Column>
+              <Column
+                v-if="slotProps.data.banHistory.length"
+                field="bannedBy.username"
+                header="Banned By"
+              >
+                <template #body="slotProps">
+                  {{ slotProps.data.bannedBy?.username || "Unknown" }}
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </template>
+      </DataTable>
+    </div>
   </div>
+
   <AddUserForm
     v-model:showAddUserDialog="showAddUserDialog"
     @update-table="fetchUsers"
@@ -396,22 +489,27 @@ onMounted(async () => {
 
 .button-wrapper,
 .search-wrapper {
-  max-width: 300px; /* optional for desktop constraint */
+  min-width: 300px;
   display: flex;
   gap: 0.5rem;
 }
 
-.search-wrapper {
-  flex-grow: 1;
-}
-
 @media (max-width: 768px) {
-  .action-bar {
-    flex-direction: column;
+  .add-new-user-btn {
+    width: 100%;
   }
 
-  .action-bar-left {
-    flex-direction: column;
+  .end-btn-wrapper {
+    width: 100%;
+  }
+
+  .back-dashboard-btn {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .refresh-btn {
+    flex-shrink: 1;
   }
 
   .button-wrapper,
