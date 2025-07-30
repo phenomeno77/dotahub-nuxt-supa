@@ -17,6 +17,7 @@ const avatarLabel = computed(() =>
 );
 const showBarsDrawer = ref(false);
 const showCreatePostDialog = useCreatePostDialog();
+const menu: any[] = ref([]);
 
 const handleLogout = async () => {
   loadingStore.startLoading();
@@ -35,11 +36,14 @@ const handleLogout = async () => {
   }
 };
 
-const drawerMenuItems = computed(() => {
-  const menu: any[] = [];
+const handleSendFeedback = () => {
+  showBarsDrawer.value = false;
+  navigateTo("/feedback");
+};
 
+const initDrawerMenuItems = () => {
   if (loggedIn.value) {
-    menu.push({
+    menu.value.push({
       label: buttons.HOME,
       icon: "pi pi-home",
       command: () => {
@@ -49,7 +53,7 @@ const drawerMenuItems = computed(() => {
     });
 
     if (user.value?.role === UserRole.admin) {
-      menu.push({
+      menu.value.push({
         label: buttons.ADMIN_DASHBOARD,
         icon: "pi pi-cog",
         command: () => {
@@ -59,9 +63,9 @@ const drawerMenuItems = computed(() => {
       });
     }
 
-    menu.push({ separator: true });
+    menu.value.push({ separator: true });
 
-    menu.push({
+    menu.value.push({
       label: buttons.CREATE_POST,
       icon: "pi pi-pen-to-square",
       command: () => {
@@ -70,7 +74,7 @@ const drawerMenuItems = computed(() => {
       },
     });
 
-    menu.push({
+    menu.value.push({
       label: buttons.POST_HISTORY,
       icon: "pi pi-history",
       command: () => {
@@ -79,9 +83,7 @@ const drawerMenuItems = computed(() => {
       },
     });
   }
-
-  return menu;
-});
+};
 
 const actionButtons = computed(() => ({
   root: {
@@ -94,6 +96,7 @@ const actionButtons = computed(() => ({
 
 onMounted(async () => {
   const { user, loggedIn } = useUserSession();
+  initDrawerMenuItems();
   if (!user.value && !loggedIn) {
     if (avatarImage.value || avatarLabel.value) {
       await handleLogout();
@@ -143,7 +146,7 @@ onMounted(async () => {
     </template>
 
     <div class="p-3">
-      <div v-for="(item, index) in drawerMenuItems" :key="index" class="mb-2">
+      <div v-for="(item, index) in menu" :key="index" class="mb-2">
         <hr v-if="item.separator" class="my-2" />
         <Button
           :pt="actionButtons"
@@ -159,7 +162,14 @@ onMounted(async () => {
     </div>
 
     <template #footer>
-      <div class="d-flex justify-content-end p-2">
+      <div class="d-flex justify-content-between p-2">
+        <Button
+          :label="buttons.SEND_FEEDBACK"
+          icon="pi pi-comment"
+          outlined
+          class="me-auto"
+          @click="handleSendFeedback"
+        />
         <Button
           severity="danger"
           :label="buttons.LOGOUT"

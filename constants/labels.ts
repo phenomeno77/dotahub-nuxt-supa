@@ -42,10 +42,21 @@ export const labels = {
   MARK_AS_READ: "Mark as read",
   MARK_ALL_AS_READ: "Mark all as read",
   INBOX: "Inbox",
+  SEND_FEEDBACK: "Send Feedback",
+  FEEDBACK_TYPE: "Type of Feedback",
+  SELECT_FEEDBACK_TYPE: "Select feedback type",
+  DESCRIPTION: "Description",
+  FEEDBACK_TEXT:
+    "We appreciate your thoughts! You can report bugs, request features, or give general feedback below.",
+  THANK_YOU_TITLE: "Thank you for your feedback!",
+  THANK_YOU_TEXT:
+    "We appreciate your time and input. Our team will review it as soon as possible.",
 };
 
 export const buttons = {
   HOME: "Home",
+  GO_TO_HOME: "Go to Home",
+  SUBMIT_ANOTHER_FEEDBACK: "Submit Another",
   SAVE: "Save",
   CANCEL: "Cancel",
   ADD_USER: "Add User",
@@ -69,6 +80,8 @@ export const buttons = {
   MANAGE: "Manage",
   VIEW: "View",
   BACK_TO_DASHBOARD: "Back to Dashboard",
+  SEND_FEEDBACK: "Send Feedback",
+  SUBMIT_FEEDBACK: "Submit Feedback",
 };
 
 export const errorMessage = {
@@ -94,4 +107,7 @@ export const errorMessage = {
   BAN_REASON_REQUIRED: "Ban reason is required.",
   UNAUTHORIZED: "Unauthorized access",
   INVALID_ROLE: "Invalid role provided",
+  FEEDBACK_TYPE_MISSING: "Please select a feedback type.",
+  FEEDBACK_DESCRIPTION_AT_LEAST_10_CHAR:
+    "Description should be at least 10 characters.",
 };

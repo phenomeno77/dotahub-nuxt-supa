@@ -98,13 +98,7 @@ const onHideDrawer = async () => {
       error.message ||
       "Unexpected error";
 
-    notifications(
-      toast,
-      "warn",
-      "Failed to remove read notifications",
-      message,
-      3000
-    );
+    notifications(toast, "warn", "Closing notifications failed", message, 3000);
   }
 };
 
