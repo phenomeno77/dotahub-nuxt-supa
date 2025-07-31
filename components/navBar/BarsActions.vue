@@ -37,8 +37,8 @@ const handleLogout = async () => {
 };
 
 const handleSendFeedback = () => {
-  showBarsDrawer.value = false;
   navigateTo("/feedback");
+  showBarsDrawer.value = false;
 };
 
 const initDrawerMenuItems = () => {
@@ -168,7 +168,7 @@ onMounted(async () => {
           icon="pi pi-comment"
           outlined
           class="me-auto"
-          @click="handleSendFeedback"
+          @click="handleSendFeedback()"
         />
         <Button
           severity="danger"

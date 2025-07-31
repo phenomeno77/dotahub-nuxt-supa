@@ -7,8 +7,7 @@ import type { UpdateUser } from "~/types/UpdateUser";
 import BanUserForm from "./BanUserForm.vue";
 import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
-import type { UserProfile } from "~/types/UserProfile";
-import type { empty } from "@prisma/client/runtime/library";
+import { type BanRecord, type UserProfile } from "~/types/UserProfile";
 
 const users = ref<UserProfile[]>([]);
 const loadingUsers = ref(true);
@@ -25,6 +24,8 @@ const showBanUserDialog = ref(false);
 const banData = ref<{ banReason: string; banDuration: string } | null>(null);
 const userStatus = ref("");
 const expandedRows = ref({});
+const banRecords = ref<Record<string, BanRecord[]>>({});
+const loadingBanHistory = ref(false);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -59,7 +60,7 @@ const getSeverityStatus = (status: string) => {
 const fetchUsers = async () => {
   loadingStore.startLoading();
   try {
-    const response = await $fetch<UserProfile[]>("/api/auth/admin", {
+    const response = await $fetch<UserProfile[]>("/api/auth/admin/user", {
       method: "GET",
     });
     users.value = response;
@@ -85,7 +86,7 @@ const updateUser = async (newData: UpdateUser) => {
     const response = await $fetch<{
       success: boolean;
       user: UpdateUser;
-    }>(`/api/auth/admin/${newData.id}`, {
+    }>(`/api/auth/admin/user/${newData.id}`, {
       method: "PUT",
       body: { newData },
     });
@@ -157,6 +158,45 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
 
 const isEditableUsername = (userRole: string) => {
   return userRole === UserRole.user;
+};
+
+const onRowExpand = async (event: { data: UpdateUser }) => {
+  const { id: userId } = event.data;
+
+  if (userId && banRecords.value[userId]) return; // already fetched
+
+  loadingStore.startLoading();
+  loadingBanHistory.value = true;
+  try {
+    const response = await $fetch<BanRecord[]>(
+      `/api/auth/admin/user/${userId}/ban-history`
+    );
+
+    if (!userId) {
+      return;
+    }
+
+    banRecords.value[userId] = response;
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Fetching Ban Records Failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
+    loadingBanHistory.value = false;
+  }
+};
+
+const onRowCollapse = (event: { data: UpdateUser }) => {
+  const { id: userId } = event.data;
+
+  if (userId) {
+    delete banRecords.value[userId];
+  }
 };
 
 function isUserOnline(lastSeenAt: string | Date | null): boolean {
@@ -233,6 +273,8 @@ onMounted(async () => {
         v-model:filters="filters"
         v-model:expandedRows="expandedRows"
         :value="filteredUsersNoCurrentUser"
+        @rowExpand="onRowExpand"
+        @rowCollapse="onRowCollapse"
         paginator
         :rows="15"
         dataKey="id"
@@ -387,8 +429,9 @@ onMounted(async () => {
             <h5 class="mb-3">Ban History for {{ slotProps.data.username }}</h5>
 
             <DataTable
-              :value="slotProps.data.banHistory"
+              :value="banRecords[slotProps.data.id]"
               :responsiveLayout="'scroll'"
+              :loading="loadingBanHistory"
               class="p-datatable-sm"
               :pt="{
                 bodyRow: {
@@ -419,47 +462,38 @@ onMounted(async () => {
                 },
               }"
             >
-              <!-- Empty slot for no ban history -->
               <template #empty>
-                <div>No ban history found.</div>
+                <div v-if="!loadingBanHistory">No ban history found.</div>
               </template>
 
-              <Column
-                v-if="slotProps.data.banHistory.length"
-                field="reason"
-                header="Reason"
-              />
-              <Column
-                v-if="slotProps.data.banHistory.length"
-                field="bannedAt"
-                header="Banned At"
-              >
-                <template #body="slotProps">
-                  {{ new Date(slotProps.data.bannedAt).toLocaleString() }}
-                </template>
-              </Column>
-              <Column
-                v-if="slotProps.data.banHistory.length"
-                field="banExpiration"
-                header="Expires At"
-              >
-                <template #body="slotProps">
-                  {{
-                    slotProps.data.banExpiration
-                      ? new Date(slotProps.data.banExpiration).toLocaleString()
-                      : "Permanent"
-                  }}
-                </template>
-              </Column>
-              <Column
-                v-if="slotProps.data.banHistory.length"
-                field="bannedBy.username"
-                header="Banned By"
-              >
-                <template #body="slotProps">
-                  {{ slotProps.data.bannedBy?.username || "Unknown" }}
-                </template>
-              </Column>
+              <template #loading> Loading ban history... </template>
+
+              <!-- Render columns only if there is data -->
+              <template v-if="banRecords[slotProps.data.id]?.length">
+                <Column field="reason" header="Reason" />
+
+                <Column field="bannedAt" header="Banned At">
+                  <template #body="colSlot">
+                    {{ new Date(colSlot.data.bannedAt).toLocaleString() }}
+                  </template>
+                </Column>
+
+                <Column field="banExpiration" header="Expires At">
+                  <template #body="colSlot">
+                    {{
+                      colSlot.data.banExpiration
+                        ? new Date(colSlot.data.banExpiration).toLocaleString()
+                        : "Permanent"
+                    }}
+                  </template>
+                </Column>
+
+                <Column field="bannedBy.username" header="Banned By">
+                  <template #body="colSlot">
+                    {{ colSlot.data.bannedBy?.username || "Unknown" }}
+                  </template>
+                </Column>
+              </template>
             </DataTable>
           </div>
         </template>

@@ -1,5 +1,3 @@
-import { handleSteamUser } from "~/server/utils/auth";
-
 export default defineOAuthSteamEventHandler({
   async onSuccess(event, { user }) {
     const steamUser = {

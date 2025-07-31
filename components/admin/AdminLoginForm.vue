@@ -50,7 +50,7 @@ const submitForm = async () => {
     loading.startLoading();
     const lowercasedEmail = email.value.toLowerCase();
 
-    const { success, user } = await $fetch("/api/auth/admin/login", {
+    const { success, user } = await $fetch("/api/auth/admin/user/login", {
       method: "POST",
       body: {
         email: lowercasedEmail,

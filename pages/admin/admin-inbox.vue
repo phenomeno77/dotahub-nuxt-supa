@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import AdminInbox from "~/components/admin/AdminInbox.vue";
+import AdminInboxManagementList from "~/components/admin/AdminInboxManagementList.vue";
 
 definePageMeta({
   middleware: "auth-admin-dashboard",
@@ -7,7 +7,7 @@ definePageMeta({
 </script>
 
 <template>
-  <AdminInbox />
+  <AdminInboxManagementList />
 </template>
 
 <style></style>

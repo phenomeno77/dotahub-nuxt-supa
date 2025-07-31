@@ -23,9 +23,13 @@ export const ErrorMessages = {
   LOGIN_REQUIRED: "Login required",
   POST_DESCRIPTION_LONG: "Too many characters for post!",
   COMMENT_CONTENT_LONG: "Too many characters for comment!",
+  FEEDBACK_DESCRIPTION_AT_LEAST_10_CHAR:
+    "Description should be at least 10 characters",
+  INVALID_FEEDBACK_TYPE: "Invalid feedback type",
 };
 
 export const fixed_values = {
   POST_MAX_TEXT_LENGTH: 600,
   COMMENT_MAX_TEXT_LENGTH: 250,
+  FEEDBACK_MESSAGE_MIN_LENGTH: 10,
 };

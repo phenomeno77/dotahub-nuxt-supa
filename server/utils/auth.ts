@@ -4,7 +4,7 @@ import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
 import { getBanExpiration } from "./banUtils";
 
-async function setSession(event: H3Event<Request>, user: UserProfile) {
+async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
     user: {
       id: user.id,
@@ -14,11 +14,7 @@ async function setSession(event: H3Event<Request>, user: UserProfile) {
   });
 }
 
-async function adminLogin(
-  event: H3Event<Request>,
-  email: string,
-  password: string
-) {
+async function adminLogin(event: H3Event, email: string, password: string) {
   if (!email || !password) {
     throw createError({
       statusCode: 400,
@@ -83,7 +79,7 @@ async function adminLogin(
 }
 
 async function createNewUser(
-  event: H3Event<Request>,
+  event: H3Event,
   newUserData: { email: any; password: any; username: any; role: any }
 ) {
   const isAdminUser = await isAdmin(event);
@@ -131,7 +127,7 @@ async function createNewUser(
 }
 
 async function updateUser(
-  event: H3Event<Request>,
+  event: H3Event,
   userData: {
     id: string;
     username: string;
@@ -204,7 +200,7 @@ async function updateUser(
   };
 }
 
-async function getCurrentUser(event: H3Event<Request>) {
+async function getCurrentUser(event: H3Event) {
   const session = await getUserSession(event);
 
   if (!session.user) {
@@ -251,7 +247,7 @@ async function getCurrentUser(event: H3Event<Request>) {
   return { user, latestBan: null };
 }
 
-async function getUsers(event: H3Event<Request>) {
+async function getUsers(event: H3Event) {
   const isAdminUser = await isAdmin(event);
 
   if (!isAdminUser) {
@@ -272,24 +268,6 @@ async function getUsers(event: H3Event<Request>) {
       role: true,
       userStatus: true,
       lastSeenAt: true,
-      banHistory: {
-        select: {
-          id: true,
-          reason: true,
-          bannedAt: true,
-          banExpiration: true,
-          bannedById: true,
-          bannedBy: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
-        orderBy: {
-          bannedAt: "desc",
-        },
-      },
     },
   });
 
@@ -303,7 +281,34 @@ async function getUsers(event: H3Event<Request>) {
   return usersWithStatus;
 }
 
-export async function handleSteamUser(
+async function getBanHistories(event: H3Event, userId: string) {
+  const isAdminUser = await isAdmin(event);
+
+  if (!isAdminUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const bans = await prisma.banHistory.findMany({
+    where: { userId },
+    orderBy: { bannedAt: "desc" },
+    select: {
+      id: true,
+      reason: true,
+      bannedAt: true,
+      banExpiration: true,
+      bannedBy: {
+        select: { id: true, username: true },
+      },
+    },
+  });
+
+  return bans;
+}
+
+async function handleSteamUser(
   event: H3Event,
   steamData: {
     steamId: string;
@@ -394,7 +399,7 @@ export async function handleSteamUser(
   };
 }
 
-async function logout(event: H3Event<Request>) {
+async function logout(event: H3Event) {
   const session = await getUserSession(event);
 
   if (!session.user) {
@@ -422,7 +427,7 @@ async function logout(event: H3Event<Request>) {
   await clearUserSession(event);
 }
 
-async function isAdmin(event: H3Event<Request>) {
+async function isAdmin(event: H3Event) {
   const session = await getUserSession(event);
 
   if (!session.user) {
@@ -438,7 +443,7 @@ async function isAdmin(event: H3Event<Request>) {
     });
   }
 
-  const { user, latestBan } = currentUser;
+  const { user } = currentUser;
 
   if (user) {
     return user.role === UserRole.admin;
@@ -447,7 +452,7 @@ async function isAdmin(event: H3Event<Request>) {
   return false;
 }
 
-async function verifyCurrentUserStatus(event: H3Event<Request>) {
+async function verifyCurrentUserStatus(event: H3Event) {
   const session = await getUserSession(event);
 
   if (!session.user) {
@@ -506,6 +511,7 @@ export default {
   createNewUser,
   updateUser,
   getUsers,
+  getBanHistories,
   handleSteamUser,
   logout,
   verifyCurrentUserStatus,

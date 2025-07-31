@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { FeedbackType } from "~/types/enums";
 import { useToast } from "primevue/usetoast";
 import { buttons, labels, errorMessage } from "~/constants/labels";
+import type { UserFeedback } from "~/types/UserFeedback";
 
 const type = ref<FeedbackType | null>(null);
 const description = ref("");
@@ -28,24 +29,29 @@ const validate = () => {
 const submitFeedback = async () => {
   if (!validate()) return;
 
+  const feedback: UserFeedback = {
+    type: type.value,
+    message: description.value,
+  };
+
   try {
-    // await $fetch("/api/feedback", {
-    //   method: "POST",
-    //   body: {
-    //     type: type.value,
-    //     message: description.value,
-    //   },
-    // });
-
-    toast.add({
-      severity: "success",
-      summary: "Feedback submitted!",
-      life: 3000,
+    const response = await $fetch("/api/user/feedback", {
+      method: "POST",
+      body: {
+        feedback,
+      },
     });
+    if (response.success) {
+      toast.add({
+        severity: "success",
+        summary: "Feedback submitted!",
+        life: 3000,
+      });
 
-    type.value = null;
-    description.value = "";
-    submitted.value = true;
+      type.value = null;
+      description.value = "";
+      submitted.value = true;
+    }
   } catch (error) {
     toast.add({ severity: "error", summary: "Submission failed", life: 3000 });
   }

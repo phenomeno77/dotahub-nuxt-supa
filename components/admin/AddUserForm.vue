@@ -87,15 +87,18 @@ const submitForm = async () => {
   try {
     loading.startLoading();
 
-    const response = await $fetch<{ success: boolean }>("/api/auth/admin", {
-      method: "POST",
-      body: {
-        username: username.value.trim(),
-        email: email.value,
-        password: password.value,
-        role: selectedRole.value as UserRole,
-      },
-    });
+    const response = await $fetch<{ success: boolean }>(
+      "/api/auth/admin/user",
+      {
+        method: "POST",
+        body: {
+          username: username.value.trim(),
+          email: email.value,
+          password: password.value,
+          role: selectedRole.value as UserRole,
+        },
+      }
+    );
     if (response.success) {
       notifications(toast, "success", "User Created Successfully!");
       showAddUserDialog.value = false;
