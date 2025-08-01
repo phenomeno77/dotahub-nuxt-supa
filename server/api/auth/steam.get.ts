@@ -6,7 +6,7 @@ export default defineOAuthSteamEventHandler({
       avatarUrl: user.avatarfull,
     };
 
-    const currentUser = await handleSteamUser(event, steamUser);
+    const currentUser = await auth.handleSteamUser(event, steamUser);
 
     if (currentUser.latestBan) {
       const query = new URLSearchParams({

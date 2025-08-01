@@ -228,14 +228,14 @@ onMounted(async () => {
       class="d-flex flex-wrap gap-2 w-100 border rounded-1 p-3 justify-content-between"
       style="background-color: var(--background-color); flex-shrink: 0"
     >
-      <Button
-        :label="labels.ADD_NEW_USER"
-        @click="showAddUserDialog = true"
-        icon="pi pi-plus"
-        style="min-width: 300px"
-        class="add-new-user-btn"
-      />
-
+      <div id="add-user-btn" style="min-width: 300px">
+        <Button
+          :label="labels.ADD_NEW_USER"
+          @click="showAddUserDialog = true"
+          icon="pi pi-plus"
+          class="add-new-user-btn w-100"
+        />
+      </div>
       <div class="search-wrapper">
         <IconField class="w-100">
           <InputIcon>

@@ -4,12 +4,7 @@ import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from "@primevue/core/api";
 import { labels, buttons } from "~/constants/labels";
-import {
-  FeedbackStatus,
-  FeedbackType,
-  getFeedbackLabel,
-  getFeedbackStatusLabel,
-} from "~/types/enums";
+import { getFeedbackLabel, getFeedbackStatusLabel } from "~/types/enums";
 import type DataTable from "primevue/datatable";
 
 const loadingFeedbacks = ref(false);
@@ -33,8 +28,8 @@ const types = [
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  steamId: { value: null, matchMode: FilterMatchMode.EQUALS },
+  username: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  steamId: { value: null, matchMode: FilterMatchMode.CONTAINS },
   type: { value: null, matchMode: FilterMatchMode.CONTAINS },
   status: { value: null, matchMode: FilterMatchMode.CONTAINS },
   message: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -131,6 +126,14 @@ const updateFeedback = async (newData: any) => {
   }
 };
 
+const flattenedFeedbacks = computed(() =>
+  feedbacks.value.map((fb) => ({
+    ...fb,
+    username: fb.user?.username ?? "",
+    steamId: fb.user?.steamId ?? "",
+  }))
+);
+
 onMounted(async () => {
   await fetchFeedbacks();
   loadingFeedbacks.value = false;
@@ -152,6 +155,7 @@ onMounted(async () => {
       class="d-flex flex-wrap gap-2 w-100 border rounded-1 p-3 justify-content-between"
       style="background-color: var(--background-color); flex-shrink: 0"
     >
+      <div id="placeholder-div" style="min-width: 300px"></div>
       <div class="search-wrapper">
         <IconField class="w-100">
           <InputIcon>
@@ -188,7 +192,7 @@ onMounted(async () => {
       <DataTable
         v-model:filters="filters"
         v-model:expandedRows="expandedRows"
-        :value="feedbacks"
+        :value="flattenedFeedbacks"
         paginator
         :rows="15"
         dataKey="id"
@@ -243,14 +247,9 @@ onMounted(async () => {
         <Column expander style="width: 2rem" />
 
         <!-- USERNAME COLUMN -->
-        <Column
-          field="username"
-          header="Username"
-          sortable
-          sortField="user.username"
-        >
+        <Column field="username" header="Username" sortable>
           <template #body="{ data }">
-            {{ data.user.username }}
+            {{ data.username }}
           </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
@@ -263,7 +262,7 @@ onMounted(async () => {
 
         <!-- STEAMID COLUMN -->
         <Column field="steamId" header="Steam ID" sortable>
-          <template #body="{ data }"> {{ data.user.steamId }} </template>
+          <template #body="{ data }"> {{ data.steamId }} </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
               v-model="filterModel.value"
