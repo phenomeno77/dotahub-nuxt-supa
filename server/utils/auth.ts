@@ -146,7 +146,7 @@ async function updateUser(
     });
   }
 
-  const { user, latestBan } = currentUser;
+  const { user } = currentUser;
 
   if (!isAdminUser) {
     throw createError({

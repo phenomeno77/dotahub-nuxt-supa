@@ -4,21 +4,41 @@ import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from "@primevue/core/api";
 import { labels, buttons } from "~/constants/labels";
-import { FeedbackStatus, FeedbackType } from "~/types/enums";
+import {
+  FeedbackStatus,
+  FeedbackType,
+  getFeedbackLabel,
+  getFeedbackStatusLabel,
+} from "~/types/enums";
+import type DataTable from "primevue/datatable";
 
 const loadingFeedbacks = ref(false);
 const feedbacks = ref<UserFeedback[]>([]);
 const loadingStore = useLoadingStore();
 const toast = useToast();
+const expandedRows = ref({});
 const editingRows = ref([]);
-const statuses = Object.values(FeedbackStatus);
-const feedbackStatus = ref("");
+const statuses = [
+  { label: "Open", value: "open" },
+  { label: "In Progress", value: "in_progress" },
+  { label: "Resolved", value: "resolved" },
+];
+
+const types = [
+  { label: "Bug report", value: "bug_report" },
+  { label: "User report", value: "user_report" },
+  { label: "Feature request", value: "feature_request" },
+  { label: "General feedback", value: "general_feedback" },
+];
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-
-  //TODO: Add filters global
+  steamId: { value: null, matchMode: FilterMatchMode.EQUALS },
+  type: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  status: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  message: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  createdAt: { value: null, matchMode: FilterMatchMode.DATE_IS },
 });
 
 const globalFilterFields = ref(
@@ -54,69 +74,61 @@ const getSeverityStatus = (status: string) => {
     case "open":
       return "warn";
     case "in_progress":
-      return "danger";
+      return "info";
     default:
       return "contrast";
   }
 };
 
+function filteredFeedbacks(id: number) {
+  return feedbacks.value.filter((fb) => fb.id === id);
+}
+
 const onRowEditSave = (event: { newData: any; data: any }) => {
-  // const { newData, data } = event;
-  // if (!newData.id) {
-  //   notifications(toast, "error", "User ID is missing");
-  //   return;
-  // }
-  // const updatePayload = { ...newData };
-  // if (banData.value && userStatus.value === UserStatus.banned) {
-  //   updatePayload.banReason = banData.value.banReason;
-  //   updatePayload.banDuration = banData.value.banDuration;
-  // } else if (userStatus.value === UserStatus.active) {
-  //   updatePayload.userStatus = newData.userStatus;
-  //   updatePayload.banReason = "";
-  //   updatePayload.banDuration = "";
-  // } else {
-  //   updatePayload.banReason = "";
-  //   updatePayload.banDuration = "";
-  //   updatePayload.userStatus = data.userStatus;
-  // }
-  // banData.value = null;
-  // updateUser(updatePayload);
+  const { newData, data } = event;
+
+  if (newData.status === data.status) {
+    return;
+  }
+
+  const updatePayload = { id: newData.id, status: newData.status };
+
+  updateFeedback(updatePayload);
 };
 
-const updateUser = async (newData: any) => {
-  // loadingStore.startLoading();
-  // try {
-  //   const response = await $fetch<{
-  //     success: boolean;
-  //     user: UpdateUser;
-  //   }>(`/api/auth/admin/user/${newData.id}`, {
-  //     method: "PUT",
-  //     body: { newData },
-  //   });
-  //   if (response.success) {
-  //     const updatedUser = response.user;
-  //     const userIndex = users.value.findIndex(
-  //       (u: UserProfile) => u.id === updatedUser.id
-  //     );
-  //     if (userIndex !== -1) {
-  //       Object.assign(users.value[userIndex], updatedUser);
-  //     }
-  //     notifications(toast, "success", "User Updated successfully!");
-  //   }
-  // } catch (error: any) {
-  //   const message =
-  //     error?.response?._data?.statusMessage ||
-  //     error.statusMessage ||
-  //     error.message ||
-  //     "Unexpected error";
-  //   notifications(toast, "warn", "Update failed", message, 3000);
-  // } finally {
-  //   loadingStore.stopLoading();
-  // }
-};
+const updateFeedback = async (newData: any) => {
+  loadingStore.startLoading();
+  try {
+    const response = await $fetch<{
+      success: boolean;
+      feedback: UserFeedback;
+    }>(`/api/auth/admin/feedback/${newData.id}`, {
+      method: "PUT",
+      body: { newData },
+    });
+    if (response.success) {
+      const updatedFeedback = response.feedback;
 
-const onStatusChange = (event: any) => {
-  feedbackStatus.value = event;
+      const feedbackIndex = feedbacks.value.findIndex(
+        (u: UserFeedback) => u.id === updatedFeedback.id
+      );
+
+      if (feedbackIndex !== -1) {
+        Object.assign(feedbacks.value[feedbackIndex], updatedFeedback);
+      }
+
+      notifications(toast, "success", "Feedback Updated successfully!");
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+    notifications(toast, "warn", "Update failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
+  }
 };
 
 onMounted(async () => {
@@ -175,6 +187,7 @@ onMounted(async () => {
     <div style="flex: 1; overflow: hidden">
       <DataTable
         v-model:filters="filters"
+        v-model:expandedRows="expandedRows"
         :value="feedbacks"
         paginator
         :rows="15"
@@ -227,10 +240,18 @@ onMounted(async () => {
       >
         <template #empty> No feedbacks found. </template>
         <template #loading> Loading feedbacks... </template>
-
         <Column expander style="width: 2rem" />
+
         <!-- USERNAME COLUMN -->
-        <!-- <Column field="username" header="Username" sortable>
+        <Column
+          field="username"
+          header="Username"
+          sortable
+          sortField="user.username"
+        >
+          <template #body="{ data }">
+            {{ data.user.username }}
+          </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
               v-model="filterModel.value"
@@ -238,10 +259,11 @@ onMounted(async () => {
               placeholder="Search by username"
             />
           </template>
-        </Column> -->
+        </Column>
 
         <!-- STEAMID COLUMN -->
-        <!-- <Column field="steamId" header="Steam ID" sortable>
+        <Column field="steamId" header="Steam ID" sortable>
+          <template #body="{ data }"> {{ data.user.steamId }} </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
               v-model="filterModel.value"
@@ -249,14 +271,29 @@ onMounted(async () => {
               placeholder="Search by Steam ID"
             />
           </template>
-        </Column> -->
+        </Column>
 
-        <!-- USER STATUS COLUMN -->
-        <!-- <Column field="userStatus" header="Status" sortable>
+        <Column field="type" header="Feedback Type" sortable>
+          <template #body="{ data }">
+            <Tag :value="getFeedbackLabel(data.type)" severity="secondary" />
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              @change="filterCallback()"
+              :options="types"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Type"
+            />
+          </template>
+        </Column>
+
+        <Column field="status" header="Status" sortable>
           <template #body="{ data }">
             <Tag
-              :value="data.userStatus"
-              :severity="getSeverityStatus(data.userStatus)"
+              :value="getFeedbackStatusLabel(data.status)"
+              :severity="getSeverityStatus(data.status)"
             />
           </template>
           <template #filter="{ filterModel, filterCallback }">
@@ -264,20 +301,30 @@ onMounted(async () => {
               v-model="filterModel.value"
               @change="filterCallback()"
               :options="statuses"
-              placeholder="Select"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Status"
             />
           </template>
+
           <template #editor="{ data, field }">
             <Select
               v-model="data[field]"
-              @value-change="onStatusChange"
               :options="statuses"
+              optionLabel="label"
+              optionValue="value"
               placeholder="Select status"
               fluid
             >
             </Select>
           </template>
-        </Column> -->
+        </Column>
+
+        <Column field="createdAt" header="Date" sortable>
+          <template #body="{ data }">
+            {{ new Date(data.createdAt).toLocaleDateString() }}
+          </template>
+        </Column>
 
         <!-- EDITOR BUTTON COLUMN -->
         <Column
@@ -286,6 +333,50 @@ onMounted(async () => {
           bodyStyle="text-align:center"
         >
         </Column>
+
+        <template #expansion="slotProps">
+          <div class="p-3">
+            <DataTable
+              :value="filteredFeedbacks(slotProps.data.id)"
+              :responsiveLayout="'scroll'"
+              :pt="{
+                bodyRow: {
+                  style: {
+                    background: 'var(--background-color)',
+                    color: 'var(--text-color)',
+                  },
+                },
+                header: {
+                  style: {
+                    background: 'var(--background-color)',
+                  },
+                },
+                column: {
+                  headerCell: {
+                    style: {
+                      background: 'var(--background-color)',
+                      color: 'var(--text-color)',
+                      border: 'none',
+                    },
+                  },
+                },
+                emptyMessageCell: {
+                  style: {
+                    background: 'var(--background-color)',
+                    color: 'var(--text-color)',
+                    borderBottom: 'none',
+                  },
+                },
+              }"
+            >
+              <Column field="message" header="Feedback">
+                <template #body="{ data }">
+                  {{ data.message }}
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </template>
       </DataTable>
     </div>
   </div>

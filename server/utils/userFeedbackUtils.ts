@@ -1,6 +1,6 @@
 import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
-import { UserStatus, FeedbackType } from "@prisma/client";
+import { UserStatus, FeedbackType, FeedbackStatus } from "@prisma/client";
 import { ErrorMessages, fixed_values } from "../constants/labels";
 
 async function sendFeedback(
@@ -82,6 +82,7 @@ async function getFeedbacks(event: H3Event) {
           id: true,
           username: true,
           avatarUrl: true,
+          steamId: true,
         },
       },
     },
@@ -90,7 +91,45 @@ async function getFeedbacks(event: H3Event) {
   return feedbacks;
 }
 
+async function updatefeedback(
+  event: H3Event,
+  feedbackData: {
+    id: number;
+    status: FeedbackStatus;
+  }
+) {
+  const isAdminUser = await auth.isAdmin(event);
+
+  if (!isAdminUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const feedback = await prisma.userFeedback.findUnique({
+    where: { id: feedbackData.id },
+  });
+
+  if (!feedback) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const updatedFeedback = await prisma.userFeedback.update({
+    where: { id: feedbackData.id },
+    data: {
+      status: feedbackData.status,
+    },
+  });
+
+  return updatedFeedback;
+}
+
 export default {
   sendFeedback,
   getFeedbacks,
+  updatefeedback,
 };
