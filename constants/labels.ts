@@ -5,6 +5,7 @@ export const fixed_values = {
   MAX_NOTIFICATION_PREVIEW_LENGTH: 50,
   POSTS_PER_PAGE: 10,
   COMMENTS_PER_PAGE: 10,
+  ONLINE_THRESHOLD_MINUTES: 1,
 };
 
 export const labels = {

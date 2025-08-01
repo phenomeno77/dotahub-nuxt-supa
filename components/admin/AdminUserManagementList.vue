@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { FilterMatchMode } from "@primevue/core/api";
-import { labels, buttons } from "~/constants/labels";
+import { labels, buttons, fixed_values } from "~/constants/labels";
 import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import type { UpdateUser } from "~/types/UpdateUser";
@@ -15,7 +15,6 @@ const toast = useToast();
 const roles = Object.values(UserRole);
 const statuses = Object.values(UserStatus);
 const loadingStore = useLoadingStore();
-const ONLINE_THRESHOLD_MINUTES = 5;
 const authStore = useAuthStore();
 const loggedOrNot = ref([true, false]);
 const editingRows = ref([]);
@@ -204,7 +203,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
   const lastSeenDate = new Date(lastSeenAt);
   const now = new Date();
   const diffMs = now.getTime() - lastSeenDate.getTime();
-  return diffMs < ONLINE_THRESHOLD_MINUTES * 60 * 1000; // less than 5 minutes ago
+  return diffMs < fixed_values.ONLINE_THRESHOLD_MINUTES * 60 * 1000; // less than 5 minutes ago
 }
 
 onMounted(async () => {
