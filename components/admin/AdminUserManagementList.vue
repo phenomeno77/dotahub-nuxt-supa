@@ -9,7 +9,12 @@ import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
 import { type BanRecord, type UserProfile } from "~/types/UserProfile";
 
-const users = ref<UserProfile[]>([]);
+const {
+  items: users,
+  total,
+  fetchPage,
+} = usePaginatedFetch<UserProfile>("/api/auth/admin/user");
+
 const loadingUsers = ref(true);
 const toast = useToast();
 const roles = Object.values(UserRole);
@@ -25,6 +30,7 @@ const userStatus = ref("");
 const expandedRows = ref({});
 const banRecords = ref<Record<string, BanRecord[]>>({});
 const loadingBanHistory = ref(false);
+const lastPageEvent = ref({ page: 0, rows: fixed_values.ROWS_PER_PAGE });
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -43,6 +49,19 @@ const filteredUsersNoCurrentUser = computed(() => {
   return users.value.filter((user) => user.id !== String(authStore.userId));
 });
 
+const onPage = async (event: { page: number; rows: number }) => {
+  lastPageEvent.value = event;
+  loadingUsers.value = true;
+  await fetchPage(event.page, event.rows);
+  loadingUsers.value = false;
+};
+
+const refreshPage = async () => {
+  loadingUsers.value = true;
+  await fetchPage(lastPageEvent.value.page, lastPageEvent.value.rows);
+  loadingUsers.value = false;
+};
+
 const getSeverityStatus = (status: string) => {
   switch (status) {
     case "active":
@@ -53,28 +72,6 @@ const getSeverityStatus = (status: string) => {
       return "danger";
     default:
       return "contrast";
-  }
-};
-
-const fetchUsers = async () => {
-  loadingStore.startLoading();
-  try {
-    const response = await $fetch<UserProfile[]>("/api/auth/admin/user", {
-      method: "GET",
-    });
-    users.value = response;
-  } catch (error: any) {
-    const message =
-      error?.response?._data?.statusMessage ||
-      error.statusMessage ||
-      error.message ||
-      "Unexpected error";
-
-    notifications(toast, "warn", "Fetching Users Failed", message, 3000);
-
-    loadingUsers.value = false;
-  } finally {
-    loadingStore.stopLoading();
   }
 };
 
@@ -207,7 +204,7 @@ function isUserOnline(lastSeenAt: string | Date | null): boolean {
 }
 
 onMounted(async () => {
-  await fetchUsers();
+  fetchPage(0, fixed_values.ROWS_PER_PAGE);
   loadingUsers.value = false;
 });
 </script>
@@ -260,7 +257,7 @@ onMounted(async () => {
         <Button
           icon="pi pi-refresh"
           outlined
-          @click="fetchUsers()"
+          @click="refreshPage"
           class="refresh-btn"
         />
       </div>
@@ -275,9 +272,12 @@ onMounted(async () => {
         @rowExpand="onRowExpand"
         @rowCollapse="onRowCollapse"
         paginator
-        :rows="15"
+        :lazy="true"
+        :rows="fixed_values.ROWS_PER_PAGE"
         dataKey="id"
         filterDisplay="row"
+        :totalRecords="total"
+        @page="onPage"
         :loading="loadingUsers"
         :globalFilterFields="globalFilterFields"
         v-model:editingRows="editingRows"
@@ -502,7 +502,7 @@ onMounted(async () => {
 
   <AddUserForm
     v-model:showAddUserDialog="showAddUserDialog"
-    @update-table="fetchUsers"
+    @update-table="fetchPage(0, fixed_values.ROWS_PER_PAGE)"
   />
 
   <BanUserForm

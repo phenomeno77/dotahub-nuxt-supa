@@ -6,6 +6,7 @@ export const fixed_values = {
   POSTS_PER_PAGE: 10,
   COMMENTS_PER_PAGE: 10,
   ONLINE_THRESHOLD_MINUTES: 1,
+  ROWS_PER_PAGE: 15,
 };
 
 export const labels = {

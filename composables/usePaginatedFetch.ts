@@ -64,6 +64,28 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     }
   };
 
+  const fetchPage = async (page = 0, rows = limit) => {
+    try {
+      const res = await $fetch<PaginatedResponse>(url, {
+        query: {
+          limit: rows,
+          skip: page * rows,
+        },
+      });
+      if (res.success) {
+        items.value = res.items;
+        total.value = res.total;
+      }
+    } catch (error: any) {
+      const message =
+        error?.response?._data?.statusMessage ||
+        error.statusMessage ||
+        error.message ||
+        "Unexpected error";
+      notifications(toast, "warn", "Loading Items Failed", message, 3000);
+    }
+  };
+
   return {
     items,
     total,
@@ -71,5 +93,6 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
     isLoadingMore,
     fetchInitial,
     fetchMore,
+    fetchPage,
   };
 }

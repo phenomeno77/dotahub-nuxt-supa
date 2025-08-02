@@ -3,16 +3,22 @@ import type { UserFeedback } from "~/types/UserFeedback";
 import notifications from "@/utils/notifications";
 import { useToast } from "primevue/usetoast";
 import { FilterMatchMode } from "@primevue/core/api";
-import { labels, buttons } from "~/constants/labels";
+import { labels, buttons, fixed_values } from "~/constants/labels";
 import { getFeedbackLabel, getFeedbackStatusLabel } from "~/types/enums";
 import type DataTable from "primevue/datatable";
 
+const {
+  items: feedbacks,
+  total,
+  fetchPage,
+} = usePaginatedFetch<UserFeedback>("/api/auth/admin/feedback");
+
 const loadingFeedbacks = ref(false);
-const feedbacks = ref<UserFeedback[]>([]);
 const loadingStore = useLoadingStore();
 const toast = useToast();
 const expandedRows = ref({});
 const editingRows = ref([]);
+const lastPageEvent = ref({ page: 0, rows: fixed_values.ROWS_PER_PAGE });
 const statuses = [
   { label: "Open", value: "open" },
   { label: "In Progress", value: "in_progress" },
@@ -28,8 +34,8 @@ const types = [
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  username: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  steamId: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  "user.username": { value: null, matchMode: FilterMatchMode.CONTAINS },
+  "user.steamId": { value: null, matchMode: FilterMatchMode.CONTAINS },
   type: { value: null, matchMode: FilterMatchMode.CONTAINS },
   status: { value: null, matchMode: FilterMatchMode.CONTAINS },
   message: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -40,26 +46,29 @@ const globalFilterFields = ref(
   Object.keys(filters.value).filter((key) => key !== "global")
 );
 
-const fetchFeedbacks = async () => {
-  loadingStore.startLoading();
-  try {
-    const response = await $fetch<UserFeedback[]>("/api/auth/admin/feedback", {
-      method: "GET",
-    });
-    feedbacks.value = response;
-  } catch (error: any) {
-    const message =
-      error?.response?._data?.statusMessage ||
-      error.statusMessage ||
-      error.message ||
-      "Unexpected error";
+const feedbacksWithDates = computed(() =>
+  feedbacks.value.map((fb) => ({
+    ...fb,
+    createdAt: new Date(fb.createdAt),
+  }))
+);
 
-    notifications(toast, "warn", "Fetching Feedbacks Failed", message, 3000);
+const formatDate = (value: Date | string) => {
+  const date = new Date(value);
+  return date.toLocaleDateString("de-DE");
+};
 
-    loadingFeedbacks.value = false;
-  } finally {
-    loadingStore.stopLoading();
-  }
+const onPage = async (event: { page: number; rows: number }) => {
+  lastPageEvent.value = event;
+  loadingFeedbacks.value = true;
+  await fetchPage(event.page, event.rows);
+  loadingFeedbacks.value = false;
+};
+
+const refreshPage = async () => {
+  loadingFeedbacks.value = true;
+  await fetchPage(lastPageEvent.value.page, lastPageEvent.value.rows);
+  loadingFeedbacks.value = false;
 };
 
 const getSeverityStatus = (status: string) => {
@@ -126,16 +135,8 @@ const updateFeedback = async (newData: any) => {
   }
 };
 
-const flattenedFeedbacks = computed(() =>
-  feedbacks.value.map((fb) => ({
-    ...fb,
-    username: fb.user?.username ?? "",
-    steamId: fb.user?.steamId ?? "",
-  }))
-);
-
 onMounted(async () => {
-  await fetchFeedbacks();
+  fetchPage(0, fixed_values.ROWS_PER_PAGE);
   loadingFeedbacks.value = false;
 });
 </script>
@@ -181,7 +182,7 @@ onMounted(async () => {
         <Button
           icon="pi pi-refresh"
           outlined
-          @click="fetchFeedbacks()"
+          @click="refreshPage"
           class="refresh-btn"
         />
       </div>
@@ -192,10 +193,13 @@ onMounted(async () => {
       <DataTable
         v-model:filters="filters"
         v-model:expandedRows="expandedRows"
-        :value="flattenedFeedbacks"
+        :value="feedbacksWithDates"
         paginator
-        :rows="15"
+        :lazy="true"
+        :rows="fixed_values.ROWS_PER_PAGE"
         dataKey="id"
+        :totalRecords="total"
+        @page="onPage"
         filterDisplay="row"
         :loading="loadingFeedbacks"
         :globalFilterFields="globalFilterFields"
@@ -247,9 +251,14 @@ onMounted(async () => {
         <Column expander style="width: 2rem" />
 
         <!-- USERNAME COLUMN -->
-        <Column field="username" header="Username" sortable>
+        <Column
+          header="Username"
+          sortable
+          sortField="user.username"
+          filterField="user.username"
+        >
           <template #body="{ data }">
-            {{ data.username }}
+            {{ data.user.username }}
           </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
@@ -261,8 +270,13 @@ onMounted(async () => {
         </Column>
 
         <!-- STEAMID COLUMN -->
-        <Column field="steamId" header="Steam ID" sortable>
-          <template #body="{ data }"> {{ data.steamId }} </template>
+        <Column
+          header="Steam ID"
+          sortable
+          sortField="user.steamId"
+          filterField="user.steamId"
+        >
+          <template #body="{ data }"> {{ data.user.steamId }} </template>
           <template #filter="{ filterModel, filterCallback }">
             <InputText
               v-model="filterModel.value"
@@ -319,9 +333,24 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column field="createdAt" header="Date" sortable>
+        <Column
+          field="createdAt"
+          header="Date"
+          sortable
+          dataType="date"
+          filterField="createdAt"
+        >
           <template #body="{ data }">
-            {{ new Date(data.createdAt).toLocaleDateString() }}
+            {{ formatDate(data.createdAt) }}
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <DatePicker
+              v-model="filterModel.value"
+              @update:modelValue="filterCallback"
+              placeholder="dd.mm.yyyy"
+              dateFormat="dd.mm.yy"
+              style="width: 7rem"
+            />
           </template>
         </Column>
 

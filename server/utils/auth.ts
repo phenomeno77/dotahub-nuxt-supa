@@ -247,7 +247,7 @@ async function getCurrentUser(event: H3Event) {
   return { user, latestBan: null };
 }
 
-async function getUsers(event: H3Event) {
+async function getUsers(event: H3Event, limit: number, skip: number) {
   const isAdminUser = await isAdmin(event);
 
   if (!isAdminUser) {
@@ -269,7 +269,11 @@ async function getUsers(event: H3Event) {
       userStatus: true,
       lastSeenAt: true,
     },
+    skip,
+    take: limit,
   });
+
+  const total = await prisma.userProfile.count();
 
   const usersWithStatus = users.map((user) => ({
     ...user,
@@ -278,7 +282,10 @@ async function getUsers(event: H3Event) {
       : false,
   }));
 
-  return usersWithStatus;
+  return {
+    items: usersWithStatus,
+    total,
+  };
 }
 
 async function getBanHistories(event: H3Event, userId: string) {
