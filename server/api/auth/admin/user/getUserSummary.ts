@@ -2,11 +2,14 @@ export default defineEventHandler(async (event) => {
   try {
     await requireUserLoggedIn(event);
 
-    const feedbacks = await userFeedbackUtils.getFeedbacks(event);
+    const { totalUsersOnline, totalUsersCount } = await auth.getUserSummary(
+      event
+    );
 
     return {
       success: true,
-      feedbacks,
+      totalUsersOnline,
+      totalUsersCount,
     };
   } catch (err: any) {
     return sendError(

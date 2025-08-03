@@ -77,9 +77,7 @@ const submitForm = async () => {
 
     notifications(toast, "warn", "Login failed", message, 10000);
   } finally {
-    setTimeout(() => {
-      loading.stopLoading();
-    }, 700);
+    loading.stopLoading();
   }
 };
 </script>

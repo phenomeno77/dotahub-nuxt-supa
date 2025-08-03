@@ -21,8 +21,6 @@ const { user: currentUser } = useUserSession();
 const {
   items: posts,
   total,
-  isLoadingInit,
-  isLoadingMore,
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Post>("/api/post", fixed_values.POSTS_PER_PAGE);
@@ -57,9 +55,7 @@ let unsubscribePosts: () => Promise<void>;
 
 onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
-    loadingStore.startLoading();
     await fetchInitial();
-    loadingStore.stopLoading();
   }
 
   if (currentUser.value) {
@@ -135,7 +131,7 @@ onBeforeUnmount(async () => {
           </DynamicScroller>
 
           <!-- Inline Skeletons directly below posts -->
-          <div v-if="isLoadingInit || isLoadingMore">
+          <div v-if="loadingStore.isLoading">
             <div
               class="mb-3"
               v-for="n in fixed_values.POSTS_PER_PAGE"

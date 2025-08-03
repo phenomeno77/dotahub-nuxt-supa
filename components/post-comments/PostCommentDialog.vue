@@ -130,7 +130,6 @@ onMounted(async () => {
   try {
     await fetchInitial();
     emits("update-comment-count", total.value);
-    // Ensure DOM is ready before attaching scroll
     await nextTick();
 
     if (dialogContentRef.value) {

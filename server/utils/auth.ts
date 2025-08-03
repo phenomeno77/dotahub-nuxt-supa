@@ -1,4 +1,9 @@
-import { UserProfile, UserRole, UserStatus } from "@prisma/client";
+import {
+  FeedbackStatus,
+  UserProfile,
+  UserRole,
+  UserStatus,
+} from "@prisma/client";
 import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
@@ -247,7 +252,7 @@ async function getCurrentUser(event: H3Event) {
   return { user, latestBan: null };
 }
 
-async function getUsers(event: H3Event, limit: number, skip: number) {
+async function getUsers(event: H3Event) {
   const isAdminUser = await isAdmin(event);
 
   if (!isAdminUser) {
@@ -257,7 +262,7 @@ async function getUsers(event: H3Event, limit: number, skip: number) {
     });
   }
 
-  const fiveMinutes = 5 * 60 * 1000;
+  const oneMinute = 1 * 60 * 1000;
   const now = Date.now();
 
   const users = await prisma.userProfile.findMany({
@@ -269,23 +274,16 @@ async function getUsers(event: H3Event, limit: number, skip: number) {
       userStatus: true,
       lastSeenAt: true,
     },
-    skip,
-    take: limit,
   });
-
-  const total = await prisma.userProfile.count();
 
   const usersWithStatus = users.map((user) => ({
     ...user,
     isOnline: user.lastSeenAt
-      ? now - new Date(user.lastSeenAt).getTime() < fiveMinutes
+      ? now - new Date(user.lastSeenAt).getTime() < oneMinute
       : false,
   }));
 
-  return {
-    items: usersWithStatus,
-    total,
-  };
+  return usersWithStatus;
 }
 
 async function getBanHistories(event: H3Event, userId: string) {
@@ -510,6 +508,61 @@ async function verifyCurrentUserStatus(event: H3Event) {
   };
 }
 
+async function getUserSummary(event: H3Event) {
+  const isAdminUser = await isAdmin(event);
+
+  if (!isAdminUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+  const totalUsersCount = await prisma.userProfile.count();
+
+  const oneMinute = 1 * 60 * 1000;
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - oneMinute);
+
+  const totalUsersOnline = await prisma.userProfile.count({
+    where: {
+      lastSeenAt: {
+        gte: fiveMinutesAgo,
+      },
+    },
+  });
+
+  return {
+    totalUsersOnline,
+    totalUsersCount,
+  };
+}
+
+async function getFeedbackSummary(event: H3Event) {
+  const isAdminUser = await isAdmin(event);
+
+  if (!isAdminUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const [totalFeedbacks, totalOpenFeedbacks, totalInProgressFeedbacks] =
+    await Promise.all([
+      prisma.userFeedback.count(),
+      prisma.userFeedback.count({ where: { status: FeedbackStatus.open } }),
+      prisma.userFeedback.count({
+        where: { status: FeedbackStatus.in_progress },
+      }),
+    ]);
+
+  return {
+    totalOpenFeedbacks,
+    totalInProgressFeedbacks,
+    totalFeedbacks,
+  };
+}
+
 export default {
   setSession,
   getCurrentUser,
@@ -522,4 +575,6 @@ export default {
   handleSteamUser,
   logout,
   verifyCurrentUserStatus,
+  getUserSummary,
+  getFeedbackSummary,
 };

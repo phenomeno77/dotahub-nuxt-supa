@@ -56,7 +56,7 @@ async function sendFeedback(
   });
 }
 
-async function getFeedbacks(event: H3Event, limit: number, skip: number) {
+async function getFeedbacks(event: H3Event) {
   const isAdminUser = await auth.isAdmin(event);
 
   if (!isAdminUser) {
@@ -86,16 +86,9 @@ async function getFeedbacks(event: H3Event, limit: number, skip: number) {
         },
       },
     },
-    skip,
-    take: limit,
   });
 
-  const total = await prisma.userFeedback.count();
-
-  return {
-    items: feedbacks,
-    total,
-  };
+  return feedbacks;
 }
 
 async function updatefeedback(

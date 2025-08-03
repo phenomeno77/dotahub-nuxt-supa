@@ -7,18 +7,11 @@ import { labels, buttons, fixed_values } from "~/constants/labels";
 import { getFeedbackLabel, getFeedbackStatusLabel } from "~/types/enums";
 import type DataTable from "primevue/datatable";
 
-const {
-  items: feedbacks,
-  total,
-  fetchPage,
-} = usePaginatedFetch<UserFeedback>("/api/auth/admin/feedback");
-
-const loadingFeedbacks = ref(false);
 const loadingStore = useLoadingStore();
 const toast = useToast();
+const feedbacks = ref<UserFeedback[]>([]);
 const expandedRows = ref({});
 const editingRows = ref([]);
-const lastPageEvent = ref({ page: 0, rows: fixed_values.ROWS_PER_PAGE });
 const statuses = [
   { label: "Open", value: "open" },
   { label: "In Progress", value: "in_progress" },
@@ -58,17 +51,8 @@ const formatDate = (value: Date | string) => {
   return date.toLocaleDateString("de-DE");
 };
 
-const onPage = async (event: { page: number; rows: number }) => {
-  lastPageEvent.value = event;
-  loadingFeedbacks.value = true;
-  await fetchPage(event.page, event.rows);
-  loadingFeedbacks.value = false;
-};
-
 const refreshPage = async () => {
-  loadingFeedbacks.value = true;
-  await fetchPage(lastPageEvent.value.page, lastPageEvent.value.rows);
-  loadingFeedbacks.value = false;
+  await fetchFeedbacks();
 };
 
 const getSeverityStatus = (status: string) => {
@@ -135,9 +119,35 @@ const updateFeedback = async (newData: any) => {
   }
 };
 
+const fetchFeedbacks = async () => {
+  loadingStore.startLoading();
+
+  try {
+    const response = await $fetch<{
+      success: boolean;
+      feedbacks: UserFeedback[];
+    }>("/api/auth/admin/feedback", {
+      method: "GET",
+    });
+
+    if (response.success) {
+      feedbacks.value = response.feedbacks;
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Fetching Feedbacks Failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
+  }
+};
+
 onMounted(async () => {
-  fetchPage(0, fixed_values.ROWS_PER_PAGE);
-  loadingFeedbacks.value = false;
+  await fetchFeedbacks();
 });
 </script>
 
@@ -195,13 +205,10 @@ onMounted(async () => {
         v-model:expandedRows="expandedRows"
         :value="feedbacksWithDates"
         paginator
-        :lazy="true"
         :rows="fixed_values.ROWS_PER_PAGE"
         dataKey="id"
-        :totalRecords="total"
-        @page="onPage"
         filterDisplay="row"
-        :loading="loadingFeedbacks"
+        :loading="loadingStore.isLoading"
         :globalFilterFields="globalFilterFields"
         v-model:editingRows="editingRows"
         editMode="row"
@@ -246,7 +253,11 @@ onMounted(async () => {
           },
         }"
       >
-        <template #empty> No feedbacks found. </template>
+        <template #empty
+          ><span v-if="!loadingStore.isLoading">
+            No feedbacks found.
+          </span></template
+        >
         <template #loading> Loading feedbacks... </template>
         <Column expander style="width: 2rem" />
 

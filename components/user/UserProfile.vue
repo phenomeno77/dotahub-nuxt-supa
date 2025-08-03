@@ -140,7 +140,7 @@ onMounted(async () => {
           </DynamicScroller>
 
           <!-- Skeletons -->
-          <div v-if="isLoadingInit || isLoadingMore">
+          <div v-if="loadingStore.isLoading">
             <div
               class="mb-3"
               v-for="n in fixed_values.POSTS_PER_PAGE"
