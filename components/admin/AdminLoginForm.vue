@@ -5,7 +5,6 @@ import validator from "validator";
 import notifications from "@/utils/notifications";
 import { errorMessage, labels, buttons } from "@/constants/labels";
 import { useAuthStore } from "~/stores/auth";
-import { useLoadingStore } from "~/stores/loading";
 import { UserRole } from "~/types/enums";
 
 const emit = defineEmits(["success"]);

@@ -30,8 +30,6 @@ const loadNewestComments = ref(false);
 const {
   items: comments,
   total,
-  isLoadingInit,
-  isLoadingMore,
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Comment>(
@@ -215,8 +213,6 @@ onUnmounted(() => {
         v-if="props.post.id !== undefined"
         :comments="comments"
         :postUserId="props.post.user?.id ?? ''"
-        :isLoadingInit="isLoadingInit"
-        :isLoadingMore="isLoadingMore"
         v-model:addingComment="addingComment"
         :skeletonCount="fixed_values.COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"

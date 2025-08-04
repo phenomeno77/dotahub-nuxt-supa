@@ -3,7 +3,6 @@ import { type UserProfile } from "~/types/UserProfile";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref, computed, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useLoadingStore } from "~/stores/loading";
 import { usePostStore } from "~/stores/posts";
 import { fixed_values } from "~/constants/labels";
 import { usePaginatedFetch } from "~/composables/usePaginatedFetch";
@@ -29,8 +28,6 @@ const user = ref<UserProfile>();
 const {
   items: posts,
   total,
-  isLoadingInit,
-  isLoadingMore,
   fetchInitial,
   fetchMore,
 } = usePaginatedFetch<Post>(

@@ -2,7 +2,6 @@
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { usePostStore } from "~/stores/posts";
-import { useLoadingStore } from "~/stores/loading";
 import type { Post } from "~/types/Post";
 import BannedAlert from "~/components/alerts/BannedAlert.vue";
 import SteamLoginFailedAlert from "~/components/alerts/SteamLoginFailedAlert.vue";

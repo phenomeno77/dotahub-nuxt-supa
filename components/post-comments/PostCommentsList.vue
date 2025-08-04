@@ -6,8 +6,6 @@ import CommentSkeleton from "./CommentSkeleton.vue";
 const props = withDefaults(
   defineProps<{
     comments: Comment[];
-    isLoadingInit: boolean;
-    isLoadingMore: boolean;
     skeletonCount?: number;
     postUserId: string;
   }>(),
@@ -21,6 +19,7 @@ const addingComment = defineModel("addingComment", {
   type: Boolean,
   default: false,
 });
+const loadingStore = useLoadingStore();
 </script>
 
 <template>
@@ -38,7 +37,7 @@ const addingComment = defineModel("addingComment", {
   </div>
 
   <CommentSkeleton
-    v-if="props.isLoadingInit || props.isLoadingMore || addingComment"
+    v-if="(loadingStore.isLoading && !comments.length) || addingComment"
     v-for="n in props.skeletonCount"
     :key="'skeleton-' + n"
   />

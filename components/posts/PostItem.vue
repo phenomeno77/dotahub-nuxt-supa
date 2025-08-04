@@ -12,7 +12,6 @@ import { useConfirm } from "primevue/useconfirm";
 import UpdatePost from "./UpdatePost.vue";
 import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
 import { autoLinkText } from "~/composables/useAutoLink";
-import { useLoadingStore } from "~/stores/loading";
 
 dayjs.extend(relativeTime);
 
