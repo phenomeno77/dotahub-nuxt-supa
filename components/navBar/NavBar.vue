@@ -29,7 +29,7 @@ const handleLoginSteam = () => {
     </div>
 
     <!-- Center: Search (desktop only) -->
-    <div class="d-none d-md-block">
+    <div class="d-none d-md-block" v-if="loggedIn">
       <SearchBar />
     </div>
 
@@ -37,6 +37,7 @@ const handleLoginSteam = () => {
     <div class="d-flex align-items-center gap-3">
       <!-- Mobile search toggle -->
       <Button
+        v-if="loggedIn"
         icon="pi pi-search"
         class="d-md-none"
         size="large"

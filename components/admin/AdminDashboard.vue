@@ -82,7 +82,7 @@ onMounted(async () => {
 <template>
   <div
     class="container position-absolute start-0 end-0 py-4"
-    style="top: 80px; bottom: 40px"
+    style="top: 80px; bottom: 40px; overflow-y: auto"
   >
     <div class="row g-4">
       <!-- User Management Card -->
