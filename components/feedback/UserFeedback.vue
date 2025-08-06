@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { FeedbackType } from "~/types/enums";
 import { useToast } from "primevue/usetoast";
 import { buttons, labels, errorMessage } from "~/constants/labels";
-import type { UserFeedback } from "~/types/UserFeedback";
 
 const type = ref<FeedbackType | null>(null);
 const description = ref("");
@@ -29,7 +28,7 @@ const validate = () => {
 const submitFeedback = async () => {
   if (!validate()) return;
 
-  const feedback: UserFeedback = {
+  const feedback = {
     type: type.value,
     message: description.value,
   };
@@ -59,10 +58,7 @@ const submitFeedback = async () => {
 </script>
 
 <template>
-  <div
-    class="d-flex justify-content-center align-items-center w-100 px-2 position-absolute start-0 end-0"
-    style="top: 80px; bottom: 40px"
-  >
+  <div class="d-flex justify-content-center align-items-center w-100 px-2">
     <Card
       :pt="{
         root: {

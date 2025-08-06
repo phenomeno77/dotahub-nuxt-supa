@@ -17,58 +17,6 @@ const MyPreset = definePreset(Aura, {
       950: "{teal.950}",
     },
   },
-  components: {
-    menu: {
-      colorScheme: {
-        root: {
-          background: "var(--navmenubar-background)",
-          color: "var(--text-color)",
-          list: {
-            background: "var(--navmenubar-background)",
-            color: "var(--text-color)",
-          },
-        },
-        item: {
-          color: "var(--text-color)",
-        },
-        itemIcon: {
-          color: "var(--text-color)",
-        },
-      },
-    },
-    menubar: {
-      colorScheme: {
-        root: {
-          background: "var(--navmenubar-background)",
-          color: "var(--text-color)",
-          list: {
-            background: "var(--navmenubar-background)",
-            color: "var(--text-color)",
-          },
-        },
-        item: {
-          color: "var(--text-color)",
-        },
-        itemIcon: {
-          color: "var(--text-color)",
-        },
-        submenu: {
-          background: "var(--navmenubar-background)",
-          color: "var(--text-color)",
-        },
-      },
-      extend: {
-        root: {
-          border: "none",
-          width: "100%",
-          padding: "8px",
-        },
-        submenu: {
-          border: "none",
-        },
-      },
-    },
-  },
 });
 
 export default {

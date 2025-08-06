@@ -11,18 +11,5 @@ const avatarLabel = computed(() =>
 </script>
 
 <template>
-  <div class="m-4 mx-0 pb-3 border-bottom">
-    <div class="d-flex align-items-center gap-3">
-      <Avatar
-        :image="avatarImage"
-        :label="avatarLabel"
-        class="me-2 flex-shrink-0"
-        size="xlarge"
-        shape="circle"
-      />
-      <div>
-        <h3 class="mb-1">{{ user.username }}</h3>
-      </div>
-    </div>
-  </div>
+  <div class="m-4 mx-0 pb-3 border-bottom"></div>
 </template>

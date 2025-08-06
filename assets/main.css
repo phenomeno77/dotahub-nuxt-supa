@@ -164,7 +164,8 @@ a.username:hover {
   background: var(--background-color) !important;
   color: var(--text-color) !important;
   border: none !important;
-  width: 400px !important;
+  min-width: 300px !important;
+  max-width: 400px !important;
 }
 
 .background-skeleton {

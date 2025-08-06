@@ -1,6 +1,9 @@
 <template>
   <header class="row">
-    <div class="col-12 px-0 fixed-top" style="height: 80px">
+    <div
+      class="fixed-top align-items-center justify-content-between px-0 d-flex w-100"
+      style="height: 80px; background-color: var(--navmenubar-background)"
+    >
       <NavBar />
     </div>
   </header>

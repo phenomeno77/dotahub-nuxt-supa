@@ -1,59 +1,95 @@
 <script lang="ts" setup>
 import { buttons } from "~/constants/labels";
-import { useAuthStore } from "~/stores/auth";
 import steamLogo from "~/assets/steam.svg";
 import NavBarActionMenu from "./NavBarActionMenu.vue";
+import SearchBar from "./SearchBar.vue";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
 const { loggedIn } = useUserSession();
+const showMobileSearch = ref(false);
 
 const handleLoginSteam = () => {
   window.location.href = "/api/auth/steam";
 };
-
-const menuPt = computed(() => ({
-  root: {
-    style: {
-      height: "100%",
-    },
-  },
-}));
 </script>
 
 <template>
-  <Menubar :pt="menuPt">
-    <!-- Logo / Title -->
-    <template #start>
-      <NuxtLink :to="{ path: '/' }" class="font-bold text-lg me-3">
+  <div
+    class="navbar d-flex align-items-center justify-content-between w-100 px-3 py-2"
+  >
+    <!-- Left: Logo -->
+    <div class="navbar-logo">
+      <NuxtLink
+        :to="{ path: '/' }"
+        class="fw-bold text-lg text-decoration-none"
+      >
         {{ appName }}
       </NuxtLink>
-    </template>
+    </div>
 
-    <template #end>
-      <div class="d-flex align-items-center">
-        <Button
-          v-if="!loggedIn"
-          severity="secondary"
-          variant="outlined"
-          class="ms-2"
-          @click="handleLoginSteam"
-        >
-          <img
-            :src="steamLogo"
-            alt="Steam Logo"
-            class="me-2"
-            style="width: 24px; height: 24px"
-          />
-          {{ buttons.SIGN_IN }}
-        </Button>
+    <!-- Center: Search (desktop only) -->
+    <div class="d-none d-md-block">
+      <SearchBar />
+    </div>
 
-        <div v-else class="d-flex align-items-center gap-3">
-          <NavBarActionMenu />
-        </div>
+    <!-- Right: Actions (always shown) -->
+    <div class="d-flex align-items-center gap-3">
+      <!-- Mobile search toggle -->
+      <Button
+        icon="pi pi-search"
+        class="d-md-none"
+        size="large"
+        rounded
+        severity="secondary"
+        aria-label="Search"
+        @click="showMobileSearch = true"
+      />
+
+      <!-- Sign-in / Action Menu -->
+      <Button
+        v-if="!loggedIn"
+        severity="secondary"
+        variant="outlined"
+        class="ms-2"
+        @click="handleLoginSteam"
+      >
+        <img
+          :src="steamLogo"
+          alt="Steam Logo"
+          class="me-2"
+          style="width: 24px; height: 24px"
+        />
+        {{ buttons.SIGN_IN }}
+      </Button>
+
+      <div v-else class="d-flex align-items-center gap-3">
+        <NavBarActionMenu />
       </div>
-    </template>
-  </Menubar>
+    </div>
+
+    <!-- Mobile-only Search Sidebar -->
+    <Drawer
+      v-model:visible="showMobileSearch"
+      position="top"
+      modal
+      :pt="{
+        root: {
+          class: 'drawer-main',
+        },
+      }"
+    >
+      <SearchBar />
+    </Drawer>
+  </div>
 </template>
 
-<style></style>
+<style scoped>
+.navbar {
+  height: 100%;
+}
+
+.p-sidebar-sm {
+  padding: 1rem;
+}
+</style>

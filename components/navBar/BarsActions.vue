@@ -17,7 +17,7 @@ const avatarLabel = computed(() =>
 );
 const showBarsDrawer = ref(false);
 const showCreatePostDialog = useCreatePostDialog();
-const menu: any[] = ref([]);
+const menu = ref<any[]>([]);
 
 const handleLogout = async () => {
   loadingStore.startLoading();

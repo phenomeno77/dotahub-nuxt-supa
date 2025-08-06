@@ -16,12 +16,12 @@ const avatarLabel = computed(() =>
 <template>
   <NotificationsList />
 
-  <Avatar
+  <!-- <Avatar
     :image="avatarImage"
     :label="avatarLabel"
     size="large"
     shape="circle"
-  />
+  /> -->
 
   <BarsActions />
 </template>
