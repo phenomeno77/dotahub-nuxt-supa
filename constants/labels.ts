@@ -53,6 +53,7 @@ export const labels = {
   THANK_YOU_TITLE: "Thank you for your feedback!",
   THANK_YOU_TEXT:
     "We appreciate your time and input. Our team will review it as soon as possible.",
+  SEARCH_BY_USERNAME: "Search by username...",
 };
 
 export const buttons = {

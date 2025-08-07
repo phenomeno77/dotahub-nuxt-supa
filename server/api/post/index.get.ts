@@ -2,10 +2,13 @@ export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event);
 
-    const limit = Math.min(parseInt(query.limit as string) || 5, 50); // enforce max limit
-    const skip = Math.max(parseInt(query.skip as string) || 0, 0); // avoid negative skip
+    const limit = Math.min(parseInt(query.limit as string) || 5, 50);
+    const skip = Math.max(parseInt(query.skip as string) || 0, 0);
+    const searchQuery = query.searchQuery?.toString().trim() || "";
 
-    const { items, total } = await postUtils.getPosts(event, limit, skip);
+    const { items, total } = searchQuery
+      ? await postUtils.searchPosts(event, limit, skip, searchQuery) // <-- new function
+      : await postUtils.getPosts(event, limit, skip, searchQuery);
 
     return {
       success: true,
@@ -13,7 +16,7 @@ export default defineEventHandler(async (event) => {
       total,
     };
   } catch (err: any) {
-    console.error("Post fetch failed:", err); // Optional server-side logging
+    console.error("Post fetch failed:", err);
 
     return sendError(
       event,

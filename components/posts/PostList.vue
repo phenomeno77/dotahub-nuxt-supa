@@ -15,6 +15,7 @@ const postStore = usePostStore();
 const loadingStore = useLoadingStore();
 const scrollerContainerRef = ref<HTMLElement | null>(null);
 const loadNewestPosts = ref(false);
+const searchStore = useGlobalSearchStore();
 const { user: currentUser } = useUserSession();
 
 const {
@@ -22,7 +23,9 @@ const {
   total,
   fetchInitial,
   fetchMore,
-} = usePaginatedFetch<Post>("/api/post", fixed_values.POSTS_PER_PAGE);
+} = usePaginatedFetch<Post>("/api/post", fixed_values.POSTS_PER_PAGE, () => ({
+  searchQuery: searchStore.searchQuery,
+}));
 
 const isBanned = computed(() => route.query.error === "account_banned");
 const steamLoginFailed = computed(
@@ -40,6 +43,13 @@ watch(
       postStore.clearRefreshFlag();
       loadingStore.stopLoading();
     }
+  }
+);
+
+watch(
+  () => searchStore.searchQuery,
+  async (newQuery) => {
+    await fetchInitial();
   }
 );
 
@@ -146,6 +156,15 @@ onBeforeUnmount(async () => {
             class="no-more-posts text-center mt-4"
           >
             You've reached the end! 🎉
+          </div>
+
+          <div
+            v-else-if="
+              searchStore.searchQuery && posts.length === 0 && !isBanned
+            "
+            class="no-posts-found text-center mt-4"
+          >
+            No posts found for this user.
           </div>
         </div>
       </div>

@@ -1,6 +1,10 @@
 import { useToast } from "primevue/usetoast";
 
-export function usePaginatedFetch<T>(url: string, limit = 20) {
+export function usePaginatedFetch<T>(
+  url: string,
+  limit = 20,
+  params: () => Record<string, any> = () => ({})
+) {
   const items = ref<T[]>([]) as Ref<T[]>;
   const total = ref(0);
 
@@ -20,6 +24,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         query: {
           limit: limit,
           skip: 0,
+          ...params(),
         },
       });
       if (res.success) {
@@ -46,6 +51,7 @@ export function usePaginatedFetch<T>(url: string, limit = 20) {
         query: {
           limit: limit,
           skip: items.value.length,
+          ...params(),
         },
       });
       if (res.success) {

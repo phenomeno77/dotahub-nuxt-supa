@@ -2,6 +2,8 @@
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
 import { useGlobalSearchStore } from "@/stores/globalSearch";
+import { useDebounceFn } from "@vueuse/core";
+import { labels } from "~/constants/labels";
 
 const searchQuery = ref("");
 const selectedFilter = ref(null);
@@ -15,9 +17,10 @@ const filterOptions = [
 
 const store = useGlobalSearchStore();
 
-function onSearch() {
-  store.setSearchQuery(searchQuery.value);
-}
+const onSearch = useDebounceFn(() => {
+  const trimmed = searchQuery.value.trim();
+  store.setSearchQuery(trimmed);
+}, 400);
 
 function onFilterChange() {
   store.setFilter(selectedFilter.value);
@@ -28,8 +31,8 @@ function onFilterChange() {
   <div class="nav-search">
     <InputText
       v-model="searchQuery"
-      placeholder="Search..."
-      @input="onSearch"
+      :placeholder="labels.SEARCH_BY_USERNAME"
+      @keyup.enter="onSearch"
       class="p-inputtext-sm w-100"
     />
     <!-- <Select
@@ -45,7 +48,7 @@ function onFilterChange() {
 
 <style scoped>
 .nav-search {
-  min-width: 300px;
+  min-width: 250px;
   display: flex;
   align-items: center;
 }
