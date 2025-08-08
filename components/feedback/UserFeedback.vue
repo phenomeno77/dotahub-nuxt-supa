@@ -58,7 +58,10 @@ const submitFeedback = async () => {
 </script>
 
 <template>
-  <div class="d-flex justify-content-center align-items-center w-100 px-2">
+  <div
+    class="d-flex justify-content-center align-items-center w-100 px-2 position-absolute start-0 end-0 overflow-auto"
+    style="top: 80px; bottom: 40px"
+  >
     <Card
       :pt="{
         root: {
