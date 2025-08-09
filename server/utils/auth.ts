@@ -355,6 +355,8 @@ async function handleSteamUser(
     }
   }
 
+  let userId = user?.id;
+
   // ✅ Update or create user and set userStatus active if not banned
   if (user) {
     user = await prisma.userProfile.update({
@@ -376,8 +378,32 @@ async function handleSteamUser(
       },
     });
   } else {
+    const fakeEmail = `steam_${steamId}@steam.local`;
+
+    // Search existing Auth user by email
+    const { data: list } = await supabaseClient.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+    });
+
+    let existingAuthUser = list.users.find((u) => u.email === fakeEmail);
+
+    if (!existingAuthUser) {
+      const { data: created, error: createErr } =
+        await supabaseClient.auth.admin.createUser({
+          email: fakeEmail,
+          password: crypto.randomUUID(),
+          email_confirm: true,
+        });
+      if (createErr) throw createErr;
+      existingAuthUser = created.user;
+    }
+
+    userId = existingAuthUser.id;
+
     user = await prisma.userProfile.create({
       data: {
+        id: userId,
         steamId,
         username,
         avatarUrl,
