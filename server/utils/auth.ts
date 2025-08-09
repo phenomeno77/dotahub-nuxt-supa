@@ -8,6 +8,7 @@ import { type H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
 import { getBanExpiration } from "./banUtils";
+import crypto from "crypto";
 
 async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
@@ -313,6 +314,14 @@ async function getBanHistories(event: H3Event, userId: string) {
   return bans;
 }
 
+function generateSteamPassword(steamId: string) {
+  // Hash steamId to avoid storing it in plain text as password
+  return crypto
+    .createHash("sha256")
+    .update(steamId + process.env.SOME_SECRET_SALT)
+    .digest("hex");
+}
+
 async function handleSteamUser(
   event: H3Event,
   steamData: {
@@ -357,6 +366,9 @@ async function handleSteamUser(
 
   let userId = user?.id;
 
+  const fakeEmail = `steam_${steamId}@steam.local`;
+  const steamPassword = generateSteamPassword(steamId);
+
   // ✅ Update or create user and set userStatus active if not banned
   if (user) {
     user = await prisma.userProfile.update({
@@ -378,8 +390,6 @@ async function handleSteamUser(
       },
     });
   } else {
-    const fakeEmail = `steam_${steamId}@steam.local`;
-
     // Search existing Auth user by email
     const { data: list } = await supabaseClient.auth.admin.listUsers({
       page: 1,
@@ -392,10 +402,15 @@ async function handleSteamUser(
       const { data: created, error: createErr } =
         await supabaseClient.auth.admin.createUser({
           email: fakeEmail,
-          password: crypto.randomUUID(),
+          password: steamPassword,
           email_confirm: true,
         });
-      if (createErr) throw createErr;
+      if (createErr) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: ErrorMessages.UNAUTHORIZED,
+        });
+      }
       existingAuthUser = created.user;
     }
 
@@ -419,6 +434,18 @@ async function handleSteamUser(
           take: 1,
         },
       },
+    });
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: fakeEmail,
+    password: steamPassword,
+  });
+
+  if (error || !data?.user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: ErrorMessages.INVALID_USERAME_OR_PASSWORD,
     });
   }
 
