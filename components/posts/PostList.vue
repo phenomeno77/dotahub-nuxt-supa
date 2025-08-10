@@ -23,6 +23,7 @@ const {
   total,
   fetchInitial,
   fetchMore,
+  loadingMore,
 } = usePaginatedFetch<Post>("/api/post", fixed_values.POSTS_PER_PAGE, () => ({
   searchQuery: searchStore.searchQuery,
 }));
@@ -140,7 +141,7 @@ onBeforeUnmount(async () => {
           </DynamicScroller>
 
           <!-- Inline Skeletons directly below posts -->
-          <div v-if="loadingStore.isLoading">
+          <div v-if="loadingStore.isLoading || loadingMore">
             <div
               class="mb-3"
               v-for="n in fixed_values.POSTS_PER_PAGE"

@@ -32,6 +32,7 @@ const {
   total,
   fetchInitial,
   fetchMore,
+  loadingMore,
 } = usePaginatedFetch<Comment>(
   `/api/comment?postId=${props.post.id}`,
   fixed_values.COMMENTS_PER_PAGE
@@ -212,6 +213,7 @@ onUnmounted(() => {
       <PostCommentsList
         v-if="props.post.id !== undefined"
         :comments="comments"
+        :loadingMore="loadingMore"
         :postUserId="props.post.user?.id ?? ''"
         v-model:addingComment="addingComment"
         :skeletonCount="fixed_values.COMMENTS_PER_PAGE"

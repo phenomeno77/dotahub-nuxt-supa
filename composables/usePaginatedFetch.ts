@@ -7,9 +7,9 @@ export function usePaginatedFetch<T>(
 ) {
   const items = ref<T[]>([]) as Ref<T[]>;
   const total = ref(0);
-
   const toast = useToast();
   const loadingStore = useLoadingStore();
+  const loadingMore = ref(false);
 
   type PaginatedResponse = {
     success: boolean;
@@ -45,7 +45,7 @@ export function usePaginatedFetch<T>(
 
   const fetchMore = async () => {
     if (items.value.length >= total.value) return;
-    loadingStore.startLoading();
+    loadingMore.value = true;
     try {
       const res = await $fetch<PaginatedResponse>(url, {
         query: {
@@ -65,7 +65,7 @@ export function usePaginatedFetch<T>(
         "Unexpected error";
       notifications(toast, "warn", "Loading Items Failed", message, 3000);
     } finally {
-      loadingStore.stopLoading();
+      loadingMore.value = false;
     }
   };
 
@@ -73,6 +73,7 @@ export function usePaginatedFetch<T>(
     items,
     total,
     fetchInitial,
+    loadingMore,
     fetchMore,
   };
 }

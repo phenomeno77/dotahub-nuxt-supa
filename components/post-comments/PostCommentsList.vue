@@ -2,15 +2,17 @@
 import type { Comment } from "~/types/Post";
 import PostCommentItem from "./PostCommentItem.vue";
 import CommentSkeleton from "./CommentSkeleton.vue";
+import { fixed_values } from "~/constants/labels";
 
 const props = withDefaults(
   defineProps<{
     comments: Comment[];
     skeletonCount?: number;
     postUserId: string;
+    loadingMore: boolean;
   }>(),
   {
-    skeletonCount: 5,
+    skeletonCount: fixed_values.COMMENTS_PER_PAGE,
   }
 );
 
@@ -37,7 +39,7 @@ const loadingStore = useLoadingStore();
   </div>
 
   <CommentSkeleton
-    v-if="(loadingStore.isLoading && !comments.length) || addingComment"
+    v-if="loadingStore.isLoading || addingComment || props.loadingMore"
     v-for="n in props.skeletonCount"
     :key="'skeleton-' + n"
   />
