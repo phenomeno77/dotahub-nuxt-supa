@@ -6,7 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { fixed_values, labels } from "~/constants/labels";
 import type { Post } from "~/types/Post";
 import { useToast } from "primevue/usetoast";
-import PostCommentDialog from "../post-comments/PostCommentDialog.vue";
+import PostCommentDialog from "~/components/post-comments/PostCommentDialog.vue";
 
 dayjs.extend(relativeTime);
 

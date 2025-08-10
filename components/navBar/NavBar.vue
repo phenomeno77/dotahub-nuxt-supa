@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { buttons } from "~/constants/labels";
 import steamLogo from "~/assets/steam.svg";
-import NavBarActionMenu from "./NavBarActionMenu.vue";
-import SearchBar from "./SearchBar.vue";
+import BarsActions from "./BarsActions.vue";
+import SearchFilterBar from "./SearchFilterBar.vue";
+import NotificationsList from "./notifications/NotificationsList.vue";
 
 const config = useRuntimeConfig();
 const appName = config.public.appName;
@@ -30,7 +31,7 @@ const handleLoginSteam = () => {
 
     <!-- Center: Search (desktop only) -->
     <div class="d-none d-md-block" v-if="loggedIn">
-      <SearchBar />
+      <SearchFilterBar />
     </div>
 
     <!-- Right: Actions (always shown) -->
@@ -65,7 +66,8 @@ const handleLoginSteam = () => {
       </Button>
 
       <div v-else class="d-flex align-items-center gap-3">
-        <NavBarActionMenu />
+        <NotificationsList />
+        <BarsActions />
       </div>
     </div>
 
@@ -80,7 +82,7 @@ const handleLoginSteam = () => {
         },
       }"
     >
-      <SearchBar />
+      <SearchFilterBar @onSearchFilterClose="showMobileSearch = false" />
     </Drawer>
   </div>
 </template>

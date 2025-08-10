@@ -26,6 +26,8 @@ export const labels = {
   SELECT_MIN_RANK: "Select Min Rank",
   SELECT_MAX_RANK: "Select Max Rank",
   RANK_RANGE: "Rank Range",
+  RANK: "Rank",
+  SELECT_RANK: "Select a Rank",
   COMMENT: "Comment",
   COMMENT_PLACEHOLDER: "Share your thoughts...",
   POST_ABORT: "Reset",
@@ -38,6 +40,7 @@ export const labels = {
   CONFIRM_REMOVE_COMMENT_HEADER: "Delete comment",
   CONFIRM_REMOVE_COMMENT_TEXT: "Are you sure you want delete this comment?",
   LOOKING_FOR: "Looking For",
+  POSITIONS: "Positions",
   BAN_FORM: "Ban Form",
   BAN_REASON: "Ban Reason",
   NOTIFICATIONS: "Notifications",
@@ -54,6 +57,7 @@ export const labels = {
   THANK_YOU_TEXT:
     "We appreciate your time and input. Our team will review it as soon as possible.",
   SEARCH_BY_USERNAME: "Search by username...",
+  FILTER: "Filter",
 };
 
 export const buttons = {
