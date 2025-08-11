@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputText from "primevue/inputtext";
-import { useGlobalSearchStore } from "@/stores/globalSearch";
+import { useGlobalFilterSearch } from "~/stores/globalFilterSearch";
 import { useDebounceFn } from "@vueuse/core";
 import { labels } from "~/constants/labels";
 import { Position, Rank } from "~/types/enums";
@@ -10,7 +10,7 @@ const emit = defineEmits(["onSearchFilterClose"]);
 const positions = ref(Object.entries(Position));
 const ranks = ref(Object.values(Rank));
 const searchQuery = ref("");
-const store = useGlobalSearchStore();
+const store = useGlobalFilterSearch();
 const showFilterDrawer = ref(false);
 const selectedRank = ref<Rank | null>(null);
 const selectedPositions = ref<Position[]>([]);
@@ -20,6 +20,13 @@ const onSearch = useDebounceFn(() => {
   store.setSearchQuery(trimmed);
   emit("onSearchFilterClose");
 }, 400);
+
+const onUseFilter = () => {
+  store.setRankFilter(selectedRank.value);
+  store.setPositionFilter(selectedPositions.value);
+  showFilterDrawer.value = false;
+  emit("onSearchFilterClose");
+};
 
 const getPositionIcon = (position: string) => {
   switch (position.toLowerCase()) {
@@ -38,9 +45,22 @@ const getPositionIcon = (position: string) => {
   }
 };
 
-const onDrawerHide = () => {
-  selectedRank.value = null;
-  selectedPositions.value = [];
+const resetFilter = () => {
+  if (selectedRank.value || selectedPositions.value.length) {
+    selectedRank.value = null;
+    selectedPositions.value = [];
+  }
+
+  if (store.rankFilter || store.positionFilter.length) {
+    store.setRankFilter(null);
+    store.setPositionFilter([]);
+    emit("onSearchFilterClose");
+  }
+};
+
+const onShowFilter = () => {
+  selectedRank.value = store.rankFilter;
+  selectedPositions.value = store.positionFilter;
 };
 </script>
 
@@ -65,11 +85,11 @@ const onDrawerHide = () => {
     v-model:visible="showFilterDrawer"
     :header="labels.FILTER"
     position="top"
-    @hide="onDrawerHide"
-    modal
+    @show="onShowFilter"
     :style="{
-      height: '50%',
+      height: 'auto',
     }"
+    modal
     :pt="{
       root: {
         class: 'drawer-main',
@@ -110,6 +130,26 @@ const onDrawerHide = () => {
         </div>
       </div>
     </div>
+
+    <template #footer>
+      <div class="d-flex w-100">
+        <div>
+          <Button
+            v-if="selectedRank || selectedPositions.length > 0"
+            :label="labels.RESET_FILTER"
+            variant="text"
+            @click="resetFilter"
+          />
+        </div>
+        <div class="ms-auto">
+          <Button
+            :label="labels.USE_FILTER"
+            severity="secondary"
+            @click="onUseFilter"
+          />
+        </div>
+      </div>
+    </template>
   </Drawer>
 </template>
 

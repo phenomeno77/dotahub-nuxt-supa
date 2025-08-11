@@ -4,7 +4,9 @@ import steamLogo from "~/assets/steam.svg";
 import BarsActions from "./BarsActions.vue";
 import SearchFilterBar from "./SearchFilterBar.vue";
 import NotificationsList from "./notifications/NotificationsList.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const config = useRuntimeConfig();
 const appName = config.public.appName;
 const { loggedIn } = useUserSession();
@@ -30,7 +32,7 @@ const handleLoginSteam = () => {
     </div>
 
     <!-- Center: Search (desktop only) -->
-    <div class="d-none d-md-block" v-if="loggedIn">
+    <div class="d-none d-md-block" v-if="loggedIn && route.path === '/'">
       <SearchFilterBar />
     </div>
 
@@ -38,7 +40,7 @@ const handleLoginSteam = () => {
     <div class="d-flex align-items-center gap-3">
       <!-- Mobile search toggle -->
       <Button
-        v-if="loggedIn"
+        v-if="loggedIn && route.path === '/'"
         icon="pi pi-search"
         class="d-md-none"
         size="large"

@@ -5,10 +5,22 @@ export default defineEventHandler(async (event) => {
     const limit = Math.min(parseInt(query.limit as string) || 5, 50);
     const skip = Math.max(parseInt(query.skip as string) || 0, 0);
     const searchQuery = query.searchQuery?.toString().trim() || "";
+    const filterRank = query.rank?.toString().trim() || "";
+    let filterPositions: string[] = [];
 
-    const { items, total } = searchQuery
-      ? await postUtils.searchPosts(event, limit, skip, searchQuery) // <-- new function
-      : await postUtils.getPosts(event, limit, skip, searchQuery);
+    if (typeof query.positions === "string") {
+      filterPositions = query.positions.split(",").map((s) => s.trim());
+    } else if (Array.isArray(query.positions)) {
+      filterPositions = query.positions.map((s) => s.toString().trim());
+    }
+    const { items, total } = await postUtils.filterPosts(
+      event,
+      limit,
+      skip,
+      searchQuery || null,
+      filterRank || null,
+      filterPositions
+    );
 
     return {
       success: true,

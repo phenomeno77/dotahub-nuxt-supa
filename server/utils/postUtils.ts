@@ -95,14 +95,38 @@ async function createPost(
   });
 }
 
-async function getPosts(
+async function filterPosts(
   event: H3Event,
   limit: number,
   skip: number,
-  searchQuery: string
+  searchQuery: string | null = null,
+  rank: string | null = null,
+  positions: string[] = []
 ) {
-  // Fetch posts ordered by createdAt desc (with pagination)
+  // Build the where condition dynamically
+  const where: any = {};
+
+  if (searchQuery) {
+    where.user = {
+      username: {
+        contains: searchQuery,
+        mode: "insensitive",
+      },
+    };
+  }
+
+  if (rank) {
+    where.OR = [{ minRank: rank }, { maxRank: rank }];
+  }
+
+  if (positions.length) {
+    where.positionsNeeded = {
+      hasSome: positions,
+    };
+  }
+
   const posts = await prisma.posts.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       user: {
@@ -117,86 +141,7 @@ async function getPosts(
     take: limit,
   });
 
-  // Total count for pagination
-  const total = await prisma.posts.count();
-
-  // Get comment counts
-  const postIds = posts.map((post) => post.id);
-
-  const commentCounts = await prisma.postComments.groupBy({
-    by: ["postId"],
-    where: {
-      postId: { in: postIds },
-    },
-    _count: {
-      postId: true,
-    },
-  });
-
-  const countMap = new Map(
-    commentCounts.map((item) => [item.postId, item._count.postId])
-  );
-
-  // Format posts for response
-  const formattedPosts = posts.map((post) => ({
-    id: post.id,
-    userId: post.user.id,
-    partySize: post.partySize,
-    positionsNeeded: post.positionsNeeded,
-    minRank: post.minRank,
-    maxRank: post.maxRank,
-    description: post.description,
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-    user: post.user,
-    commentCount: countMap.get(post.id) ?? 0,
-  }));
-
-  return {
-    items: formattedPosts,
-    total,
-  };
-}
-
-async function searchPosts(
-  event: H3Event,
-  limit: number,
-  skip: number,
-  searchQuery: string
-) {
-  const posts = await prisma.posts.findMany({
-    where: {
-      user: {
-        username: {
-          contains: searchQuery,
-          mode: "insensitive",
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          id: true,
-          username: true,
-          avatarUrl: true,
-        },
-      },
-    },
-    skip,
-    take: limit,
-  });
-
-  const total = await prisma.posts.count({
-    where: {
-      user: {
-        username: {
-          contains: searchQuery,
-          mode: "insensitive",
-        },
-      },
-    },
-  });
+  const total = await prisma.posts.count({ where });
 
   const postIds = posts.map((post) => post.id);
 
@@ -519,8 +464,7 @@ async function getPostById(event: H3Event, postId: number) {
 
 export default {
   createPost,
-  getPosts,
-  searchPosts,
+  filterPosts,
   getUsersPostHistory,
   updatePost,
   deletePost,

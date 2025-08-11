@@ -58,6 +58,8 @@ export const labels = {
     "We appreciate your time and input. Our team will review it as soon as possible.",
   SEARCH_BY_USERNAME: "Search by username...",
   FILTER: "Filter",
+  USE_FILTER: "Use Filter",
+  RESET_FILTER: "Reset Filter",
 };
 
 export const buttons = {
