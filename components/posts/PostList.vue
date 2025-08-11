@@ -9,6 +9,7 @@ import PostItem from "~/components/posts/PostItem.vue";
 import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import { useRealtimePosts } from "~/composables/useRealtimePosts";
 import { buttons, fixed_values } from "~/constants/labels";
+import { useGlobalFilterSearch } from "~/stores/globalFilterSearch";
 
 const route = useRoute();
 const postStore = usePostStore();
