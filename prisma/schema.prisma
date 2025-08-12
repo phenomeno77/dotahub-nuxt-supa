@@ -127,7 +127,6 @@ enum UserRole {
 enum UserStatus {
   active
   banned
-  deleted
 }
 
 enum NotificationType {

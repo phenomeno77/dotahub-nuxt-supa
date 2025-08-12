@@ -60,6 +60,12 @@ export const labels = {
   FILTER: "Filter",
   USE_FILTER: "Use Filter",
   RESET_FILTER: "Reset Filter",
+  DELETE_USER_MESSAGE:
+    "Are you sure you want to delete this user? This action is permanent and can’t be undone.",
+  DELETE_USER_HEADER: "Delete User",
+  DELETE_USER_DELETE: "Delete",
+  DELETE_USER_TOAST_SUMMARY: "Confirmed",
+  DELETE_USER_TOAST_DETAIL: "User Deleted",
 };
 
 export const buttons = {
