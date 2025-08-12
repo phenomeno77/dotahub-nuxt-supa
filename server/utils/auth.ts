@@ -570,7 +570,12 @@ async function getUserSummary(event: H3Event) {
       statusMessage: ErrorMessages.UNAUTHORIZED,
     });
   }
-  const totalUsersCount = await prisma.userProfile.count();
+
+  const totalUsersCount = await prisma.userProfile.count({
+    where: {
+      role: UserRole.user,
+    },
+  });
 
   const oneMinute = 1 * 60 * 1000;
   const now = new Date();
@@ -616,6 +621,47 @@ async function getFeedbackSummary(event: H3Event) {
   };
 }
 
+async function deleteUser(event: H3Event, userId: string) {
+  const isAdminUser = await isAdmin(event);
+
+  if (!isAdminUser) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: ErrorMessages.UNAUTHORIZED,
+    });
+  }
+
+  const targetUser = await prisma.userProfile.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!targetUser) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: ErrorMessages.USER_NOT_FOUND,
+    });
+  }
+
+  await prisma.userProfile.delete({
+    where: {
+      id: userId,
+    },
+  });
+
+  const { error } = await supabaseClient.auth.admin.deleteUser(userId);
+
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: `Failed to delete from Supabase Auth: ${error.message}`,
+    });
+  }
+
+  return { success: true };
+}
+
 export default {
   setSession,
   getCurrentUser,
@@ -630,4 +676,5 @@ export default {
   verifyCurrentUserStatus,
   getUserSummary,
   getFeedbackSummary,
+  deleteUser,
 };

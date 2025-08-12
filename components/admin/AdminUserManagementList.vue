@@ -8,6 +8,7 @@ import BanUserForm from "./BanUserForm.vue";
 import AddUserForm from "./AddUserForm.vue";
 import { UserRole, UserStatus } from "~/types/enums";
 import { type BanRecord, type UserProfile } from "~/types/UserProfile";
+import { useConfirm } from "primevue/useconfirm";
 
 const toast = useToast();
 const roles = Object.values(UserRole);
@@ -24,6 +25,7 @@ const expandedRows = ref({});
 const banRecords = ref<Record<string, BanRecord[]>>({});
 const loadingBanHistory = ref(false);
 const users = ref<UserProfile[]>([]);
+const confirm = useConfirm();
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -97,10 +99,62 @@ const updateUser = async (newData: UpdateUser) => {
   }
 };
 
-const onStatusChange = (event: any) => {
+const onStatusChange = (event: any, id: string) => {
   userStatus.value = event;
   if (event === UserStatus.banned) {
     showBanUserDialog.value = true;
+  }
+};
+
+const confirmDeleteUser = (id: string) => {
+  confirm.require({
+    message: labels.DELETE_USER_MESSAGE,
+    header: labels.DELETE_USER_HEADER,
+    icon: "pi pi-exclamation-triangle",
+    rejectLabel: "Cancel",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true,
+    },
+    acceptProps: {
+      label: labels.DELETE_USER_DELETE,
+      severity: "danger",
+    },
+    accept: () => {
+      deleteUser(id);
+    },
+  });
+};
+
+const deleteUser = async (id: string) => {
+  loadingStore.startLoading();
+  try {
+    const response = await $fetch<{
+      success: boolean;
+    }>(`/api/auth/admin/user/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.success) {
+      users.value = users.value.filter((user) => user.id !== id);
+      notifications(
+        toast,
+        "info",
+        labels.DELETE_USER_TOAST_SUMMARY,
+        labels.DELETE_USER_TOAST_DETAIL
+      );
+    }
+  } catch (error: any) {
+    const message =
+      error?.response?._data?.statusMessage ||
+      error.statusMessage ||
+      error.message ||
+      "Unexpected error";
+
+    notifications(toast, "warn", "Update failed", message, 3000);
+  } finally {
+    loadingStore.stopLoading();
   }
 };
 
@@ -137,7 +191,7 @@ const onRowEditSave = (event: { newData: UpdateUser; data: UpdateUser }) => {
 };
 
 const isEditableUsername = (userRole: string) => {
-  return userRole === UserRole.user;
+  return userRole !== UserRole.user;
 };
 
 const onRowExpand = async (event: { data: UpdateUser }) => {
@@ -337,9 +391,9 @@ onMounted(async () => {
         >
         <template #loading> Loading users... </template>
 
-        <Column expander style="width: 2rem" />
+        <Column expander style="width: 1rem" />
         <!-- USERNAME COLUMN -->
-        <Column field="username" header="Username" sortable>
+        <Column field="username" header="Username" sortable style="width: 25%">
           <template #filter="{ filterModel, filterCallback }">
             <InputText
               v-model="filterModel.value"
@@ -347,12 +401,22 @@ onMounted(async () => {
               placeholder="Search by username"
             />
           </template>
+
           <template #editor="{ data, field }">
             <InputText
-              v-if="!isEditableUsername(data.role)"
+              v-if="isEditableUsername(data.role)"
               v-model="data[field]"
+              style="white-space: normal; word-wrap: break-word"
             />
-            <td v-else>{{ data.username }}</td>
+            <div v-else style="white-space: normal; word-wrap: break-word">
+              {{ data.username }}
+            </div>
+          </template>
+
+          <template #body="{ data }">
+            <div style="white-space: normal; word-wrap: break-word">
+              {{ data.username }}
+            </div>
           </template>
         </Column>
 
@@ -398,7 +462,7 @@ onMounted(async () => {
           <template #editor="{ data, field }">
             <Select
               v-model="data[field]"
-              @value-change="onStatusChange"
+              @value-change="onStatusChange($event, data.id)"
               :options="statuses"
               placeholder="Select status"
               fluid
@@ -429,10 +493,20 @@ onMounted(async () => {
         <!-- EDITOR BUTTON COLUMN -->
         <Column
           :rowEditor="true"
-          style="width: 10%; min-width: 8rem"
+          style="min-width: 7rem"
           bodyStyle="text-align:center"
         >
         </Column>
+        <Column bodyStyle="text-align:center">
+          <template #body="{ data }">
+            <Button
+              severity="danger"
+              icon="pi pi-trash"
+              variant="text"
+              rounded
+              @click="confirmDeleteUser(data.id)"
+            /> </template
+        ></Column>
 
         <template #expansion="slotProps">
           <div class="p-3">
