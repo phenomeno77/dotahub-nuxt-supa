@@ -117,7 +117,7 @@ onMounted(async () => {
       <div class="row justify-content-center">
         <div class="col-md-6 col-11 p-0">
           <!-- User Header -->
-          <UserProfileHeader v-if="user" :user="user" />
+          <UserProfileHeader v-if="user && posts.length > 0" :user="user" />
 
           <DynamicScroller :items="posts" :min-item-size="300" page-mode>
             <template #default="{ item, index, active }">
@@ -136,6 +136,14 @@ onMounted(async () => {
               </DynamicScrollerItem>
             </template>
           </DynamicScroller>
+
+          <div
+            v-if="posts.length === 0 && !loadingStore.isLoading"
+            class="no-more-posts text-center mt-4"
+          >
+            <p>Nothing to see here… yet! 👀</p>
+            <p>Time to add some awesome content! ✨</p>
+          </div>
 
           <!-- Skeletons -->
           <div v-if="loadingStore.isLoading || loadingMore">
