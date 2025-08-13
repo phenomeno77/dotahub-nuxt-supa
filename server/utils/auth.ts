@@ -583,6 +583,7 @@ async function getUserSummary(event: H3Event) {
 
   const totalUsersOnline = await prisma.userProfile.count({
     where: {
+      role: UserRole.user,
       lastSeenAt: {
         gte: fiveMinutesAgo,
       },
