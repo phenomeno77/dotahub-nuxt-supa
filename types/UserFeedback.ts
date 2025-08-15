@@ -12,5 +12,6 @@ export interface UserFeedback {
     avatarUrl: string | null;
     steamId: string;
     id: string;
+    publicId: string;
   };
 }

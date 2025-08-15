@@ -2,7 +2,7 @@ import { H3Event } from "h3";
 import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
 
-async function getUserById(event: H3Event, userId: string) {
+async function getUserByPublicId(event: H3Event, publicId: string) {
   const { user: currentUser } = await getUserSession(event);
 
   if (!currentUser) {
@@ -13,9 +13,10 @@ async function getUserById(event: H3Event, userId: string) {
   }
 
   const user = await prisma.userProfile.findUnique({
-    where: { id: userId },
+    where: { publicId },
     select: {
       id: true,
+      publicId: true,
       avatarUrl: true,
       username: true,
     },
@@ -25,5 +26,5 @@ async function getUserById(event: H3Event, userId: string) {
 }
 
 export default {
-  getUserById,
+  getUserByPublicId,
 };

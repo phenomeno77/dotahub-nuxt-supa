@@ -4,13 +4,13 @@ export default defineEventHandler(async (event) => {
   try {
     await requireUserLoggedIn(event);
 
-    const id = getRouterParam(event, "id");
+    const publicId = getRouterParam(event, "publicId");
 
-    if (!id) {
+    if (!publicId) {
       throw createError({ statusCode: 400, statusMessage: "Missing user id" });
     }
 
-    const user = await userUtils.getUserById(event, id);
+    const user = await userUtils.getUserByPublicId(event, publicId);
 
     return {
       success: true,

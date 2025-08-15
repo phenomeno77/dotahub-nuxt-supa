@@ -132,6 +132,7 @@ async function filterPosts(
       user: {
         select: {
           id: true,
+          publicId: true,
           username: true,
           avatarUrl: true,
         },
@@ -255,6 +256,7 @@ async function getUsersPostHistory(
     updatedAt: post.updatedAt,
     user: {
       id: post.user.id,
+      publicId: post.user.publicId,
       username: post.user.username,
       avatarUrl: post.user.avatarUrl,
     },

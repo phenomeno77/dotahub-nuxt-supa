@@ -10,6 +10,7 @@ datasource db {
 
 model UserProfile {
   id               String           @id @default(uuid())
+  publicId         String           @unique @default(dbgenerated("substr(md5(random()::text), 1, 8)")) @db.VarChar(8)
   username         String
   email            String?          @unique
   avatarUrl        String?

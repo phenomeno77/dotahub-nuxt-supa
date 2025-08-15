@@ -14,6 +14,7 @@ async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
     user: {
       id: user.id,
+      publicId: user.publicId,
       role: user.role,
     },
     loggedInAt: new Date(),

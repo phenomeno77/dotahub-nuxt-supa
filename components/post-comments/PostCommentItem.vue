@@ -173,7 +173,7 @@ const avatarLabel = computed(() =>
             >
               <template v-if="loggedIn">
                 <a
-                  :href="`/profile/${comment.user?.id}`"
+                  :href="`/profile/${comment.user?.publicId}`"
                   class="text-truncate username"
                   style="
                     max-width: 400px;

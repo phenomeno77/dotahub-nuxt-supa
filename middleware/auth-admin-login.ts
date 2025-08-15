@@ -1,6 +1,5 @@
 import { UserRole } from "~/types/enums";
 
-// middleware/auth-admin-login.ts
 export default defineNuxtRouteMiddleware(async () => {
   const { loggedIn } = useUserSession();
   const authStore = useAuthStore();
@@ -11,7 +10,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (authStore.userRole === UserRole.admin) {
     // Logged-in and has admin role — redirect to dashboard
-    return navigateTo("/admin-dashboard");
+    return navigateTo("/admin");
   }
 
   // Logged-in but not admin — redirect somewhere else or show an error

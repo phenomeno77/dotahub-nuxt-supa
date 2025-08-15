@@ -230,7 +230,7 @@ const safeDescription = computed(() => {
             >
               <template v-if="loggedIn">
                 <a
-                  :href="`/profile/${localPost.user?.id}`"
+                  :href="`/profile/${localPost.user?.publicId}`"
                   class="text-truncate username"
                   style="
                     max-width: 400px;

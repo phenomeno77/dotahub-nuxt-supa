@@ -100,7 +100,7 @@ function togglePostExpand(id: number) {
             >
               <template v-if="loggedIn">
                 <a
-                  :href="`/profile/${props.post.user?.id}`"
+                  :href="`/profile/${props.post.user?.publicId}`"
                   class="text-truncate username"
                   style="
                     max-width: 400px;

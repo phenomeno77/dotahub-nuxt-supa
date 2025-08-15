@@ -24,6 +24,7 @@ const postStore = usePostStore();
 
 const scrollerContainerRef = ref<HTMLElement | null>(null);
 const user = ref<UserProfile>();
+const hasLoaded = ref(false);
 
 const {
   items: posts,
@@ -75,12 +76,12 @@ watch(
   }
 );
 
-// Initial load
 onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
     loadingStore.startLoading();
     await fetchUser();
     await fetchInitial();
+    hasLoaded.value = true;
     loadingStore.stopLoading();
   }
 
@@ -138,7 +139,7 @@ onMounted(async () => {
           </DynamicScroller>
 
           <div
-            v-if="posts.length === 0 && !loadingStore.isLoading"
+            v-if="hasLoaded && posts.length === 0 && !loadingStore.isLoading"
             class="no-more-posts text-center mt-4"
           >
             <p>Nothing to see here… yet! 👀</p>

@@ -55,6 +55,7 @@ async function addComment(event: H3Event, comment: string, postId: number) {
       user: {
         select: {
           id: true,
+          publicId: true,
           username: true,
           avatarUrl: true,
         },
@@ -107,6 +108,7 @@ export async function getCommentsForPost(
       user: {
         select: {
           id: true,
+          publicId: true,
           username: true,
           avatarUrl: true,
         },
