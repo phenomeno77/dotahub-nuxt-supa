@@ -77,6 +77,7 @@ const addComment = async () => {
   if (!comment.value || !comment.value.trim()) {
     return;
   }
+
   addingComment.value = true;
 
   try {

@@ -89,8 +89,8 @@ const editCommentItems = computed(() => {
   const menu: any[] = [];
 
   if (
-    currentUser.id === props.comment.user.id ||
-    currentUser.role === UserRole.admin
+    currentUser.value.id === props.comment.user.id ||
+    currentUser.value.role === UserRole.admin
   ) {
     menu.push({
       label: "Edit",

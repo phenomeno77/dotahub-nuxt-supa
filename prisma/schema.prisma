@@ -9,7 +9,7 @@ datasource db {
 }
 
 model UserProfile {
-  id               String           @id @default(uuid())
+  id               String           @id @default(uuid()) @db.Uuid
   publicId         String           @unique @default(dbgenerated("substr(md5(random()::text), 1, 8)")) @db.VarChar(8)
   username         String
   email            String?          @unique
@@ -40,7 +40,7 @@ model Posts {
   description     String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-  userId          String
+  userId          String          @db.Uuid
   postComments    PostComments[]  @relation("PostComments")
   user            UserProfile     @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
   notifications   Notifications[]   @relation("PostNotifications")
@@ -50,7 +50,7 @@ model PostComments {
   id        Int                 @id @default(autoincrement())
   content   String
   createdAt DateTime            @default(now())
-  userId    String
+  userId    String              @db.Uuid
   postId    Int
   post      Posts               @relation("PostComments", fields: [postId], references: [id], onDelete: Cascade)
   user      UserProfile         @relation("UserComments", fields: [userId], references: [id], onDelete: Cascade)
@@ -61,7 +61,7 @@ model Notifications {
   id        Int           @id @default(autoincrement())
 
   user      UserProfile   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
+  userId    String        @db.Uuid
 
   post      Posts?        @relation("PostNotifications", fields: [postId], references: [id], onDelete: Cascade)
   postId    Int?
@@ -81,7 +81,7 @@ model Notifications {
 model UserFeedback {
   id          Int             @id @default(autoincrement())
   user        UserProfile     @relation("UserFeedback", fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
+  userId      String          @db.Uuid
   type        FeedbackType
   message     String
   status      FeedbackStatus  @default(open) 
@@ -94,8 +94,8 @@ model BanHistory {
   reason        String
   bannedAt      DateTime     @default(now())
   banExpiration DateTime?
-  userId        String
-  bannedById    String?
+  userId        String       @db.Uuid
+  bannedById    String?      @db.Uuid
   bannedBy      UserProfile? @relation("UserBannedBy", fields: [bannedById], references: [id])
   user          UserProfile  @relation("UserBanHistory", fields: [userId], references: [id], onDelete: Cascade)
 }
