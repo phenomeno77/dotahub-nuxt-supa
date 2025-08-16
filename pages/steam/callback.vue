@@ -31,7 +31,7 @@ onMounted(async () => {
         });
       }
 
-      authStore.login(user.role, user.username, user.avatarUrl, user.id);
+      authStore.login(user.username, user.avatarUrl);
       navigateTo("/");
     } else {
       navigateTo("/login?error=session_not_found");

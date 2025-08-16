@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAuthStore } from "@/stores/auth";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import dayjs from "dayjs";
@@ -15,8 +14,7 @@ dayjs.extend(relativeTime);
 const props = defineProps<{ comment: Comment; postUserId: string }>();
 const emits = defineEmits(["comment-deleted"]);
 
-const { loggedIn } = useUserSession();
-const authStore = useAuthStore();
+const { loggedIn, user: currentUser } = useUserSession();
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -91,8 +89,8 @@ const editCommentItems = computed(() => {
   const menu: any[] = [];
 
   if (
-    authStore.userId === props.comment.user.id ||
-    authStore.userRole === UserRole.admin
+    currentUser.id === props.comment.user.id ||
+    currentUser.role === UserRole.admin
   ) {
     menu.push({
       label: "Edit",
@@ -107,9 +105,9 @@ const editCommentItems = computed(() => {
   }
 
   if (
-    authStore.userId === props.comment.user.id ||
-    authStore.userRole === UserRole.admin ||
-    authStore.userId === props.postUserId
+    currentUser.value.id === props.comment.user.id ||
+    currentUser.value.role === UserRole.admin ||
+    currentUser.value.id === props.postUserId
   ) {
     menu.push({
       label: "Delete",
@@ -210,9 +208,9 @@ const avatarLabel = computed(() =>
         <!-- Menu Button -->
         <div
           v-if="
-            authStore.userId === comment.user.id ||
-            authStore.userRole === UserRole.admin ||
-            authStore.userId === props.postUserId
+            currentUser.id === comment.user.id ||
+            currentUser.role === UserRole.admin ||
+            currentUser.id === props.postUserId
           "
           class="d-flex align-items-center gap-1 flex-shrink-0"
         >

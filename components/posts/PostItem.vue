@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { useAuthStore } from "~/stores/auth";
 import type { Post } from "~/types/Post";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -18,8 +17,7 @@ dayjs.extend(relativeTime);
 const props = defineProps<{ post: Post }>();
 const emits = defineEmits(["comment-added"]);
 
-const { loggedIn } = useUserSession();
-const authStore = useAuthStore();
+const { loggedIn, user: currentUser } = useUserSession();
 const toast = useToast();
 const confirm = useConfirm();
 const postStore = usePostStore();
@@ -265,8 +263,8 @@ const safeDescription = computed(() => {
         <!-- Menu -->
         <div
           v-if="
-            authStore.userId === localPost.user?.id ||
-            authStore.userRole === 'admin'
+            currentUser.id === localPost.user?.id ||
+            currentUser.role === 'admin'
           "
         >
           <Button

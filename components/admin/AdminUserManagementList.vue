@@ -10,11 +10,11 @@ import { UserRole, UserStatus } from "~/types/enums";
 import { type BanRecord, type UserProfile } from "~/types/UserProfile";
 import { useConfirm } from "primevue/useconfirm";
 
+const { user: currentUser } = useUserSession();
 const toast = useToast();
 const roles = Object.values(UserRole);
 const statuses = Object.values(UserStatus);
 const loadingStore = useLoadingStore();
-const authStore = useAuthStore();
 const loggedOrNot = ref([true, false]);
 const editingRows = ref([]);
 const showAddUserDialog = ref(false);
@@ -41,7 +41,7 @@ const globalFilterFields = ref(
 );
 
 const filteredUsersNoCurrentUser = computed(() => {
-  return users.value.filter((user) => user.id !== String(authStore.userId));
+  return users.value.filter((u) => u.id !== String(currentUser.value.id));
 });
 
 const refreshPage = async () => {

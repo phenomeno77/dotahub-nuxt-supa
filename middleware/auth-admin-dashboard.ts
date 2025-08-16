@@ -1,9 +1,9 @@
 import { UserRole } from "~/types/enums";
 
 export default defineNuxtRouteMiddleware(async () => {
-  const authStore = useAuthStore();
+  const { user } = useUserSession();
 
-  if (authStore.userRole !== UserRole.admin) {
+  if (user.value.role !== UserRole.admin) {
     return navigateTo("/");
   }
 });

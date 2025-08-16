@@ -5,7 +5,7 @@ import { buttons } from "~/constants/labels";
 import { useAuthStore } from "~/stores/auth";
 import { UserRole } from "~/types/enums";
 
-const { loggedIn, user } = useUserSession();
+const { loggedIn, user: currentUser } = useUserSession();
 const authStore = useAuthStore();
 const supabase = useSupabaseClient();
 const loadingStore = useLoadingStore();
@@ -52,7 +52,7 @@ const initDrawerMenuItems = () => {
       },
     });
 
-    if (user.value?.role === UserRole.admin) {
+    if (currentUser.value?.role === UserRole.admin) {
       menu.value.push({
         label: buttons.ADMIN_DASHBOARD,
         icon: "pi pi-cog",
@@ -79,7 +79,7 @@ const initDrawerMenuItems = () => {
       icon: "pi pi-history",
       command: () => {
         showBarsDrawer.value = false;
-        navigateTo(`/profile/${authStore.userId}`);
+        navigateTo(`/profile/${currentUser.value.publicId}`);
       },
     });
   }

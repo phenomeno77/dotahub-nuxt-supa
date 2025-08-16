@@ -1,14 +1,13 @@
 import { UserRole } from "~/types/enums";
 
 export default defineNuxtRouteMiddleware(async () => {
-  const { loggedIn } = useUserSession();
-  const authStore = useAuthStore();
+  const { loggedIn, user } = useUserSession();
 
   if (!loggedIn.value) {
     return;
   }
 
-  if (authStore.userRole === UserRole.admin) {
+  if (user.value.role === UserRole.admin) {
     // Logged-in and has admin role — redirect to dashboard
     return navigateTo("/admin");
   }
