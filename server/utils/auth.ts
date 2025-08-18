@@ -9,6 +9,7 @@ import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
 import { getBanExpiration } from "./banUtils";
 import crypto from "crypto";
+import { authSupabaseClient } from "./authSupabaseClient";
 
 async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
@@ -46,7 +47,7 @@ async function adminLogin(event: H3Event, email: string, password: string) {
     });
   }
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { data, error } = await authSupabaseClient.auth.signInWithPassword({
     email,
     password,
   });
@@ -107,7 +108,7 @@ async function createNewUser(
     });
   }
 
-  const { data, error } = await supabaseClient.auth.admin.createUser({
+  const { data, error } = await authSupabaseClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -392,7 +393,7 @@ async function handleSteamUser(
     });
   } else {
     // Search existing Auth user by email
-    const { data: list } = await supabaseClient.auth.admin.listUsers({
+    const { data: list } = await authSupabaseClient.auth.admin.listUsers({
       page: 1,
       perPage: 1,
     });
@@ -401,7 +402,7 @@ async function handleSteamUser(
 
     if (!existingAuthUser) {
       const { data: created, error: createErr } =
-        await supabaseClient.auth.admin.createUser({
+        await authSupabaseClient.auth.admin.createUser({
           email: fakeEmail,
           password: steamPassword,
           email_confirm: true,
@@ -438,7 +439,7 @@ async function handleSteamUser(
     });
   }
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { data, error } = await authSupabaseClient.auth.signInWithPassword({
     email: fakeEmail,
     password: steamPassword,
   });
@@ -652,7 +653,7 @@ async function deleteUser(event: H3Event, userId: string) {
     },
   });
 
-  const { error } = await supabaseClient.auth.admin.deleteUser(userId);
+  const { error } = await authSupabaseClient.auth.admin.deleteUser(userId);
 
   if (error) {
     throw createError({
