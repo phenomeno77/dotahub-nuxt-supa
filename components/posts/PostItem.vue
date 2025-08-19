@@ -263,8 +263,9 @@ const safeDescription = computed(() => {
         <!-- Menu -->
         <div
           v-if="
-            currentUser.id === localPost.user?.id ||
-            currentUser.role === 'admin'
+            loggedIn &&
+            (currentUser.id === localPost.user?.id ||
+              currentUser.role === 'admin')
           "
         >
           <Button

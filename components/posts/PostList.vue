@@ -10,6 +10,7 @@ import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import { useRealtimePosts } from "~/composables/useRealtimePosts";
 import { buttons, fixed_values } from "~/constants/labels";
 import { useGlobalFilterSearch } from "~/stores/globalFilterSearch";
+import steamLogo from "~/assets/steam.svg";
 
 const route = useRoute();
 const postStore = usePostStore();
@@ -17,7 +18,7 @@ const loadingStore = useLoadingStore();
 const scrollerContainerRef = ref<HTMLElement | null>(null);
 const loadNewestPosts = ref(false);
 const filterSearchStore = useGlobalFilterSearch();
-const { user: currentUser } = useUserSession();
+const { user: currentUser, loggedIn } = useUserSession();
 
 const {
   items: posts,
@@ -47,6 +48,10 @@ const steamLoginFailed = computed(
 );
 const banReason = computed(() => route.query.banReason || "");
 const banExpiration = computed(() => route.query.banExpiration || "");
+
+const handleLoginSteam = () => {
+  window.location.href = "/api/auth/steam";
+};
 
 watch(
   () => postStore.shouldRefreshPosts,
@@ -91,7 +96,7 @@ onMounted(async () => {
     });
   }
 
-  if (scrollerContainerRef.value) {
+  if (scrollerContainerRef.value && loggedIn.value) {
     useInfiniteScroll(scrollerContainerRef, fetchMore, {
       distance: 10,
       canLoadMore: () => posts.value.length < total.value,
@@ -113,7 +118,7 @@ onBeforeUnmount(async () => {
     class="position-absolute start-0 end-0 overflow-auto"
     style="top: 80px; bottom: 40px"
   >
-    <div class="container-fluid py-4">
+    <div class="container-fluid py-4 position-relative">
       <div class="row justify-content-center">
         <!-- Center Column only -->
         <div class="col-md-6 col-11 p-0">
@@ -150,9 +155,7 @@ onBeforeUnmount(async () => {
                 :data-active="active"
                 :key="item.id"
               >
-                <div>
-                  <PostItem :post="item" />
-                </div>
+                <PostItem :post="item" />
               </DynamicScrollerItem>
             </template>
           </DynamicScroller>
@@ -186,6 +189,36 @@ onBeforeUnmount(async () => {
           </div>
         </div>
       </div>
+
+      <!-- Blur overlay covering just the posts area -->
+      <div
+        v-if="!loggedIn"
+        class="position-absolute top-0 start-0 w-100 h-100"
+        style="backdrop-filter: blur(4px); z-index: 10"
+      ></div>
+
+      <!-- Fancy frosted glass login box -->
+      <div
+        v-if="!loadingStore.isLoading && !loggedIn"
+        class="position-fixed top-50 start-50 translate-middle text-center rounded-4 shadow-lg p-4 d-flex flex-column justify-content-center align-items-center gap-2"
+        style="
+          background-color: rgba(var(--bs-dark-rgb), 0.6);
+          backdrop-filter: blur(12px) saturate(160%);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          z-index: 20;
+          width: 340px;
+          height: 170px;
+        "
+      >
+        <div>
+          <h5 class="fw-bold text-white">Log in to continue</h5>
+        </div>
+
+        <Button class="fancy-login-btn" @click="handleLoginSteam">
+          <img :src="steamLogo" alt="Steam Logo" />
+          {{ buttons.SIGN_IN }}
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -198,5 +231,19 @@ onBeforeUnmount(async () => {
   font-style: italic;
   font-size: 0.95rem;
   opacity: 0.8;
+}
+
+.fancy-login-btn {
+  background: linear-gradient(135deg, #0dcaf0, #0d6efd);
+  border: none;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+  transition: all 0.2s ease;
+  color: #fff;
+  height: 48px;
+  width: 100%;
+}
+
+.fancy-login-btn:hover {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
 }
 </style>
