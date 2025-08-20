@@ -2,12 +2,12 @@ export default defineEventHandler(async (event) => {
   try {
     await requireUserLoggedIn(event);
 
-    const userId = getRouterParam(event, "userId");
+    const publicId = getRouterParam(event, "publicId");
 
-    if (!userId) {
+    if (!publicId) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Missing User ID in URL.",
+        statusMessage: "Missing Public ID in URL.",
       });
     }
 
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const { items, total } = await postUtils.getUsersPostHistory(
       event,
-      userId,
+      publicId,
       limit,
       skip
     );

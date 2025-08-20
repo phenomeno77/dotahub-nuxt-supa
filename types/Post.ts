@@ -1,5 +1,4 @@
 export interface User {
-  id: string;
   publicId: string;
   username: string;
   avatarUrl?: string | null;
@@ -12,7 +11,6 @@ export interface Comment {
   user: {
     username: string | null;
     avatarUrl: string | null;
-    id: string;
     publicId: string | null;
   };
 }

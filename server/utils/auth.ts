@@ -11,7 +11,7 @@ import { getBanExpiration } from "./banUtils";
 import crypto from "crypto";
 import { authSupabaseClient } from "./authSupabaseClient";
 
-async function setSession(event: H3Event, user: UserProfile) {
+export async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
     user: {
       id: user.id,

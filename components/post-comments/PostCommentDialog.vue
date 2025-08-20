@@ -215,7 +215,7 @@ onUnmounted(() => {
         v-if="props.post.id !== undefined"
         :comments="comments"
         :loadingMore="loadingMore"
-        :postUserId="props.post.user?.id ?? ''"
+        :postUserPublicId="props.post.user?.publicId ?? ''"
         v-model:addingComment="addingComment"
         :skeletonCount="fixed_values.COMMENTS_PER_PAGE"
         @comment-deleted="commentDeleted"

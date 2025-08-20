@@ -264,7 +264,7 @@ const safeDescription = computed(() => {
         <div
           v-if="
             loggedIn &&
-            (currentUser.id === localPost.user?.id ||
+            (currentUser.publicId === localPost.user?.publicId ||
               currentUser.role === 'admin')
           "
         >

@@ -131,7 +131,6 @@ async function filterPosts(
     include: {
       user: {
         select: {
-          id: true,
           publicId: true,
           username: true,
           avatarUrl: true,
@@ -162,7 +161,6 @@ async function filterPosts(
 
   const formattedPosts = posts.map((post) => ({
     id: post.id,
-    userId: post.user.id,
     partySize: post.partySize,
     positionsNeeded: post.positionsNeeded,
     minRank: post.minRank,
@@ -182,7 +180,7 @@ async function filterPosts(
 
 async function getUsersPostHistory(
   event: H3Event,
-  userId: string,
+  publicId: string,
   limit: number,
   skip: number
 ) {
@@ -209,14 +207,18 @@ async function getUsersPostHistory(
   // Count total posts for the user
   const total = await prisma.posts.count({
     where: {
-      userId,
+      user: {
+        publicId,
+      },
     },
   });
 
   // Paginated posts for the user
   const posts = await prisma.posts.findMany({
     where: {
-      userId,
+      user: {
+        publicId,
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -246,7 +248,6 @@ async function getUsersPostHistory(
 
   const formattedPosts = posts.map((post) => ({
     id: post.id,
-    userId: post.user.id,
     partySize: post.partySize,
     positionsNeeded: post.positionsNeeded,
     minRank: post.minRank,
@@ -255,7 +256,6 @@ async function getUsersPostHistory(
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
     user: {
-      id: post.user.id,
       publicId: post.user.publicId,
       username: post.user.username,
       avatarUrl: post.user.avatarUrl,

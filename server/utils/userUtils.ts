@@ -15,7 +15,6 @@ async function getUserByPublicId(event: H3Event, publicId: string) {
   const user = await prisma.userProfile.findUnique({
     where: { publicId },
     select: {
-      id: true,
       publicId: true,
       avatarUrl: true,
       username: true,

@@ -15,8 +15,6 @@ import PostSkeleton from "~/components/posts/PostSkeleton.vue";
 import PostItem from "~/components/posts/PostItem.vue";
 import UserProfileHeader from "./UserProfileHeader.vue";
 
-const props = defineProps<{ userId: string }>();
-
 const toast = useToast();
 const route = useRoute();
 const loadingStore = useLoadingStore();
@@ -25,6 +23,7 @@ const postStore = usePostStore();
 const scrollerContainerRef = ref<HTMLElement | null>(null);
 const user = ref<UserProfile>();
 const hasLoaded = ref(false);
+const publicId = route.params.publicId as string;
 
 const {
   items: posts,
@@ -33,7 +32,7 @@ const {
   fetchMore,
   loadingMore,
 } = usePaginatedFetch<Post>(
-  `/api/post/user/${props.userId}`,
+  `/api/post/user/${publicId}`,
   fixed_values.POSTS_PER_PAGE
 );
 
@@ -47,10 +46,12 @@ const banExpiration = computed(() => route.query.banExpiration || "");
 const fetchUser = async () => {
   try {
     const res = await $fetch<{ success: boolean; user: UserProfile }>(
-      `/api/user/${props.userId}`
+      `/api/user/${publicId}`
     );
-    if (res.success) {
+    if (res.success && res.user) {
       user.value = res.user;
+    } else {
+      navigateTo("/");
     }
   } catch (error: any) {
     const message =
@@ -80,7 +81,11 @@ onMounted(async () => {
   if (!isBanned.value && !steamLoginFailed.value) {
     loadingStore.startLoading();
     await fetchUser();
-    await fetchInitial();
+
+    if (user.value) {
+      await fetchInitial();
+    }
+
     hasLoaded.value = true;
     loadingStore.stopLoading();
   }

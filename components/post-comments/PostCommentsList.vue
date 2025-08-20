@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<{
     comments: Comment[];
     skeletonCount?: number;
-    postUserId: string;
+    postUserPublicId: string;
     loadingMore: boolean;
   }>(),
   {
@@ -33,7 +33,7 @@ const loadingStore = useLoadingStore();
   >
     <PostCommentItem
       :comment="comment"
-      :postUserId="props.postUserId"
+      :postUserPublicId="props.postUserPublicId"
       @comment-deleted="emits('comment-deleted', comment)"
     />
   </div>

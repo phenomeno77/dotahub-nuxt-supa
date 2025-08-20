@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     } else if (Array.isArray(query.positions)) {
       filterPositions = query.positions.map((s) => s.toString().trim());
     }
+
     const { items, total } = await postUtils.filterPosts(
       event,
       limit,

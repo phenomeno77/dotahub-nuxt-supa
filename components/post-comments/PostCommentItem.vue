@@ -11,7 +11,7 @@ import { UserRole } from "~/types/enums";
 
 dayjs.extend(relativeTime);
 
-const props = defineProps<{ comment: Comment; postUserId: string }>();
+const props = defineProps<{ comment: Comment; postUserPublicId: string }>();
 const emits = defineEmits(["comment-deleted"]);
 
 const { loggedIn, user: currentUser } = useUserSession();
@@ -89,7 +89,7 @@ const editCommentItems = computed(() => {
   const menu: any[] = [];
 
   if (
-    currentUser.value.id === props.comment.user.id ||
+    currentUser.value.publicId === props.comment.user.publicId ||
     currentUser.value.role === UserRole.admin
   ) {
     menu.push({
@@ -105,9 +105,9 @@ const editCommentItems = computed(() => {
   }
 
   if (
-    currentUser.value.id === props.comment.user.id ||
+    currentUser.value.publicId === props.comment.user.publicId ||
     currentUser.value.role === UserRole.admin ||
-    currentUser.value.id === props.postUserId
+    currentUser.value.publicId === props.postUserPublicId
   ) {
     menu.push({
       label: "Delete",
@@ -208,9 +208,9 @@ const avatarLabel = computed(() =>
         <!-- Menu Button -->
         <div
           v-if="
-            currentUser.id === comment.user.id ||
+            currentUser.publicId === comment.user.publicId ||
             currentUser.role === UserRole.admin ||
-            currentUser.id === props.postUserId
+            currentUser.publicId === props.postUserPublicId
           "
           class="d-flex align-items-center gap-1 flex-shrink-0"
         >
