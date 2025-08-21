@@ -7,6 +7,7 @@ import { UserRole } from "~/types/enums";
 
 const { loggedIn, user: currentUser } = useUserSession();
 const authStore = useAuthStore();
+const globalFilterSearch = useGlobalFilterSearch();
 const supabase = useSupabaseClient();
 const loadingStore = useLoadingStore();
 const avatarImage = computed(() => authStore.avatarUrl ?? undefined);
@@ -30,9 +31,9 @@ const handleLogout = async () => {
     const { clear } = useUserSession();
     clear();
     authStore.logout();
-
-    loadingStore.stopLoading();
+    globalFilterSearch.reset();
     await navigateTo("/", { replace: true });
+    loadingStore.stopLoading();
   }
 };
 

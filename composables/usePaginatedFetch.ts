@@ -10,6 +10,7 @@ export function usePaginatedFetch<T>(
   const toast = useToast();
   const loadingStore = useLoadingStore();
   const loadingMore = ref(false);
+  const { loggedIn } = useUserSession();
 
   type PaginatedResponse = {
     success: boolean;
@@ -44,6 +45,10 @@ export function usePaginatedFetch<T>(
   };
 
   const fetchMore = async () => {
+    if (!loggedIn.value) {
+      return;
+    }
+
     if (items.value.length >= total.value) return;
     loadingMore.value = true;
     try {

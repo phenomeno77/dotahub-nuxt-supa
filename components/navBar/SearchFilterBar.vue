@@ -54,6 +54,8 @@ const resetFilter = () => {
   if (store.rankFilter || store.positionFilter.length) {
     store.setRankFilter(null);
     store.setPositionFilter([]);
+    showFilterDrawer.value = false;
+
     emit("onSearchFilterClose");
   }
 };

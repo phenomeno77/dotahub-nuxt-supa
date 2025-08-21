@@ -96,7 +96,7 @@ onMounted(async () => {
     });
   }
 
-  if (scrollerContainerRef.value && loggedIn.value) {
+  if (scrollerContainerRef.value) {
     useInfiniteScroll(scrollerContainerRef, fetchMore, {
       distance: 10,
       canLoadMore: () => posts.value.length < total.value,

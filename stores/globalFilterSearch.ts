@@ -20,5 +20,10 @@ export const useGlobalFilterSearch = defineStore("globalFilterSearch", {
     setPositionFilter(positions: Position[]) {
       this.positionFilter = positions;
     },
+    reset() {
+      this.searchQuery = "";
+      this.rankFilter = null;
+      this.positionFilter = [];
+    },
   },
 });
