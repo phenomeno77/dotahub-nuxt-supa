@@ -9,7 +9,7 @@ import prisma from "~/lib/prisma";
 import { ErrorMessages } from "../constants/labels";
 import { getBanExpiration } from "./banUtils";
 import crypto from "crypto";
-import { authSupabaseClient } from "./authSupabaseClient";
+import { authSupabaseClient } from "./supabaseClient";
 
 export async function setSession(event: H3Event, user: UserProfile) {
   await replaceUserSession(event, {
