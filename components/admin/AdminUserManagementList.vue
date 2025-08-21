@@ -288,7 +288,7 @@ onMounted(async () => {
       class="d-flex flex-wrap gap-2 w-100 border rounded-1 p-3 justify-content-between"
       style="background-color: var(--background-color); flex-shrink: 0"
     >
-      <div id="add-user-btn" style="min-width: 300px">
+      <div class="add-user-btn" style="min-width: 300px">
         <Button
           :label="labels.ADD_NEW_USER"
           @click="showAddUserDialog = true"
@@ -613,6 +613,11 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
+  .add-user-btn {
+    min-width: unset;
+    width: 100%;
+  }
+
   .add-new-user-btn {
     width: 100%;
   }
