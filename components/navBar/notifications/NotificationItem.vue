@@ -2,13 +2,13 @@
 import type { Notification } from "~/types/Notification";
 import { getNotificationLabel } from "~/types/enums";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import { fixed_values, labels } from "~/constants/labels";
 import type { Post } from "~/types/Post";
 import { useToast } from "primevue/usetoast";
 import PostCommentDialog from "~/components/post-comments/PostCommentDialog.vue";
 
-dayjs.extend(relativeTime);
+dayjs.extend(utc);
 
 const props = defineProps<{
   notification: Notification;
@@ -18,7 +18,9 @@ const emit = defineEmits<{
   (e: "notification-clicked", notification: Notification): void;
 }>();
 
-const postedAgo = computed(() => dayjs(props.notification.createdAt).fromNow());
+const postedAgo = computed(() =>
+  dayjs.utc(props.notification.createdAt).local().fromNow()
+);
 const toast = useToast();
 const postNotification = ref<Post>({});
 const showPostCommentDialog = ref(false);
