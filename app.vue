@@ -12,32 +12,30 @@ useHead({
 });
 
 useSeoMeta({
-  title: "Dota 2 Party Finder - Connect with Ranked Players",
+  title: "Dota 2 Party Finder | Find Teammates by Rank & Role",
   description:
-    "Find and team up with Dota 2 players matching your rank and preferred positions. Post looking-for-party ads and chat to build your ideal ranked team!",
+    "Find Dota 2 teammates fast! Post ads, filter by rank & position, and build your dream team for ranked games.",
 
-  ogTitle: "Dota 2 Party Finder - Join Ranked Parties Easily",
+  ogTitle: "Find Your Next Dota 2 Teammates",
   ogDescription:
-    "Looking to climb the ranks? Connect with Dota 2 players by rank range and position. Post, comment, and form your perfect team!",
-  ogImage: "https://yourdomain.com/images/dota2-party-finder-og.png", // Replace with your actual URL
-  ogUrl: "https://yourdomain.com", // Replace with your actual site URL
+    "Use Party Finder to connect with players by rank & role. Post LFP ads and join the perfect squad.",
+  ogImage: "https://yourdomain.com/images/dota2-party-finder-og.png",
+  ogUrl: "https://yourdomain.com",
 
-  twitterTitle: "Dota 2 Party Finder - Connect with Ranked Players",
+  twitterTitle: "Looking for Dota 2 Teammates?",
   twitterDescription:
-    "Post LFP ads, find teammates by rank & position, and chat with players to win your ranked games!",
-  twitterImage: "https://yourdomain.com/images/dota2-party-finder-twitter.png", // Replace accordingly
+    "Post LFP ads, filter by rank & role, and find your ideal party. Join now and start climbing ranked together!",
+  twitterImage: "https://yourdomain.com/images/dota2-party-finder-twitter.png",
   twitterCard: "summary_large_image",
 });
 
 useHead({
-  htmlAttrs: {
-    lang: "en",
-  },
+  htmlAttrs: { lang: "en" },
   link: [
     {
       rel: "icon",
-      type: "image/png",
-      href: "",
+      type: "image/x-icon",
+      href: "/favicon.ico",
     },
   ],
 });
