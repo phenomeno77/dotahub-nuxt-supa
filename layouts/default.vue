@@ -9,10 +9,9 @@
   </header>
   <slot />
   <footer
-    class="d-flex justify-content-between align-items-center fixed-bottom px-3"
+    class="footer d-flex justify-content-end align-items-center fixed-bottom px-3"
     style="height: 40px; background-color: var(--navmenubar-background)"
   >
-    <p class="m-0">Powered by: Phenomeno</p>
     <div class="d-flex gap-3">
       <a href="/terms" class="text-decoration-none">Terms</a>
       <a href="/privacy" class="text-decoration-none">Privacy</a>
@@ -20,3 +19,11 @@
     </div>
   </footer>
 </template>
+
+<style scoped>
+@media (max-width: 768px) {
+  .footer {
+    justify-content: center !important;
+  }
+}
+</style>
