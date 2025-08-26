@@ -141,14 +141,15 @@ const maxOptions = computed(() => {
       root: {
         style: {
           background: 'var(--bg-post)',
-          color: 'var( --text-color)',
+          color: 'var(--text-color)',
           border: 'none',
         },
       },
     }"
   >
-    <div class="mb-3 w-100 d-flex flex-column p-2 gap-3">
-      <div class="position-relative">
+    <div class="mb-3 w-full flex flex-col p-2 gap-3">
+      <!-- Description -->
+      <div class="relative">
         <FloatLabel variant="on">
           <label for="description">{{ labels.POST_DESCRIPTION }}</label>
           <Textarea
@@ -156,7 +157,7 @@ const maxOptions = computed(() => {
             autoResize
             rows="5"
             cols="30"
-            class="w-100"
+            class="w-full"
             v-model="description"
             required
             :maxlength="fixed_values.POST_MAX_TEXT_LENGTH"
@@ -166,6 +167,7 @@ const maxOptions = computed(() => {
         <span class="char-counter">
           {{ description?.length ?? 0 }}/{{ fixed_values.POST_MAX_TEXT_LENGTH }}
         </span>
+
         <Message
           v-if="errors.description"
           severity="error"
@@ -176,10 +178,12 @@ const maxOptions = computed(() => {
         </Message>
       </div>
 
+      <!-- Rank Range -->
       <div>
         <strong>{{ labels.RANK_RANGE }}</strong>
+
         <Select
-          class="w-100"
+          class="w-full"
           v-model="minRank"
           :options="minOptions"
           optionLabel="label"
@@ -192,7 +196,7 @@ const maxOptions = computed(() => {
         </Divider>
 
         <Select
-          class="w-100"
+          class="w-full"
           v-model="maxRank"
           :options="maxOptions"
           optionLabel="label"
@@ -210,6 +214,7 @@ const maxOptions = computed(() => {
         </Message>
       </div>
 
+      <!-- Positions -->
       <div>
         <strong>{{ labels.LOOKING_FOR }}</strong>
 
@@ -217,7 +222,7 @@ const maxOptions = computed(() => {
           <div
             v-for="[positionKey, positionValue] in positions"
             :key="positionKey"
-            class="checkbox-item"
+            class="flex items-center gap-2"
           >
             <Checkbox
               v-model="selectedPositions"
@@ -242,10 +247,11 @@ const maxOptions = computed(() => {
       </div>
     </div>
 
-    <div class="w-100 text-center">
+    <!-- Submit Button -->
+    <div class="w-full text-center">
       <Button
         :label="buttons.SUBMIT_CHANGES"
-        class="w-100"
+        class="w-full"
         @click="submitPost"
       />
     </div>

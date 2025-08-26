@@ -150,6 +150,7 @@ onUnmounted(async () => {
 </script>
 
 <template>
+  <!-- Bell button with unread badge -->
   <OverlayBadge v-if="unreadCount > 0" :value="unreadCount" severity="danger">
     <Button
       size="large"
@@ -169,6 +170,7 @@ onUnmounted(async () => {
     @click="onOpenDrawer"
   />
 
+  <!-- Notifications Drawer -->
   <Drawer
     v-model:visible="showNotificationsDrawer"
     @after-hide="onHideDrawer"
@@ -180,9 +182,10 @@ onUnmounted(async () => {
     }"
   >
     <template #header>
-      <span class="fw-semibold fs-4">{{ labels.NOTIFICATIONS }}</span>
+      <span class="font-semibold text-xl">{{ labels.NOTIFICATIONS }}</span>
     </template>
 
+    <!-- Loading Skeletons -->
     <NotificationItemSkeleton v-if="isLoading" v-for="n in 5" :key="n" />
 
     <!-- Empty state -->
@@ -190,15 +193,15 @@ onUnmounted(async () => {
       v-else-if="notificationList.length === 0 && !isLoading"
       class="text-center p-4"
     >
-      <i class="pi pi-bell fs-2 mb-2 d-block"></i>
+      <i class="pi pi-bell text-2xl mb-2 block"></i>
       <p class="mb-0">You're all caught up!</p>
       <small>No new notifications at the moment.</small>
     </div>
 
-    <!-- Button + Notification list -->
+    <!-- Notification list -->
     <div v-else>
-      <!-- Mark All as Read button (above list) -->
-      <div class="d-flex justify-content-end w-100 mb-3">
+      <!-- Mark All as Read button -->
+      <div class="flex justify-end w-full mb-3">
         <Button
           v-if="!allRead"
           :label="labels.MARK_ALL_AS_READ"
@@ -210,7 +213,7 @@ onUnmounted(async () => {
         />
       </div>
 
-      <!-- List of Notifications -->
+      <!-- List of notifications -->
       <NotificationItem
         v-for="notification in notificationList"
         :key="notification.id"

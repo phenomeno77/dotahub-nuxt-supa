@@ -103,7 +103,7 @@ onMounted(async () => {
 
 <template>
   <!-- Alerts -->
-  <div class="position-absolute top-0 start-0 end-0 z-3">
+  <div class="absolute top-0 left-0 right-0 z-30">
     <BannedAlert
       v-if="isBanned"
       :ban-reason="banReason"
@@ -115,20 +115,21 @@ onMounted(async () => {
   <!-- Scrollable content: header + posts -->
   <div
     ref="scrollerContainerRef"
-    class="position-absolute start-0 end-0 overflow-auto"
+    class="absolute left-0 right-0 overflow-auto"
     style="top: 80px; bottom: 40px"
   >
-    <div class="container-fluid py-4">
+    <div class="container mx-auto py-4">
       <!-- Post Feed -->
-      <div class="row justify-content-center">
-        <div class="col-md-6 col-11 p-0">
+      <div class="flex justify-center">
+        <div class="w-full md:w-1/2 p-0 px-4">
           <!-- User Header -->
           <UserProfileHeader v-if="user && posts.length > 0" :user="user" />
 
+          <!-- Virtual Scroller -->
           <DynamicScroller :items="posts" :min-item-size="300" page-mode>
             <template #default="{ item, index, active }">
               <DynamicScrollerItem
-                class="d-flex flex-column gap-5"
+                class="flex flex-col gap-5"
                 :item="item"
                 :active="active"
                 :size-dependencies="[item.description]"
@@ -136,13 +137,14 @@ onMounted(async () => {
                 :data-active="active"
                 :key="item.id"
               >
-                <div class="d-flex flex-column gap-5">
+                <div class="flex flex-col gap-5">
                   <PostItem :post="item" />
                 </div>
               </DynamicScrollerItem>
             </template>
           </DynamicScroller>
 
+          <!-- Empty State -->
           <div
             v-if="hasLoaded && posts.length === 0 && !loadingStore.isLoading"
             class="no-more-posts text-center mt-4"
@@ -162,7 +164,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- End of list -->
+          <!-- End of List -->
           <div
             v-if="posts.length > 0 && posts.length >= total && !isBanned"
             class="no-more-posts text-center mt-4"

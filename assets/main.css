@@ -83,7 +83,6 @@ a.username:hover {
   cursor: pointer;
 }
 
-
 .postedAgo {
   font-weight: 300 !important;
   font-size: 14px !important;
@@ -170,6 +169,19 @@ a.username:hover {
 
 .background-skeleton {
   background-color: var(--text-muted);
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 @media (max-width: 768px) {

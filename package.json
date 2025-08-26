@@ -20,7 +20,6 @@
     "@supabase/supabase-js": "^2.50.0",
     "@tailwindcss/vite": "^4.1.12",
     "@vueuse/nuxt": "^13.4.0",
-    "bootstrap": "^5.3.6",
     "dayjs": "^1.11.13",
     "dompurify": "^3.2.6",
     "express": "^5.1.0",

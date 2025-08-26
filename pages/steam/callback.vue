@@ -59,9 +59,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-    class="d-flex align-items-center justify-content-center text-center py-10"
-  >
+  <div class="flex items-center justify-center text-center py-10 w-full h-full">
     Logging in...
   </div>
 </template>

@@ -153,18 +153,17 @@ onMounted(async () => {
 
 <template>
   <div
-    class="position-absolute start-0 end-0 d-flex flex-column"
+    class="absolute inset-x-0 flex flex-col"
     style="
       top: 80px;
       bottom: 40px;
-      overflow: hidden;
       height: calc(100dvh - 120px);
+      overflow: hidden;
     "
   >
     <!-- TOP BAR -->
     <div
-      class="d-flex flex-wrap gap-2 w-100 border rounded-1 p-3 justify-content-between"
-      style="background-color: var(--background-color); flex-shrink: 0"
+      class="flex flex-wrap gap-2 w-full border rounded p-3 justify-between bg-[var(--background-color)] flex-shrink-0"
     >
       <div id="placeholder-div" style="min-width: 300px"></div>
       <div class="search-wrapper">
@@ -175,12 +174,12 @@ onMounted(async () => {
           <InputText
             v-model="filters['global'].value"
             :placeholder="labels.FILTER_KEYWORD_SEARCH"
-            class="w-100"
+            class="w-full"
           />
         </IconField>
       </div>
 
-      <div class="d-flex gap-2 end-btn-wrapper">
+      <div class="flex gap-2 end-btn-wrapper">
         <Button
           :label="buttons.BACK_TO_DASHBOARD"
           outlined

@@ -133,21 +133,22 @@ const submitForm = async () => {
       root: {
         style: {
           background: 'var(--bg-post)',
-          color: 'var( --text-color)',
+          color: 'var(--text-color)',
           border: 'none',
         },
       },
     }"
   >
-    <strong class="p-2">*Email address will be used to login</strong>
+    <strong class="block p-2">*Email address will be used to login</strong>
+
     <!-- Email -->
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <div class="mb-3 w-full flex flex-col p-2">
       <FloatLabel variant="on">
         <label for="email">{{ labels.EMAIL }}</label>
         <InputText
           id="email"
           type="email"
-          class="w-100"
+          class="w-full"
           v-model="email"
           required
           @input="validateEmail"
@@ -164,11 +165,12 @@ const submitForm = async () => {
     </div>
 
     <!-- Roles -->
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <div class="mb-3 w-full flex flex-col p-2">
       <Select
         v-model="selectedRole"
         :options="roles"
         :placeholder="labels.SELECT_ROLE"
+        class="w-full"
       />
       <Message
         v-if="errors.role"
@@ -181,10 +183,11 @@ const submitForm = async () => {
     </div>
 
     <!-- Password -->
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <div class="mb-3 w-full flex flex-col p-2">
       <FloatLabel variant="on">
         <Password
-          class="d-flex w-100 flex-column"
+          class="w-full"
+          inputClass="w-full"
           inputId="password"
           v-model="password"
           toggleMask
@@ -193,15 +196,13 @@ const submitForm = async () => {
         />
         <label for="password">{{ labels.PASSWORD }}</label>
       </FloatLabel>
-
-      <!-- Show validation errors as a list -->
       <Message
         v-if="passwordErrors.length"
         severity="error"
         variant="simple"
         size="small"
       >
-        <ul class="mb-0 ps-3">
+        <ul class="mb-0 pl-3 list-disc">
           <li v-for="(error, index) in passwordErrors" :key="index">
             {{ error }}
           </li>
@@ -210,10 +211,11 @@ const submitForm = async () => {
     </div>
 
     <!-- Repeat Password -->
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <div class="mb-3 w-full flex flex-col p-2">
       <FloatLabel variant="on">
         <Password
-          class="d-flex w-100 flex-column"
+          class="w-full"
+          inputClass="w-full"
           inputId="repeatedPassword"
           v-model="repeatedPassword"
           toggleMask
@@ -233,13 +235,13 @@ const submitForm = async () => {
     </div>
 
     <!-- Username -->
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <div class="mb-3 w-full flex flex-col p-2">
       <FloatLabel variant="on">
         <label for="username">{{ labels.USERNAME }}</label>
         <InputText
           id="username"
           type="text"
-          class="w-100"
+          class="w-full"
           v-model="username"
           required
         />
@@ -254,11 +256,12 @@ const submitForm = async () => {
       </Message>
     </div>
 
-    <div class="w-100 text-center">
+    <!-- Submit Button -->
+    <div class="w-full text-center">
       <Button
         :label="buttons.ADD_USER"
         icon="pi pi-user"
-        class="w-100"
+        class="w-full"
         @click="submitForm"
       />
     </div>

@@ -63,7 +63,7 @@ const onOpenNotification = async () => {
 <template>
   <div
     :class="[
-      'notification-item d-flex flex-column p-3 mb-2 position-relative',
+      'notification-item flex flex-col p-3 mb-2 relative',
       { read: notification.isRead },
     ]"
     @click="onOpenNotification"
@@ -72,8 +72,8 @@ const onOpenNotification = async () => {
     <div v-if="!notification.isRead" class="dot-indicator"></div>
 
     <!-- HEADER -->
-    <div class="d-flex align-items-center mb-2 header">
-      <div class="me-2 flex-shrink-0">
+    <div class="flex items-center mb-2 header">
+      <div class="mr-2 flex-shrink-0">
         <Avatar
           :image="avatarImage"
           :label="avatarLabel"
@@ -82,13 +82,13 @@ const onOpenNotification = async () => {
         />
       </div>
 
-      <div class="d-flex flex-column w-100 overflow-hidden">
-        <div class="d-flex flex-wrap align-items-baseline gap-1 username-line">
+      <div class="flex flex-col w-full overflow-hidden">
+        <div class="flex flex-wrap items-baseline gap-1 username-line">
           <span
-            class="username text-truncate"
+            class="username truncate"
             :class="{
-              'fw-bold': !notification.isRead,
-              'fw-normal': notification.isRead,
+              'font-bold': !notification.isRead,
+              'font-normal': notification.isRead,
             }"
             :title="notification.username ?? ''"
           >
@@ -116,7 +116,7 @@ const onOpenNotification = async () => {
     </div>
 
     <!-- FOOTER -->
-    <div class="footer mt-2 d-flex justify-content-between align-items-center">
+    <div class="footer mt-2 flex justify-between items-center">
       <span class="postedAgo">
         {{ postedAgo }}
       </span>

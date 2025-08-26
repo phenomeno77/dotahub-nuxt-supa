@@ -192,16 +192,10 @@ onUnmounted(() => {
     }"
   >
     <!-- Scroll container wrapping entire dialog content -->
-    <div
-      ref="dialogContentRef"
-      class="d-flex flex-column h-100 overflow-auto px-3"
-    >
+    <div ref="dialogContentRef" class="flex flex-col h-full overflow-auto px-3">
       <PostItemCommentDialog :post="props.post" />
 
-      <div
-        v-if="loadNewestComments"
-        class="mb-3 d-flex w-100 justify-content-center"
-      >
+      <div v-if="loadNewestComments" class="mb-3 flex w-full justify-center">
         <Button
           @click="reloadNewComments"
           severity="info"
@@ -223,13 +217,10 @@ onUnmounted(() => {
     </div>
 
     <template #footer>
-      <div v-if="loggedIn" class="w-100">
-        <div
-          class="d-flex align-items-center justify-content-start w-100 gap-2"
-          style="padding: 0.5rem 0"
-        >
+      <div v-if="loggedIn" class="w-full">
+        <div class="flex items-center justify-start w-full gap-2 py-2">
           <!-- Avatar: only visible on sm+ (desktop), inline with textarea -->
-          <div class="d-none d-sm-flex align-items-center">
+          <div class="hidden sm:flex items-center">
             <Avatar
               :image="avatarImage"
               :label="avatarLabel"
@@ -239,13 +230,13 @@ onUnmounted(() => {
             />
           </div>
 
-          <div class="position-relative d-flex w-100">
+          <div class="relative flex w-full">
             <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
             <Textarea
               v-model="comment"
               rows="1"
               autoResize
-              class="flex-grow-1 w-100"
+              class="flex-grow w-full"
               :placeholder="labels.COMMENT_PLACEHOLDER"
               :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
             />
@@ -256,9 +247,10 @@ onUnmounted(() => {
               }}
             </span>
           </div>
-          <!-- Buttons: always on new row, right-aligned -->
         </div>
-        <div class="d-flex justify-content-end gap-2">
+
+        <!-- Buttons: right-aligned -->
+        <div class="flex justify-end gap-2 mt-2">
           <Button
             icon="pi pi-send"
             variant="text"

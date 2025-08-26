@@ -118,14 +118,11 @@ onMounted(async () => {
   <Drawer
     v-model:visible="showBarsDrawer"
     position="right"
-    :pt="{
-      root: {
-        class: 'drawer-main',
-      },
-    }"
+    :pt="{ root: { class: 'drawer-main' } }"
   >
+    <!-- Drawer Header -->
     <template #header>
-      <div class="d-flex align-items-center gap-2 p-2">
+      <div class="flex items-start gap-2 p-2">
         <Avatar
           :image="avatarImage"
           :label="avatarLabel"
@@ -133,12 +130,12 @@ onMounted(async () => {
           size="large"
           class="avatar-fixed"
         />
-        <div class="d-flex flex-column overflow-hidden">
+        <div class="flex flex-col overflow-hidden">
           <p
-            class="mb-0 fw-bold username d-flex align-items-center"
+            class="mb-0 font-bold flex items-center"
             :title="authStore.username ?? ''"
           >
-            <span class="text-truncate fw-bold name-truncate">
+            <span class="truncate font-bold">
               {{ authStore.username }}
             </span>
           </p>
@@ -146,13 +143,15 @@ onMounted(async () => {
       </div>
     </template>
 
+    <!-- Drawer Body -->
     <div class="p-3">
       <div v-for="(item, index) in menu" :key="index" class="mb-2">
         <hr v-if="item.separator" class="my-2" />
         <Button
-          :pt="actionButtons"
           v-else
-          class="w-100 d-flex justify-content-start gap-2"
+          :pt="actionButtons"
+          class="w-full flex gap-2"
+          style="justify-content: start"
           variant="text"
           @click="item.command"
         >
@@ -162,13 +161,14 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- Drawer Footer -->
     <template #footer>
-      <div class="d-flex justify-content-between p-2">
+      <div class="flex justify-between p-2">
         <Button
           :label="buttons.SEND_FEEDBACK"
           icon="pi pi-comment"
           outlined
-          class="me-auto"
+          class="mr-auto"
           @click="handleSendFeedback()"
         />
         <Button

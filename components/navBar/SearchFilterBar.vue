@@ -67,12 +67,13 @@ const onShowFilter = () => {
 </script>
 
 <template>
-  <div class="nav-search">
+  <!-- Search Bar -->
+  <div class="nav-search flex items-center gap-2 min-w-[250px]">
     <InputText
       v-model="searchQuery"
       :placeholder="labels.SEARCH_BY_USERNAME"
       @keyup.enter="onSearch"
-      class="p-inputtext-sm w-100"
+      class="p-inputtext-sm w-full"
     />
 
     <Button
@@ -83,33 +84,30 @@ const onShowFilter = () => {
     />
   </div>
 
+  <!-- Filter Drawer -->
   <Drawer
     v-model:visible="showFilterDrawer"
     :header="labels.FILTER"
     position="top"
     @show="onShowFilter"
-    :style="{
-      height: 'auto',
-    }"
+    :style="{ height: 'auto' }"
     modal
-    :pt="{
-      root: {
-        class: 'drawer-main',
-      },
-    }"
+    :pt="{ root: { class: 'drawer-main' } }"
   >
-    <div class="d-flex flex-column gap-3">
-      <div class="d-flex flex-column gap-2">
+    <div class="flex flex-col gap-3">
+      <!-- Rank Selection -->
+      <div class="flex flex-col gap-2">
         <strong>{{ labels.SELECT_RANK }}</strong>
 
         <Select
-          class="w-100"
+          class="w-full"
           v-model="selectedRank"
           :options="ranks"
           :placeholder="labels.SELECT_RANK"
         />
       </div>
 
+      <!-- Positions -->
       <div>
         <strong>{{ labels.POSITIONS }}</strong>
 
@@ -133,8 +131,9 @@ const onShowFilter = () => {
       </div>
     </div>
 
+    <!-- Footer Buttons -->
     <template #footer>
-      <div class="d-flex w-100">
+      <div class="flex w-full">
         <div>
           <Button
             v-if="selectedRank || selectedPositions.length > 0"
@@ -143,7 +142,7 @@ const onShowFilter = () => {
             @click="resetFilter"
           />
         </div>
-        <div class="ms-auto">
+        <div class="ml-auto">
           <Button
             :label="labels.USE_FILTER"
             severity="secondary"
@@ -154,12 +153,3 @@ const onShowFilter = () => {
     </template>
   </Drawer>
 </template>
-
-<style scoped>
-.nav-search {
-  min-width: 250px;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-</style>

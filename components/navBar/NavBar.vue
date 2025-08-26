@@ -18,35 +18,30 @@ const handleLoginSteam = () => {
 </script>
 
 <template>
-  <div
-    class="navbar d-flex align-items-center justify-content-between w-100 px-3 py-2"
-  >
+  <div class="flex items-center justify-between w-full px-3 py-2">
     <!-- Left: Logo -->
     <div class="navbar-logo">
-      <NuxtLink
-        :to="{ path: '/' }"
-        class="fw-bold text-lg text-decoration-none"
-      >
+      <NuxtLink :to="{ path: '/' }" class="font-bold text-lg no-underline">
         {{ appName }}
       </NuxtLink>
     </div>
 
     <!-- Center: Search (desktop only) -->
-    <div class="d-none d-md-block" v-if="loggedIn && route.path === '/'">
+    <div v-if="loggedIn && route.path === '/'" class="hidden md:block">
       <SearchFilterBar />
     </div>
 
     <!-- Right: Actions (always shown) -->
-    <div class="d-flex align-items-center gap-3">
+    <div class="flex items-center gap-3">
       <!-- Mobile search toggle -->
       <Button
         v-if="loggedIn && route.path === '/'"
         icon="pi pi-search"
-        class="d-md-none"
         size="large"
         rounded
         severity="secondary"
         aria-label="Search"
+        class="!block md:!hidden"
         @click="showMobileSearch = true"
       />
 
@@ -55,19 +50,14 @@ const handleLoginSteam = () => {
         v-if="!loggedIn"
         severity="secondary"
         variant="outlined"
-        class="ms-2"
+        class="ml-2"
         @click="handleLoginSteam"
       >
-        <img
-          :src="steamLogo"
-          alt="Steam Logo"
-          class="me-2"
-          style="width: 24px; height: 24px"
-        />
+        <img :src="steamLogo" alt="Steam Logo" class="mr-2 w-6 h-6" />
         {{ buttons.SIGN_IN }}
       </Button>
 
-      <div v-else class="d-flex align-items-center gap-3">
+      <div v-else class="flex items-center gap-3">
         <NotificationsList />
         <BarsActions />
       </div>
@@ -78,11 +68,7 @@ const handleLoginSteam = () => {
       v-model:visible="showMobileSearch"
       position="top"
       modal
-      :pt="{
-        root: {
-          class: 'drawer-main',
-        },
-      }"
+      :pt="{ root: { class: 'drawer-main' } }"
     >
       <SearchFilterBar @onSearchFilterClose="showMobileSearch = false" />
     </Drawer>

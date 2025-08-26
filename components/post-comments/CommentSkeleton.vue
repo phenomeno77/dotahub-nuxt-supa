@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="d-flex mb-3 p-3 rounded shadow-sm comment-skeleton">
+    <div class="flex mb-3 p-3 rounded shadow-sm comment-skeleton">
       <!-- Avatar Skeleton -->
-      <Skeleton shape="circle" size="2.5rem" class="me-3 background-skeleton" />
+      <Skeleton shape="circle" size="2.5rem" class="mr-3 background-skeleton" />
 
       <!-- Comment Body Skeleton -->
-      <div class="flex-grow-1 w-100">
-        <div class="d-flex justify-content-between mb-2">
+      <div class="flex-1 w-full">
+        <div class="flex justify-between mb-2">
           <Skeleton width="30%" height="1rem" class="background-skeleton" />
           <Skeleton width="20%" height="0.8rem" class="background-skeleton" />
         </div>

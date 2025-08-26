@@ -59,8 +59,7 @@ const submitFeedback = async () => {
 
 <template>
   <div
-    class="d-flex justify-content-center align-items-center w-100 px-2 position-absolute start-0 end-0 overflow-auto"
-    style="top: 80px; bottom: 40px"
+    class="absolute inset-x-0 top-20 bottom-10 flex justify-center items-center px-2 overflow-auto"
   >
     <Card
       :pt="{
@@ -76,30 +75,35 @@ const submitFeedback = async () => {
         },
       }"
     >
+      <!-- Title -->
       <template #title>
         <h4 class="text-center mb-1">
           {{ submitted ? labels.THANK_YOU_TITLE : labels.SEND_FEEDBACK }}
         </h4>
-        <p class="text-center small">
+        <p class="text-center text-sm">
           {{ submitted ? labels.THANK_YOU_TEXT : labels.FEEDBACK_TEXT }}
         </p>
       </template>
 
+      <!-- Content -->
       <template #content>
+        <!-- Thank You View -->
         <div
           v-if="submitted"
-          class="text-center p-3 d-flex flex-column gap-3 align-items-center"
+          class="flex flex-col items-center gap-3 p-3 text-center"
         >
           <i
-            class="pi pi-check-circle"
-            style="font-size: 2.5rem; color: var(--rank-text)"
-          />
+            class="pi pi-check-circle !text-[2rem] text-[var(--rank-text)]"
+          ></i>
 
-          <div class="d-flex gap-3 mt-3 feedback-success-buttons">
+          <div
+            class="flex justify-center gap-3 mt-3 flex-col sm:flex-row w-full feedback-success-buttons"
+          >
             <Button
               :label="buttons.SUBMIT_ANOTHER_FEEDBACK"
               outlined
               severity="secondary"
+              class="w-full sm:w-auto"
               @click="
                 () => {
                   submitted = false;
@@ -108,30 +112,27 @@ const submitFeedback = async () => {
                 }
               "
             />
-
             <Button
               icon="pi pi-home"
               :label="buttons.GO_TO_HOME"
               severity="primary"
-              @click="
-                () => {
-                  navigateTo('/');
-                }
-              "
+              class="w-full sm:w-auto"
+              @click="() => navigateTo('/')"
             />
           </div>
         </div>
 
-        <div v-else class="d-flex flex-column gap-4">
-          <!-- Feedback Type Dropdown -->
+        <!-- Feedback Form -->
+        <div v-else class="flex flex-col gap-4">
+          <!-- Feedback Type -->
           <div>
-            <label for="feedback-type" class="form-label fw-bold">{{
+            <label for="feedback-type" class="form-label font-bold">{{
               labels.FEEDBACK_TYPE
             }}</label>
             <Select
               id="feedback-type"
               v-model="type"
-              class="w-100"
+              class="w-full"
               :options="feedbackTypeOptions"
               optionLabel="label"
               optionValue="value"
@@ -148,19 +149,23 @@ const submitFeedback = async () => {
           </div>
 
           <!-- Description -->
-          <div class="position-relative">
+          <div class="relative">
             <FloatLabel variant="on">
               <label for="description">{{ labels.DESCRIPTION }}</label>
               <Textarea
                 id="description"
+                v-model="description"
                 autoResize
                 rows="6"
-                class="w-100"
-                v-model="description"
+                class="w-full"
                 :maxlength="500"
               />
             </FloatLabel>
-            <span class="char-counter">{{ description?.length ?? 0 }}/500</span>
+            <div class="flex justify-end text-sm mt-1">
+              <span class="char-counter"
+                >{{ description?.length ?? 0 }}/500</span
+              >
+            </div>
             <Message
               v-if="errors.description"
               severity="error"
@@ -171,10 +176,11 @@ const submitFeedback = async () => {
             </Message>
           </div>
 
+          <!-- Submit Button -->
           <Button
             :label="buttons.SUBMIT_FEEDBACK"
-            class="w-100"
             severity="primary"
+            class="w-full"
             @click="submitFeedback"
           />
         </div>
@@ -184,10 +190,10 @@ const submitFeedback = async () => {
 </template>
 
 <style scoped>
-@media (max-width: 768px) {
+/* Stack success buttons vertically on mobile */
+@media (max-width: 640px) {
   .feedback-success-buttons {
     flex-direction: column;
-    width: 100%;
   }
 }
 </style>

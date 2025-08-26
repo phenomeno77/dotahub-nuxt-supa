@@ -65,11 +65,12 @@ useHead({
       },
     }"
   />
+
   <div v-show="loading.isLoading" class="loading-overlay">
     <ProgressSpinner />
   </div>
 
-  <div class="container-fluid d-flex flex-column h-100">
+  <div class="w-full flex flex-col min-h-screen">
     <CreatePost v-if="createPostDialog" />
 
     <NuxtLayout>

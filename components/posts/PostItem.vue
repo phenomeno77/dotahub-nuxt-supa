@@ -200,62 +200,36 @@ const safeDescription = computed(() => {
       },
     }"
   >
-    <template #header v-if="false">
-      <img
-        alt="user header"
-        src="https://primefaces.org/cdn/primevue/images/usercard.png"
-      />
-    </template>
-    <template #title
-      ><div
-        class="d-flex justify-content-between align-items-center mb-3 w-100"
-      >
-        <div class="d-flex align-items-center overflow-hidden">
+    <!-- Title / Header -->
+    <template #title>
+      <div class="flex justify-between items-center mb-3 w-full">
+        <div class="flex items-center overflow-hidden">
           <Avatar
             :image="avatarImage"
             :label="avatarLabel"
-            class="me-2 flex-shrink-0"
+            class="mr-2 flex-shrink-0"
             size="large"
             shape="circle"
           />
-          <div
-            style="max-width: 400px"
-            class="d-flex flex-column overflow-hidden"
-          >
+          <div class="flex flex-col overflow-hidden max-w-[400px]">
             <p
-              class="mb-0 fw-bold d-flex align-items-center"
+              class="mb-0 font-bold flex items-center"
               :title="localPost.user?.username"
             >
               <template v-if="loggedIn">
                 <a
                   :href="`/profile/${localPost.user?.publicId}`"
-                  class="text-truncate username"
-                  style="
-                    max-width: 400px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                  "
+                  class="truncate max-w-[400px] username"
                 >
                   {{ localPost.user?.username }}
                 </a>
               </template>
-
               <template v-else>
-                <span
-                  class="text-truncate username"
-                  style="
-                    max-width: 400px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                  "
-                >
-                  {{ localPost.user?.username }}
-                </span>
+                <span class="truncate max-w-[400px] username">{{
+                  localPost.user?.username
+                }}</span>
               </template>
             </p>
-
             <small class="postedAgo">Posted {{ postedAgo }}</small>
           </div>
         </div>
@@ -282,9 +256,11 @@ const safeDescription = computed(() => {
             :model="editPostItems"
             :popup="true"
           />
-        </div></div
-    ></template>
+        </div>
+      </div>
+    </template>
 
+    <!-- Content -->
     <template #content>
       <!-- Description -->
       <div class="pb-2">
@@ -293,8 +269,7 @@ const safeDescription = computed(() => {
         >
           <div v-html="safeDescription" class="post-description" />
         </div>
-
-        <div class="d-flex justify-content-end">
+        <div class="flex justify-end">
           <Button
             v-if="
               (localPost.description?.length ?? 0) > 300 &&
@@ -312,10 +287,8 @@ const safeDescription = computed(() => {
 
       <!-- Rank Row -->
       <div class="pb-2">
-        <div
-          class="rank-box d-flex align-items-start align-items-center p-2 gap-1"
-        >
-          <i class="pi pi-star-fill" style="color: silver" />
+        <div class="rank-box flex items-center p-2 gap-1">
+          <i class="pi pi-star-fill text-silver" />
           <span class="rank-text">{{ localPost.minRank }}</span>
           <span class="mx-1">to</span>
           <span class="rank-text">{{ localPost.maxRank }}</span>
@@ -325,52 +298,54 @@ const safeDescription = computed(() => {
       <!-- Positions Row -->
       <div class="pb-2">
         <div class="position-box">
-          <p class="mb-2 fw-bold text-white">{{ labels.LOOKING_FOR }}</p>
-          <div class="d-flex flex-wrap gap-2">
+          <p class="mb-2 font-bold text-white">{{ labels.LOOKING_FOR }}</p>
+          <div class="flex flex-wrap gap-2">
             <div
               v-for="position in localPost.positionsNeeded"
               :key="position"
               class="position-pill"
             >
-              <i :class="getPositionIcon(position)" class="me-1" />
+              <i :class="getPositionIcon(position)" />
               {{ positionLabels[position] }}
             </div>
           </div>
         </div>
       </div>
     </template>
+
+    <!-- Footer / Comments -->
     <template #footer>
-      <!-- Comments -->
       <div
-        v-if="loggedIn"
-        class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 show-comments"
+        class="flex flex-col md:flex-row items-center justify-evenly gap-2 show-comments"
       >
+        <!-- Show Comments Button -->
         <div
           v-if="postCommentCount > 0"
-          class="d-flex justify-content-center justify-content-md-end flex-grow-1 order-1 order-md-3 w-100 w-md-auto"
+          class="flex justify-center md:justify-end order-1 md:order-3 w-full md:w-auto"
         >
           <Button
             :label="`${labels.SHOW_COMMENTS} (${postCommentCount})`"
             size="small"
             variant="text"
-            class="w-100 w-md-auto"
+            class="w-full md:w-auto"
             @click="toggleShowPostCommentsDialog"
           />
         </div>
 
-        <div
-          class="d-flex justify-content-center flex-grow-1 order-2 order-md-2 w-100 w-md-auto"
-        >
+        <!-- Comment Button -->
+        <div class="flex justify-center order-2 w-full md:w-auto">
           <Button
             icon="pi pi-comments"
             :label="labels.COMMENT"
+            size="small"
             variant="text"
             iconPos="left"
-            class="border-0 w-100 w-md-auto"
+            class="border-0 w-full md:w-auto"
             @click="toggleShowPostCommentsDialog"
           />
         </div>
 
+        <!-- Post Comment Dialog -->
         <PostCommentDialog
           v-if="showPostCommentDialog"
           v-model:showPostCommentDialog="showPostCommentDialog"

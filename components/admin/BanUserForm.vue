@@ -61,11 +61,21 @@ const submitForm = () => {
     :breakpoints="{ '960px': '90vw', '640px': '90vw' }"
     :contentStyle="{ height: '100%' }"
     @hide="onHide"
+    :pt="{
+      root: {
+        style: {
+          background: 'var(--bg-post)',
+          color: 'var(--text-color)',
+          border: 'none',
+        },
+      },
+    }"
   >
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <!-- Ban Reason -->
+    <div class="mb-3 w-full flex flex-col p-2">
       <FloatLabel variant="on">
         <label for="banReason">{{ labels.BAN_REASON }}</label>
-        <InputText id="banReason" class="w-100" v-model="banReason" required />
+        <InputText id="banReason" class="w-full" v-model="banReason" required />
       </FloatLabel>
       <Message
         v-if="errors.banReason"
@@ -77,10 +87,11 @@ const submitForm = () => {
       </Message>
     </div>
 
-    <div class="mb-3 w-100 d-flex flex-column p-2">
+    <!-- Ban Duration -->
+    <div class="mb-3 w-full flex flex-col p-2">
       <Select
         id="banDuration"
-        class="w-100"
+        class="w-full"
         v-model="banDuration"
         :options="durations"
         optionLabel="label"
@@ -97,11 +108,12 @@ const submitForm = () => {
       </Message>
     </div>
 
-    <div class="w-100 text-center">
+    <!-- Submit Button -->
+    <div class="w-full text-center">
       <Button
         :label="buttons.SUBMIT_BAN"
         icon="pi pi-ban"
-        class="w-100"
+        class="w-full"
         @click="submitForm"
       />
     </div>

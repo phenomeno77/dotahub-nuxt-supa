@@ -127,15 +127,15 @@ const maxOptions = computed(() => {
       root: {
         style: {
           background: 'var(--bg-post)',
-          color: 'var( --text-color)',
+          color: 'var(--text-color)',
           border: 'none',
         },
       },
     }"
   >
     <!-- Description -->
-    <div class="mb-3 w-100 d-flex flex-column p-2 gap-3">
-      <div class="position-relative">
+    <div class="mb-3 w-full flex flex-col p-2 gap-3">
+      <div class="relative">
         <FloatLabel variant="on">
           <label for="description">{{ labels.POST_DESCRIPTION }}</label>
           <Textarea
@@ -143,7 +143,7 @@ const maxOptions = computed(() => {
             autoResize
             rows="5"
             cols="30"
-            class="w-100"
+            class="w-full"
             v-model="description"
             required
             :maxlength="fixed_values.POST_MAX_TEXT_LENGTH"
@@ -162,10 +162,11 @@ const maxOptions = computed(() => {
         </Message>
       </div>
 
+      <!-- Rank Range -->
       <div>
         <strong>{{ labels.RANK_RANGE }}</strong>
         <Select
-          class="w-100"
+          class="w-full"
           v-model="minRank"
           :options="minOptions"
           optionLabel="label"
@@ -178,7 +179,7 @@ const maxOptions = computed(() => {
         </Divider>
 
         <Select
-          class="w-100"
+          class="w-full"
           v-model="maxRank"
           :options="maxOptions"
           optionLabel="label"
@@ -196,9 +197,9 @@ const maxOptions = computed(() => {
         </Message>
       </div>
 
+      <!-- Positions -->
       <div>
         <strong>{{ labels.LOOKING_FOR }}</strong>
-
         <div class="checkbox-group">
           <div
             v-for="[positionKey, positionValue] in positions"
@@ -227,28 +228,14 @@ const maxOptions = computed(() => {
       </div>
     </div>
 
-    <div class="w-100 text-center">
+    <!-- Submit Button -->
+    <div class="w-full text-center">
       <Button
         :label="buttons.SUBMIT_POST"
-        class="w-100"
+        class="w-full"
         severity="primary"
         @click="submitPost"
       />
     </div>
   </Dialog>
 </template>
-
-<style scoped>
-.checkbox-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding-top: 8px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-</style>

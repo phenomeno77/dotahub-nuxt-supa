@@ -64,12 +64,8 @@ function togglePostExpand(id: number) {
       flex-shrink: 0;
     "
     :pt="{
-      body: {
-        style: { padding: '10px' },
-      },
-      title: {
-        style: { fontWeight: '600', fontSize: '18px' },
-      },
+      body: { style: { padding: '10px' } },
+      title: { style: { fontWeight: '600', fontSize: '18px' } },
     }"
   >
     <template #header v-if="false">
@@ -78,24 +74,20 @@ function togglePostExpand(id: number) {
         src="https://primefaces.org/cdn/primevue/images/usercard.png"
       />
     </template>
-    <template #title
-      ><div
-        class="d-flex justify-content-between align-items-center mb-3 w-100"
-      >
-        <div class="d-flex align-items-center overflow-hidden">
+
+    <template #title>
+      <div class="flex justify-between items-center mb-3 w-full">
+        <div class="flex items-center overflow-hidden">
           <Avatar
             :image="avatarImage"
             :label="avatarLabel"
-            class="me-2 flex-shrink-0"
+            class="mr-2 flex-shrink-0"
             size="large"
             shape="circle"
           />
-          <div
-            style="max-width: 400px"
-            class="d-flex flex-column overflow-hidden"
-          >
+          <div style="max-width: 400px" class="flex flex-col overflow-hidden">
             <p
-              class="mb-0 fw-bold d-flex align-items-center"
+              class="mb-0 font-bold flex items-center"
               :title="props.post.user?.username"
             >
               <template v-if="loggedIn">
@@ -127,12 +119,11 @@ function togglePostExpand(id: number) {
                 </span>
               </template>
             </p>
-
             <small class="postedAgo">Posted {{ postedAgo }}</small>
           </div>
         </div>
-      </div></template
-    >
+      </div>
+    </template>
 
     <template #content>
       <!-- Description -->
@@ -144,9 +135,7 @@ function togglePostExpand(id: number) {
 
       <!-- Rank Row -->
       <div class="pb-2">
-        <div
-          class="rank-box d-flex align-items-start align-items-center p-2 gap-1"
-        >
+        <div class="rank-box flex items-center p-2 gap-1">
           <i class="pi pi-star-fill" style="color: silver" />
           <span class="rank-text">{{ props.post.minRank }}</span>
           <span class="mx-1">to</span>
@@ -157,14 +146,14 @@ function togglePostExpand(id: number) {
       <!-- Positions Row -->
       <div class="pb-2">
         <div class="position-box">
-          <p class="mb-2 fw-bold text-white">{{ labels.LOOKING_FOR }}</p>
-          <div class="d-flex flex-wrap gap-2">
+          <p class="mb-2 font-bold text-white">{{ labels.LOOKING_FOR }}</p>
+          <div class="flex flex-wrap gap-2">
             <div
               v-for="position in props.post.positionsNeeded"
               :key="position"
               class="position-pill"
             >
-              <i :class="getPositionIcon(position)" class="me-1" />
+              <i :class="getPositionIcon(position)" class="mr-1" />
               {{ positionLabels[position] }}
             </div>
           </div>

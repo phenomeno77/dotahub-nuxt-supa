@@ -81,14 +81,14 @@ onMounted(async () => {
 
 <template>
   <div
-    class="container position-absolute start-0 end-0 py-4"
-    style="top: 80px; bottom: 40px; overflow-y: auto"
+    class="absolute inset-x-0 py-4 overflow-y-auto"
+    style="top: 80px; bottom: 40px"
   >
-    <div class="row g-4">
+    <div class="flex px-4 flex-wrap gap-4 justify-center">
       <!-- User Management Card -->
-      <div class="col-md-6">
+      <div class="w-full md:w-1/2">
         <Card
-          class="h-100 shadow-sm rounded-3 border-0"
+          class="h-full shadow rounded-xl border-0"
           style="background-color: var(--bg-post)"
         >
           <template #title>
@@ -101,35 +101,35 @@ onMounted(async () => {
           </template>
 
           <template #content>
-            <div class="d-flex gap-3 pt-2 flex-wrap">
+            <div class="flex flex-wrap gap-3 pt-2">
               <!-- Users Online Mini Card -->
               <div
-                class="flex-grow-1 border rounded-2 p-3 d-flex flex-column align-items-start justify-content-center"
-                style="
-                  background-color: var(--background-color);
-                  min-width: 140px;
-                "
+                class="flex-1 border rounded-lg p-3 flex flex-col items-start justify-center min-w-[140px]"
+                style="background-color: var(--background-color)"
               >
                 <span class="text-sm" style="color: var(--text-color)"
                   >Users Online</span
                 >
-                <span class="fs-4 fw-bold" style="color: var(--text-color)">
+                <span
+                  class="text-2xl font-bold"
+                  style="color: var(--text-color)"
+                >
                   {{ totalUsersOnline }}
                 </span>
               </div>
 
               <!-- Total Users Mini Card -->
               <div
-                class="flex-grow-1 border rounded-2 p-3 d-flex flex-column align-items-start justify-content-center"
-                style="
-                  background-color: var(--background-color);
-                  min-width: 140px;
-                "
+                class="flex-1 border rounded-lg p-3 flex flex-col items-start justify-center min-w-[140px]"
+                style="background-color: var(--background-color)"
               >
                 <span class="text-sm" style="color: var(--text-color)"
                   >Total Users</span
                 >
-                <span class="fs-4 fw-bold" style="color: var(--text-color)">
+                <span
+                  class="text-2xl font-bold"
+                  style="color: var(--text-color)"
+                >
                   {{ totalUsersCount }}
                 </span>
               </div>
@@ -137,7 +137,7 @@ onMounted(async () => {
           </template>
 
           <template #footer>
-            <div class="d-flex justify-content-end mt-3">
+            <div class="flex justify-end mt-3">
               <Button
                 :label="buttons.MANAGE"
                 icon="pi pi-users"
@@ -149,9 +149,9 @@ onMounted(async () => {
       </div>
 
       <!-- Feedback Card -->
-      <div class="col-md-6">
+      <div class="w-full md:w-1/2">
         <Card
-          class="h-100 shadow-sm rounded-3 border-0"
+          class="h-full shadow rounded-xl border-0"
           style="background-color: var(--bg-post)"
         >
           <template #title>
@@ -164,51 +164,51 @@ onMounted(async () => {
           </template>
 
           <template #content>
-            <div class="d-flex gap-3 pt-2 flex-wrap">
+            <div class="flex flex-wrap gap-3 pt-2">
               <!-- Open Feedbacks Mini Card -->
               <div
-                class="flex-grow-1 border rounded-2 p-3 d-flex flex-column align-items-start justify-content-center"
-                style="
-                  background-color: var(--background-color);
-                  min-width: 140px;
-                "
+                class="flex-1 border rounded-lg p-3 flex flex-col items-start justify-center min-w-[140px]"
+                style="background-color: var(--background-color)"
               >
-                <span class="text-sm" style="color: var(--text-color)">
-                  Open
-                </span>
-                <span class="fs-4 fw-bold" style="color: var(--text-color)">
+                <span class="text-sm" style="color: var(--text-color)"
+                  >Open</span
+                >
+                <span
+                  class="text-2xl font-bold"
+                  style="color: var(--text-color)"
+                >
                   {{ totalOpenFeedbacks }}
                 </span>
               </div>
 
               <!-- In Progress Feedbacks Mini Card -->
               <div
-                class="flex-grow-1 border rounded-2 p-3 d-flex flex-column align-items-start justify-content-center"
-                style="
-                  background-color: var(--background-color);
-                  min-width: 140px;
-                "
+                class="flex-1 border rounded-lg p-3 flex flex-col items-start justify-center min-w-[140px]"
+                style="background-color: var(--background-color)"
               >
-                <span class="text-sm" style="color: var(--text-color)">
-                  In Progress
-                </span>
-                <span class="fs-4 fw-bold" style="color: var(--text-color)">
+                <span class="text-sm" style="color: var(--text-color)"
+                  >In Progress</span
+                >
+                <span
+                  class="text-2xl font-bold"
+                  style="color: var(--text-color)"
+                >
                   {{ totalInProgressFeedbacks }}
                 </span>
               </div>
 
               <!-- Total Feedbacks Mini Card -->
               <div
-                class="flex-grow-1 border rounded-2 p-3 d-flex flex-column align-items-start justify-content-center"
-                style="
-                  background-color: var(--background-color);
-                  min-width: 140px;
-                "
+                class="flex-1 border rounded-lg p-3 flex flex-col items-start justify-center min-w-[140px]"
+                style="background-color: var(--background-color)"
               >
-                <span class="text-sm" style="color: var(--text-color)">
-                  Total
-                </span>
-                <span class="fs-4 fw-bold" style="color: var(--text-color)">
+                <span class="text-sm" style="color: var(--text-color)"
+                  >Total</span
+                >
+                <span
+                  class="text-2xl font-bold"
+                  style="color: var(--text-color)"
+                >
                   {{ totalFeedbacks }}
                 </span>
               </div>
@@ -216,7 +216,7 @@ onMounted(async () => {
           </template>
 
           <template #footer>
-            <div class="d-flex justify-content-end mt-3">
+            <div class="flex justify-end mt-3">
               <Button
                 :label="buttons.VIEW"
                 icon="pi pi-inbox"
@@ -226,8 +226,6 @@ onMounted(async () => {
           </template>
         </Card>
       </div>
-
-      <!-- Add more cards as needed -->
     </div>
   </div>
 </template>

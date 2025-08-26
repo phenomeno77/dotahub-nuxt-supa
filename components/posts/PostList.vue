@@ -115,92 +115,88 @@ onBeforeUnmount(async () => {
   <!-- Scrollable area -->
   <div
     ref="scrollerContainerRef"
-    class="position-absolute start-0 end-0 overflow-auto"
+    class="absolute left-0 right-0 overflow-auto"
     style="top: 80px; bottom: 40px"
   >
-    <div class="container-fluid py-4 position-relative">
-      <div class="row justify-content-center">
-        <!-- Center Column only -->
-        <div class="col-md-6 col-11 p-0">
-          <!-- Alerts on top -->
-          <BannedAlert
-            v-if="isBanned"
-            :ban-reason="banReason"
-            :ban-expiration="banExpiration"
+    <div class="container mx-auto py-4 flex justify-center">
+      <!-- Center Column -->
+      <div class="w-full md:w-1/2 p-0 px-4">
+        <!-- Alerts -->
+        <BannedAlert
+          v-if="isBanned"
+          :ban-reason="banReason"
+          :ban-expiration="banExpiration"
+        />
+        <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
+
+        <!-- Load New Posts Button -->
+        <div v-if="loadNewestPosts" class="mb-3 flex w-full justify-center">
+          <Button
+            @click="reloadNewPosts"
+            severity="info"
+            icon="pi pi-refresh"
+            variant="text"
+            :label="buttons.LOAD_NEW_POSTS"
           />
-          <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
+        </div>
 
-          <div
-            v-if="loadNewestPosts"
-            class="mb-3 d-flex w-100 justify-content-center"
-          >
-            <Button
-              @click="reloadNewPosts"
-              severity="info"
-              icon="pi pi-refresh"
-              variant="text"
-              :label="buttons.LOAD_NEW_POSTS"
-            />
-          </div>
-
-          <!-- Virtual Scroller -->
-          <DynamicScroller :items="posts" :min-item-size="430" page-mode>
-            <template #default="{ item, index, active }">
-              <DynamicScrollerItem
-                class="d-flex flex-column gap-5"
-                :item="item"
-                :active="active"
-                :size-dependencies="[item.description]"
-                :data-index="index"
-                :data-active="active"
-                :key="item.id"
-              >
-                <PostItem :post="item" />
-              </DynamicScrollerItem>
-            </template>
-          </DynamicScroller>
-
-          <!-- Inline Skeletons directly below posts -->
-          <div v-if="loadingStore.isLoading || loadingMore">
-            <div
-              class="mb-3"
-              v-for="n in fixed_values.POSTS_PER_PAGE"
-              :key="'skeleton-' + n"
+        <!-- Virtual Scroller -->
+        <DynamicScroller :items="posts" :min-item-size="430" page-mode>
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              class="flex flex-col gap-5"
+              :item="item"
+              :active="active"
+              :size-dependencies="[item.description]"
+              :data-index="index"
+              :data-active="active"
+              :key="item.id"
             >
-              <PostSkeleton />
-            </div>
-          </div>
+              <PostItem :post="item" />
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
 
-          <!-- End-of-list message -->
+        <!-- Skeleton loaders -->
+        <div v-if="loadingStore.isLoading || loadingMore">
           <div
-            v-if="posts.length > 0 && posts.length >= total && !isBanned"
-            class="no-more-posts text-center mt-4"
+            class="mb-3"
+            v-for="n in fixed_values.POSTS_PER_PAGE"
+            :key="'skeleton-' + n"
           >
-            You've reached the end! 🎉
+            <PostSkeleton />
           </div>
+        </div>
 
-          <div
-            v-else-if="
-              filterSearchStore.searchQuery && posts.length === 0 && !isBanned
-            "
-            class="no-posts-found text-center mt-4"
-          >
-            No posts found for this user.
-          </div>
+        <!-- End-of-list message -->
+        <div
+          v-if="posts.length > 0 && posts.length >= total && !isBanned"
+          class="text-center mt-4 text-gray-500 italic text-sm opacity-80"
+        >
+          You've reached the end! 🎉
+        </div>
+
+        <div
+          v-else-if="
+            filterSearchStore.searchQuery && posts.length === 0 && !isBanned
+          "
+          class="text-center mt-4"
+        >
+          No posts found for this user.
         </div>
       </div>
 
-      <!-- Blur overlay covering just the posts area -->
+      <!-- Blur overlay -->
       <div
         v-if="!loggedIn"
-        class="position-absolute top-0 start-0 w-100 h-100"
+        class="absolute top-0 left-0 w-full h-full"
         style="backdrop-filter: blur(4px); z-index: 10"
       ></div>
 
-      <!-- Fancy frosted glass login box -->
+      <!-- Frosted glass login box -->
       <div
         v-if="!loadingStore.isLoading && !loggedIn"
-        class="position-fixed top-50 start-50 translate-middle text-center rounded-4 shadow-lg p-4 d-flex flex-column justify-content-center align-items-center gap-2"
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center rounded-2xl shadow-lg p-4 flex flex-col justify-center items-center gap-2"
         style="
           background-color: rgba(var(--bs-dark-rgb), 0.6);
           backdrop-filter: blur(12px) saturate(160%);
@@ -210,9 +206,7 @@ onBeforeUnmount(async () => {
           height: 170px;
         "
       >
-        <div>
-          <h5 class="fw-bold text-white">Log in to continue</h5>
-        </div>
+        <h5 class="font-bold text-white">Log in to continue</h5>
 
         <Button class="fancy-login-btn" @click="handleLoginSteam">
           <img :src="steamLogo" alt="Steam Logo" />
@@ -224,15 +218,6 @@ onBeforeUnmount(async () => {
 </template>
 
 <style scoped>
-.no-more-posts {
-  text-align: center;
-  color: #888;
-  margin: 2rem 0;
-  font-style: italic;
-  font-size: 0.95rem;
-  opacity: 0.8;
-}
-
 .fancy-login-btn {
   background: linear-gradient(135deg, #0dcaf0, #0d6efd);
   border: none;

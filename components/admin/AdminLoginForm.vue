@@ -82,49 +82,51 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="d-flex align-items-center justify-content-center">
-    <h1>{{ buttons.SIGN_IN }}</h1>
+  <!-- Title -->
+  <div class="flex items-center justify-center mb-6">
+    <h1 class="text-4xl">{{ buttons.SIGN_IN }}</h1>
   </div>
 
-  <div class="row">
-    <div
-      class="d-flex flex-column align-items-start justify-content-center gap-2"
-    >
-      <div class="mb-3 w-100 d-flex flex-column">
-        <FloatLabel variant="on">
-          <label for="email">{{ labels.EMAIL }}</label>
-          <InputText
-            id="email"
-            type="text"
-            class="w-100 d-flex flex-column"
-            v-model="email"
-            @keyup.enter="submitForm"
-          />
-        </FloatLabel>
-      </div>
+  <!-- Form Container -->
+  <div class="flex flex-col gap-4 w-full max-w-2xl mx-auto">
+    <!-- Email Field -->
+    <div class="w-full">
+      <FloatLabel variant="on">
+        <label for="email">{{ labels.EMAIL }}</label>
+        <InputText
+          id="email"
+          type="text"
+          class="w-full"
+          v-model="email"
+          @keyup.enter="submitForm"
+        />
+      </FloatLabel>
+    </div>
 
-      <div class="mb-3 w-100 d-flex flex-column">
-        <FloatLabel variant="on">
-          <Password
-            class="w-100 d-flex flex-column"
-            inputId="password"
-            v-model="password"
-            toggleMask
-            :feedback="false"
-            @keyup.enter="submitForm"
-          />
-          <label for="password">{{ labels.PASSWORD }}</label>
-        </FloatLabel>
-      </div>
+    <!-- Password Field -->
+    <div class="w-full">
+      <FloatLabel variant="on">
+        <Password
+          v-model="password"
+          inputId="password"
+          toggleMask
+          :feedback="false"
+          @keyup.enter="submitForm"
+          class="w-full"
+          inputClass="w-full"
+        />
+        <label for="password">{{ labels.PASSWORD }}</label>
+      </FloatLabel>
+    </div>
 
-      <div class="w-100 text-center">
-        <Button
-          :label="buttons.SIGN_IN"
-          icon="pi pi-user"
-          class="w-100"
-          @click="submitForm"
-        ></Button>
-      </div>
+    <!-- Submit Button -->
+    <div class="w-full">
+      <Button
+        :label="buttons.SIGN_IN"
+        icon="pi pi-user"
+        class="w-full"
+        @click="submitForm"
+      />
     </div>
   </div>
 </template>

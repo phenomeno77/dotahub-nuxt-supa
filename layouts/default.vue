@@ -1,29 +1,23 @@
 <template>
-  <header class="row">
+  <header class="w-full">
     <div
-      class="fixed-top align-items-center justify-content-between px-0 d-flex w-100"
+      class="fixed top-0 flex items-center justify-between w-full"
       style="height: 80px; background-color: var(--navmenubar-background)"
     >
       <NavBar />
     </div>
   </header>
+
   <slot />
+
   <footer
-    class="footer d-flex justify-content-end align-items-center fixed-bottom px-3"
-    style="height: 40px; background-color: var(--navmenubar-background)"
+    class="fixed bottom-0 flex items-center justify-center md:justify-end w-full px-3 h-10"
+    style="background-color: var(--navmenubar-background)"
   >
-    <div class="d-flex gap-3">
-      <a href="/terms" class="text-decoration-none">Terms</a>
-      <a href="/privacy" class="text-decoration-none">Privacy</a>
-      <a href="/cookies" class="text-decoration-none">Cookies</a>
+    <div class="flex gap-3">
+      <a href="/terms" class="no-underline">Terms</a>
+      <a href="/privacy" class="no-underline">Privacy</a>
+      <a href="/cookies" class="no-underline">Cookies</a>
     </div>
   </footer>
 </template>
-
-<style scoped>
-@media (max-width: 768px) {
-  .footer {
-    justify-content: center !important;
-  }
-}
-</style>

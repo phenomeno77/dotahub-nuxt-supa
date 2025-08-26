@@ -149,24 +149,21 @@ const avatarLabel = computed(() =>
       },
     }"
   >
-    <template #title
-      ><!-- HEADER -->
-      <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+    <template #title>
+      <!-- HEADER -->
+      <div class="flex justify-between items-center mb-2 px-1">
         <!-- Avatar + Username + Timestamp -->
-        <div class="d-flex align-items-center overflow-hidden">
+        <div class="flex items-center overflow-hidden">
           <Avatar
             :image="avatarImage"
             :label="avatarLabel"
-            class="me-2 flex-shrink-0"
+            class="mr-2 flex-shrink-0"
             size="large"
             shape="circle"
           />
-          <div
-            style="max-width: 400px"
-            class="d-flex flex-column overflow-hidden"
-          >
+          <div style="max-width: 400px" class="flex flex-col overflow-hidden">
             <p
-              class="mb-0 fw-bold d-flex align-items-center"
+              class="mb-0 font-bold flex items-center"
               :title="comment.user?.username ?? ''"
             >
               <template v-if="loggedIn">
@@ -198,7 +195,6 @@ const avatarLabel = computed(() =>
                 </span>
               </template>
             </p>
-
             <small class="postedAgo"
               >Posted {{ dayjs(comment.createdAt).fromNow() }}</small
             >
@@ -212,7 +208,7 @@ const avatarLabel = computed(() =>
             currentUser.role === UserRole.admin ||
             currentUser.publicId === props.postUserPublicId
           "
-          class="d-flex align-items-center gap-1 flex-shrink-0"
+          class="flex items-center gap-1 flex-shrink-0"
         >
           <Button
             icon="pi pi-ellipsis-v"
@@ -228,8 +224,10 @@ const avatarLabel = computed(() =>
             :model="editCommentItems"
             :popup="true"
           />
-        </div></div
-    ></template>
+        </div>
+      </div>
+    </template>
+
     <template #content>
       <!-- Normal View -->
       <div v-if="!editing" class="comment-content mb-1">
@@ -237,18 +235,16 @@ const avatarLabel = computed(() =>
       </div>
 
       <!-- Edit Mode -->
-      <div v-else class="d-flex flex-column gap-2">
-        <div class="position-relative d-flex w-100">
-          <!-- Textarea: full width on mobile, shared row with avatar on desktop -->
+      <div v-else class="flex flex-col gap-2">
+        <div class="relative flex w-full">
           <Textarea
             v-model="editContent"
             rows="1"
             autoResize
-            class="flex-grow-1 w-100"
+            class="flex-grow w-full"
             :maxlength="fixed_values.COMMENT_MAX_TEXT_LENGTH"
             :placeholder="labels.COMMENT_PLACEHOLDER"
           />
-
           <span class="char-counter">
             {{ editContent?.length ?? 0 }}/{{
               fixed_values.COMMENT_MAX_TEXT_LENGTH
@@ -256,7 +252,7 @@ const avatarLabel = computed(() =>
           </span>
         </div>
 
-        <div class="d-flex justify-content-end gap-2">
+        <div class="flex justify-end gap-2">
           <Button
             icon="pi pi-check"
             :label="buttons.SAVE"
@@ -274,7 +270,7 @@ const avatarLabel = computed(() =>
       </div>
 
       <!-- Expand/Collapse -->
-      <div class="d-flex justify-content-end">
+      <div class="flex justify-end">
         <Button
           v-if="comment.content.length > 100 && !editing"
           variant="link"

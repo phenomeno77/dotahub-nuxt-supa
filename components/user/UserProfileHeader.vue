@@ -13,7 +13,7 @@ const avatarLabel = computed(() =>
 </script>
 
 <template>
-  <div class="d-flex items-center gap-4 border-b pb-4 mb-4">
+  <div class="flex items-center gap-4 border-b pb-4 mb-4">
     <!-- Avatar -->
     <Avatar
       :image="avatarImage"
