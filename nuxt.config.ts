@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from "nuxt/config";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
@@ -33,6 +34,7 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: true,
     },
+    plugins: [tailwindcss()],
   },
 
   primevue: {
