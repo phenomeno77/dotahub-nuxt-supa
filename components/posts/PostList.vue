@@ -118,112 +118,138 @@ onBeforeUnmount(async () => {
     class="absolute left-0 right-0 overflow-auto"
     style="top: 80px; bottom: 40px"
   >
-    <div class="container mx-auto py-4 flex justify-center">
-      <!-- Center Column -->
-      <div class="w-full md:w-1/2 p-0 px-4">
-        <!-- Alerts -->
-        <BannedAlert
-          v-if="isBanned"
-          :ban-reason="banReason"
-          :ban-expiration="banExpiration"
-        />
-        <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
-
-        <!-- Load New Posts Button -->
-        <div v-if="loadNewestPosts" class="mb-3 flex w-full justify-center">
-          <Button
-            @click="reloadNewPosts"
-            severity="info"
-            icon="pi pi-refresh"
-            variant="text"
-            :label="buttons.LOAD_NEW_POSTS"
+    <!-- wrap everything you want blurred in this container -->
+    <div :class="['scroll-content', { 'is-blurred': !loggedIn }]">
+      <div class="container mx-auto py-4 flex justify-center">
+        <!-- Center Column -->
+        <div class="w-full md:w-1/2 p-0 px-4">
+          <!-- Alerts -->
+          <BannedAlert
+            v-if="isBanned"
+            :ban-reason="banReason"
+            :ban-expiration="banExpiration"
           />
-        </div>
+          <SteamLoginFailedAlert v-else-if="steamLoginFailed" />
 
-        <!-- Virtual Scroller -->
-        <DynamicScroller :items="posts" :min-item-size="430" page-mode>
-          <template #default="{ item, index, active }">
-            <DynamicScrollerItem
-              class="flex flex-col gap-5"
-              :item="item"
-              :active="active"
-              :size-dependencies="[item.description]"
-              :data-index="index"
-              :data-active="active"
-              :key="item.id"
+          <!-- Load New Posts Button -->
+          <div v-if="loadNewestPosts" class="mb-3 flex w-full justify-center">
+            <Button
+              @click="reloadNewPosts"
+              severity="info"
+              icon="pi pi-refresh"
+              variant="text"
+              :label="buttons.LOAD_NEW_POSTS"
+            />
+          </div>
+
+          <!-- Virtual Scroller -->
+          <DynamicScroller :items="posts" :min-item-size="430" page-mode>
+            <template #default="{ item, index, active }">
+              <DynamicScrollerItem
+                class="flex flex-col gap-5"
+                :item="item"
+                :active="active"
+                :size-dependencies="[item.description]"
+                :data-index="index"
+                :data-active="active"
+                :key="item.id"
+              >
+                <PostItem :post="item" />
+              </DynamicScrollerItem>
+            </template>
+          </DynamicScroller>
+
+          <!-- Skeleton loaders -->
+          <div v-if="loadingStore.isLoading || loadingMore">
+            <div
+              class="mb-3"
+              v-for="n in fixed_values.POSTS_PER_PAGE"
+              :key="'skeleton-' + n"
             >
-              <PostItem :post="item" />
-            </DynamicScrollerItem>
-          </template>
-        </DynamicScroller>
+              <PostSkeleton />
+            </div>
+          </div>
 
-        <!-- Skeleton loaders -->
-        <div v-if="loadingStore.isLoading || loadingMore">
+          <!-- End-of-list message -->
           <div
-            class="mb-3"
-            v-for="n in fixed_values.POSTS_PER_PAGE"
-            :key="'skeleton-' + n"
+            v-if="posts.length > 0 && posts.length >= total && !isBanned"
+            class="text-center mt-4 text-gray-500 italic text-sm opacity-80"
           >
-            <PostSkeleton />
+            You've reached the end! 🎉
+          </div>
+
+          <div
+            v-else-if="
+              filterSearchStore.searchQuery && posts.length === 0 && !isBanned
+            "
+            class="text-center mt-4"
+          >
+            No posts found for this user.
           </div>
         </div>
-
-        <!-- End-of-list message -->
-        <div
-          v-if="posts.length > 0 && posts.length >= total && !isBanned"
-          class="text-center mt-4 text-gray-500 italic text-sm opacity-80"
-        >
-          You've reached the end! 🎉
-        </div>
-
-        <div
-          v-else-if="
-            filterSearchStore.searchQuery && posts.length === 0 && !isBanned
-          "
-          class="text-center mt-4"
-        >
-          No posts found for this user.
-        </div>
-      </div>
-
-      <!-- Blur overlay -->
-      <div
-        v-if="!loggedIn"
-        class="absolute top-0 left-0 w-full h-full"
-        style="backdrop-filter: blur(4px); z-index: 10"
-      ></div>
-
-      <!-- Frosted glass login box -->
-      <div
-        v-if="!loadingStore.isLoading && !loggedIn"
-        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center rounded-2xl shadow-lg p-4 flex flex-col justify-center items-center gap-2"
-        style="
-          background-color: rgba(var(--bs-dark-rgb), 0.6);
-          backdrop-filter: blur(12px) saturate(160%);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          z-index: 20;
-          width: 340px;
-          height: 170px;
-        "
-      >
-        <h5 class="font-bold text-white">Log in to continue</h5>
-
-        <Button class="fancy-login-btn" @click="handleLoginSteam">
-          <img :src="steamLogo" alt="Steam Logo" />
-          {{ buttons.SIGN_IN }}
-        </Button>
       </div>
     </div>
+  </div>
+
+  <!-- Frosted glass login box (moved OUTSIDE the scrollable container so it won't be blurred) -->
+  <div v-if="!loadingStore.isLoading && !loggedIn" class="login-box">
+    <h5 class="font-bold text-white">Log in to continue</h5>
+
+    <Button class="fancy-login-btn" @click="handleLoginSteam">
+      <img :src="steamLogo" alt="Steam Logo" />
+      {{ buttons.SIGN_IN }}
+    </Button>
   </div>
 </template>
 
 <style scoped>
+.scroll-content {
+  transition: filter 180ms ease, opacity 180ms ease;
+  will-change: filter;
+}
+
+.scroll-content.is-blurred {
+  filter: blur(8px) saturate(130%);
+  -webkit-filter: blur(8px) saturate(130%);
+  pointer-events: none;
+  user-select: none;
+  touch-action: none; /* optional: comment out if you want touch interaction preserved */
+}
+
+/* Login box styling — keep it sharp and on top */
+.login-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50; /* higher than content */
+  width: 340px;
+  height: 170px;
+  padding: 1rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  background-color: rgba(var(--bs-dark-rgb), 0.6);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 28px rgba(2, 6, 23, 0.6);
+}
+
+/* keep the login button above the box visuals */
+.login-box .fancy-login-btn {
+  z-index: 51;
+}
+
 .fancy-login-btn {
   background: linear-gradient(135deg, #0dcaf0, #0d6efd);
-  border: none;
   box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
   transition: all 0.2s ease;
-  color: #fff;
   height: 48px;
   width: 100%;
 }

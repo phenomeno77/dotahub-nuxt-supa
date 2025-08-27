@@ -59,7 +59,7 @@ const submitFeedback = async () => {
 
 <template>
   <div
-    class="absolute inset-x-0 top-20 bottom-10 flex justify-center items-center px-2 overflow-auto"
+    class="absolute inset-x-0 top-20 bottom-10 flex justify-center items-center px-4 overflow-auto"
   >
     <Card
       :pt="{
@@ -68,7 +68,7 @@ const submitFeedback = async () => {
             background: 'var(--bg-post)',
             color: 'var(--text-color)',
             border: 'none',
-            width: '40%',
+            width: '100%',
             maxWidth: '800px',
             minWidth: '300px',
           },
