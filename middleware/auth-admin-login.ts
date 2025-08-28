@@ -13,5 +13,7 @@ export default defineNuxtRouteMiddleware(async () => {
   }
 
   // Logged-in but not admin — redirect somewhere else or show an error
-  return navigateTo("/"); // Or a 403 page
+  throw createError({
+    statusCode: 404,
+  });
 });

@@ -1,9 +1,11 @@
 import { UserRole } from "~/types/enums";
 
-export default defineNuxtRouteMiddleware(async () => {
-  const { user } = useUserSession();
+export default defineNuxtRouteMiddleware(() => {
+  const { user, loggedIn } = useUserSession();
 
-  if (user.value.role !== UserRole.admin) {
-    return navigateTo("/");
+  if (!loggedIn.value || user.value.role !== UserRole.admin) {
+    throw createError({
+      statusCode: 404,
+    });
   }
 });
