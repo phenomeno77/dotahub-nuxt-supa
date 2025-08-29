@@ -296,7 +296,12 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column field="type" header="Feedback Type" sortable>
+        <Column
+          field="type"
+          header="Feedback Type"
+          sortable
+          :showFilterMenu="false"
+        >
           <template #body="{ data }">
             <Tag :value="getFeedbackLabel(data.type)" severity="secondary" />
           </template>
@@ -312,7 +317,7 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column field="status" header="Status" sortable>
+        <Column field="status" header="Status" sortable :showFilterMenu="false">
           <template #body="{ data }">
             <Tag
               :value="getFeedbackStatusLabel(data.status)"
@@ -349,6 +354,7 @@ onMounted(async () => {
           sortable
           dataType="date"
           filterField="createdAt"
+          :showFilterMenu="false"
         >
           <template #body="{ data }">
             {{ formatDate(data.createdAt) }}

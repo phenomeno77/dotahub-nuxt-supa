@@ -430,7 +430,7 @@ onMounted(async () => {
         </Column>
 
         <!-- ROLE COLUMN -->
-        <Column field="role" header="Role" sortable>
+        <Column field="role" header="Role" sortable :showFilterMenu="false">
           <template #filter="{ filterModel, filterCallback }">
             <Select
               v-model="filterModel.value"
@@ -442,7 +442,12 @@ onMounted(async () => {
         </Column>
 
         <!-- USER STATUS COLUMN -->
-        <Column field="userStatus" header="Status" sortable>
+        <Column
+          field="userStatus"
+          header="Status"
+          sortable
+          :showFilterMenu="false"
+        >
           <template #body="{ data }">
             <Tag
               :value="data.userStatus"
@@ -470,7 +475,12 @@ onMounted(async () => {
         </Column>
 
         <!-- IS ONLINE COLUMN -->
-        <Column field="lastSeenAt" header="Online" sortable>
+        <Column
+          field="lastSeenAt"
+          header="Online"
+          sortable
+          :showFilterMenu="false"
+        >
           <template #body="{ data }">
             <Tag
               :value="isUserOnline(data.lastSeenAt) ? 'Yes' : 'No'"
